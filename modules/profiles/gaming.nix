@@ -20,6 +20,17 @@
       desktopSession = "plasma";
     };
 
+programs.gamemode.enable = true;
+
+programs.mangohud.enable = true;
+
+environment.systemPackages = with pkgs; [
+  protonup-qt
+  steamtinkerlaunch
+  goverlay
+  heroic
+];
+
     programs.steam = {
       enable = lib.mkDefault true;
       remotePlay.openFirewall = lib.mkDefault true;
