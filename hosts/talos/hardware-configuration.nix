@@ -2,6 +2,7 @@
 # and may be overwritten by future invocations.  Please make changes
 # to /etc/nixos/configuration.nix instead.
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 {
   config,
   lib,
@@ -56,6 +57,8 @@
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 =======
+=======
+>>>>>>> Stashed changes
 { config, lib, pkgs, modulesPath, ... }:
 
 {
@@ -83,5 +86,8 @@
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 }
