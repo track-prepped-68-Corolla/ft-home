@@ -22,9 +22,8 @@
 
 programs.gamemode.enable = true;
 
-programs.mangohud.enable = true;
-
 environment.systemPackages = with pkgs; [
+  mangohud
   protonup-qt
   steamtinkerlaunch
   goverlay
