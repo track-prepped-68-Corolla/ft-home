@@ -16,8 +16,8 @@
 
   # --- Modules ---
   
-  #modules.desktops.plasma.enable = true;
-  modules.services.sddm.enable = true;
+  modules.desktops.plasma.enable = true;
+  #modules.services.sddm.enable = true;
   modules.hardware.amd.enable = true;  
   modules.hardware.nvidia.enable = true;
   modules.services.printing.enable = true;
