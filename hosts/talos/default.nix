@@ -21,7 +21,7 @@
   modules.hardware.nvidia.enable = true;
   modules.services.printing.enable = true;
 
-  modules.profiles.gaming.enable = true;
+  modules.profiles.couchgaming.enable = true;
   modules.system.virt.enable = true;
   modules.system.podman.enable = true;
   modules.themes.catppuccin.enable = true;
