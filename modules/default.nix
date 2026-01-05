@@ -22,11 +22,11 @@
     ./services/sddm.nix
     ./services/printing.nix
     ./services/tailscale.nix
+    ./services/nfs.nix
 
     # System
     ./system/virt.nix
     ./system/podman.nix
-    #./system/cockpit.nix
     ./system/user.nix
     ./system/nh.nix
 
