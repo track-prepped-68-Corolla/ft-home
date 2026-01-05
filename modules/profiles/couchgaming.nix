@@ -20,15 +20,15 @@
       desktopSession = "plasma";
     };
 
-programs.gamemode.enable = true;
+    programs.gamemode.enable = true;
 
-environment.systemPackages = with pkgs; [
-  mangohud
-  protonup-qt
-  steamtinkerlaunch
-  goverlay
-  heroic
-];
+    environment.systemPackages = with pkgs; [
+      mangohud
+      protonup-qt
+      steamtinkerlaunch
+      goverlay
+      heroic
+    ];
 
     programs.steam = {
       enable = lib.mkDefault true;

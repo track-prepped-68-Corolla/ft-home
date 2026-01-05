@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   options.modules.hardware.nvidia = {
@@ -11,7 +16,10 @@
       enable32Bit = true;
     };
 
-    services.xserver.videoDrivers = [ "amdgpu" "nvidia" ];
+    services.xserver.videoDrivers = [
+      "amdgpu"
+      "nvidia"
+    ];
 
     hardware.nvidia = {
       modesetting.enable = true;
@@ -26,12 +34,12 @@
           enableOffloadCmd = true;
         };
         # Ensure these are the DECIMAL values of your Hex Bus IDs
-        amdgpuBusId = "PCI:35:0:0"; 
+        amdgpuBusId = "PCI:35:0:0";
         nvidiaBusId = "PCI:45:0:0";
       };
 
       powerManagement = {
-        enable = true; 
+        enable = true;
         finegrained = true; # Supported by 3090 to save power
       };
     };

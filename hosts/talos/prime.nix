@@ -15,7 +15,10 @@
   };
 
   # Load the nvidia driver
-  services.xserver.videoDrivers = [ "amdgpu" "nvidia" ];
+  services.xserver.videoDrivers = [
+    "amdgpu"
+    "nvidia"
+  ];
 
   hardware.nvidia = {
     # Use the NVidia open source kernel module
@@ -34,10 +37,10 @@
         enableOffloadCmd = true;
       };
 
-     powerManagement = {
-      enable = false;
-      finegrained = false;
-     };
+      powerManagement = {
+        enable = false;
+        finegrained = false;
+      };
 
       # AMD: 23:00.0 -> 35:0:0
       # NVIDIA: 2d:00.0 -> 45:0:0

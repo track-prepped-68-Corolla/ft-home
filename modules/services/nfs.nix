@@ -1,9 +1,14 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.modules.services.nfs;
-  
-  # 1. Define your Inventory here. 
+
+  # 1. Define your Inventory here.
   # This is the only place you ever need to touch IPs or Paths.
   knownMounts = {
     streaming = {
@@ -17,7 +22,12 @@ let
   mkMount = name: {
     device = "${knownMounts.${name}.server}:${knownMounts.${name}.path}";
     fsType = "nfs";
-    options = [ "x-systemd.automount" "noauto" "_netdev" "noresvport" ];
+    options = [
+      "x-systemd.automount"
+      "noauto"
+      "_netdev"
+      "noresvport"
+    ];
   };
 
 in
@@ -29,10 +39,15 @@ in
 
   config = lib.mkMerge [
     # 1. Base NFS support (if ANY share is enabled)
-    (lib.mkIf (lib.any (x: x) [ cfg.streaming.enable cfg.downloads.enable cfg.work.enable ]) {
-      boot.supportedFilesystems = [ "nfs" ];
-      environment.systemPackages = [ pkgs.nfs-utils ];
-    })
+    (lib.mkIf
+      (lib.any (x: x) [
+        cfg.streaming.enable
+      ])
+      {
+        boot.supportedFilesystems = [ "nfs" ];
+        environment.systemPackages = [ pkgs.nfs-utils ];
+      }
+    )
 
     # 2. Mount Logic
     (lib.mkIf cfg.streaming.enable {
