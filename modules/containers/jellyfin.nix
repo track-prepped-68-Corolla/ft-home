@@ -52,7 +52,7 @@ in
 
       extraOptions = [
         "--device=/dev/dri/renderD128:/dev/dri/renderD128"
-        "--device=/dev/dri/card0:/dev/dri/card1"
+        "--device=/dev/dri/card1:/dev/dri/card0"
         # If you want to use OpenCL tone mapping with ROCm:
         "--device=/dev/kfd:/dev/kfd"
       ];
