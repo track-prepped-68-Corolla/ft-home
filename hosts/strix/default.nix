@@ -32,6 +32,11 @@
   modules.themes.catppuccin.enable = true;
   modules.services.tailscale.enable = true;
 
+  #network drives
+  modules.services.nfs = {
+    streaming.enable = true;
+  };
+
   #containers
   modules.system.podman.enable = true;
   modules.containers.distrobox.enable = true;
