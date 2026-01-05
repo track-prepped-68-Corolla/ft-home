@@ -37,5 +37,6 @@
     ./containers/ai.nix
     ./containers/distrobox.nix
     ./containers/dozzle.nix
+    ./containers/jellyfin.nix
   ];
 }

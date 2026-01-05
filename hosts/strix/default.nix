@@ -42,6 +42,7 @@
   modules.containers.distrobox.enable = true;
   modules.containers.dozzle.enable = true;
   modules.containers.distrobox.enableBoxBuddy = true;
+  modules.containers.jellyfin.enable = true;
   #modules.containers.mgmt-box.enable = true;
   modules.containers.ai = {
     enable = true;
