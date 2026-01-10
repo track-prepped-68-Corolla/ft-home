@@ -1,8 +1,6 @@
 {
   description = "NixOS Configuration";
 
-  #test comment
-
   inputs = {
     # --- Core ---
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -15,6 +13,12 @@
     # --- Hardware & System ---
     nixos-hardware.url = "github:track-prepped-68-Corolla/nixos-hardware";
 
+    # [NEW] CachyOS Kernel (Release Branch = Stable + Cached)
+    # We use the release branch to ensure we get the pre-built binaries
+    nix-cachyos = {
+      url = "github:xddxdd/nix-cachyos-kernel/release";
+    };
+
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -24,7 +28,7 @@
     jovian-nixos.url = "github:jovian-experiments/jovian-nixos";
 
     # --- Desktop & Theming ---
-    nixos-cosmic.url = "github:lilyinstarlight/nixos-cosmic";
+    #    nixos-cosmic.url = "github:lilyinstarlight/nixos-cosmic";
 
     plasma-manager = {
       url = "github:nix-community/plasma-manager";
@@ -39,17 +43,16 @@
     stylix.inputs.nixpkgs.follows = "nixpkgs";
 
     # --- Applications ---
-    nixvim = {
-      url = "github:nix-community/nixvim";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    #nixvim = {
+    # url = "github:nix-community/nixvim";
+    # inputs.nixpkgs.follows = "nixpkgs";
+    #};
   };
 
   outputs =
     { self, nixpkgs, ... }@inputs:
     let
       # 1. SHARED ARGUMENTS
-      # Makes 'inputs' available to all modules
       sharedArgs = {
         inherit inputs;
         inherit (inputs)
@@ -57,79 +60,90 @@
           home-manager
           jovian-nixos
           nixos-hardware
+          nix-cachyos
           ;
       };
 
       # 2. SHARED MODULES
-      # Applied to every host in the fleet
       sharedModules = [
-        # The Hub: Imports all your custom modules
+        # The Hub
         ./modules/default.nix
 
-        # External Inputs
+        # External Modules
         inputs.home-manager.nixosModules.default
         inputs.sops-nix.nixosModules.sops
         inputs.catppuccin.nixosModules.catppuccin
         inputs.stylix.nixosModules.stylix
-        inputs.nixos-cosmic.nixosModules.default
+        #inputs.nixos-cosmic.nixosModules.default
         inputs.jovian-nixos.nixosModules.default
 
         # --- GLOBAL CONFIGURATION ---
-        {
-          config = {
-            # 1. System Basics
-            system.stateVersion = "25.05";
-            nixpkgs.config.allowUnfree = true;
+        # Converted to a function to access 'inputs' for the overlay
+        (
+          { inputs, ... }:
+          {
 
-            # --- CONNECTIVITY ---
-            networking.networkmanager.enable = true;
+            config = {
+              # 1. System Basics
+              system.stateVersion = "25.05";
+              nixpkgs.config.allowUnfree = true;
 
-            # Enable Bluetooth & Power it up on boot
-            hardware.bluetooth = {
-              enable = true;
-              powerOnBoot = true;
-            };
+              nixpkgs.overlays = [ inputs.nix-cachyos.overlays.pinned ];
 
-            # 2. Localization (US/NY)
-            time.timeZone = "America/New_York";
-            i18n.defaultLocale = "en_US.UTF-8";
-
-            # 3. Global Bootloader (GRUB for UEFI)
-            # We explicitly disable systemd-boot to avoid conflicts with auto-generated hardware configs
-            boot.loader = {
-              systemd-boot.enable = false;
-
-              grub = {
+              # --- CONNECTIVITY ---
+              networking.networkmanager.enable = true;
+              hardware.bluetooth = {
                 enable = true;
-                efiSupport = true;
-                device = "nodev";
-                useOSProber = true;
+                powerOnBoot = true;
               };
 
-              efi.canTouchEfiVariables = true;
-            };
+              # 2. Localization
+              time.timeZone = "America/New_York";
+              i18n.defaultLocale = "en_US.UTF-8";
 
-            # 4. Nix Settings & Caches
-            nix.settings = {
-              experimental-features = [
-                "nix-command"
-                "flakes"
+              # 3. Bootloader
+              boot.loader = {
+                systemd-boot.enable = false;
+                grub = {
+                  enable = true;
+                  efiSupport = true;
+                  device = "nodev";
+                  useOSProber = true;
+                };
+                efi.canTouchEfiVariables = true;
+              };
+
+              # 4. Nix Settings & Caches
+              nix.settings = {
+                experimental-features = [
+                  "nix-command"
+                  "flakes"
+                ];
+
+                # [NEW] Binary Cache for CachyOS Kernels
+                # Without this, you will compile the kernel for 4+ hours.
+                substituters = [
+                  "https://cosmic.cachix.org/"
+                  "https://attic.xuyh0120.win/lantian" # CachyOS Maintainer Cache
+                ];
+
+                trusted-public-keys = [
+                  "cosmic.cachix.org-1:Dya9IyXD4xdBehWjrkPv6rtxpmMdRel02smYzA85dPE="
+                  "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc=" # Key for CachyOS
+                ];
+              };
+
+              # 5. Home Manager Integration
+              home-manager.sharedModules = [
+                inputs.plasma-manager.homeModules.plasma-manager
               ];
-              substituters = [ "https://cosmic.cachix.org/" ];
-              trusted-public-keys = [ "cosmic.cachix.org-1:Dya9IyXD4xdBehWjrkPv6rtxpmMdRel02smYzA85dPE=" ];
             };
-
-            # 5. Home Manager Integration
-            home-manager.sharedModules = [
-              inputs.plasma-manager.homeModules.plasma-manager
-            ];
-          };
-        }
+          }
+        )
       ];
     in
     {
       nixosConfigurations = {
-
         # --- Host: ROG (ASUS Flow) ---
         rog = nixpkgs.lib.nixosSystem {
           specialArgs = sharedArgs;
@@ -163,7 +177,6 @@
             ./hosts/strix/default.nix
           ];
         };
-
       };
     };
 }

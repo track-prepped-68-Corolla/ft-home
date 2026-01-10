@@ -23,7 +23,13 @@
       enable = lib.mkDefault true;
       flavor = lib.mkDefault "mocha";
     };
+    #LMFAO
+    #fonts.packages = builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts);
 
-    fonts.packages = builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts);
+    fonts.packages = with pkgs.nerd-fonts; [
+      hack
+      jetbrains-mono
+    ];
+
   };
 }

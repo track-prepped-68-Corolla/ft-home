@@ -5,6 +5,23 @@
     ./hardware-configuration.nix
   ];
 
+  sops.defaultSopsFormat = "yaml";
+  sops.defaultSopsFile = ../../secrets.yaml;
+  sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+  sops.age.keyFile = "/var/lib/sops-nix/key.txt";
+  sops.age.generateKey = false;
+
+  networking.firewall.interfaces."podman0".allowedUDPPorts = [
+    53
+    80
+    443
+  ];
+  networking.firewall.interfaces."podman0".allowedTCPPorts = [
+    53
+    80
+    443
+  ];
+
   networking.hostName = "strix";
   boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-latest;
 
@@ -43,6 +60,8 @@
   modules.containers.dozzle.enable = true;
   modules.containers.distrobox.enableBoxBuddy = true;
   modules.containers.jellyfin.enable = true;
+  modules.containers.comfyrocm.enable = true;
+  modules.containers.searxng.enable = true;
   #modules.containers.mgmt-box.enable = true;
   modules.containers.ai = {
     enable = true;

@@ -11,6 +11,7 @@
   config = {
     environment.systemPackages = with pkgs; [
       nixos-generators
+      direnv
       sops
       wget
       curl

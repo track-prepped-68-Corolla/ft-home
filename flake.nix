@@ -5,6 +5,11 @@
     # --- Core ---
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
+    nur = {
+      url = "github:nix-community/NUR";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -88,7 +93,10 @@
               system.stateVersion = "25.05";
               nixpkgs.config.allowUnfree = true;
 
-              nixpkgs.overlays = [ inputs.nix-cachyos.overlays.pinned ];
+              nixpkgs.overlays = [
+                inputs.nix-cachyos.overlays.pinned
+                inputs.nur.overlays.default
+              ];
 
               # --- CONNECTIVITY ---
               networking.networkmanager.enable = true;
