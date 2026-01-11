@@ -50,9 +50,9 @@
   modules.services.tailscale.enable = true;
 
   #network drives
-  modules.services.nfs = {
-    streaming.enable = true;
-  };
+  #  modules.services.nfs = {
+  #    streaming.enable = true;
+  #  };
 
   #containers
   modules.system.podman.enable = true;
