@@ -32,6 +32,8 @@ in
       login.u2fAuth = true;
       sudo.u2fAuth = true;
       sddm.u2fAuth = true;
+      cosmic-greeter.u2fAuth = true;
+      cosmic-lock.u2fAuth = true;
     };
 
     # Prompt user to touch the key (visual feedback)
