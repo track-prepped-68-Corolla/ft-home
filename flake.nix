@@ -41,8 +41,8 @@
       inputs.home-manager.follows = "home-manager";
     };
 
-    catppuccin.url = "github:catppuccin/nix";
-    catppuccin.inputs.nixpkgs.follows = "nixpkgs";
+    #catppuccin.url = "github:catppuccin/nix";
+    #catppuccin.inputs.nixpkgs.follows = "nixpkgs";
 
     stylix.url = "github:nix-community/stylix";
     stylix.inputs.nixpkgs.follows = "nixpkgs";
@@ -61,7 +61,7 @@
       sharedArgs = {
         inherit inputs;
         inherit (inputs)
-          catppuccin
+          # catppuccin
           home-manager
           jovian-nixos
           nixos-hardware
@@ -77,7 +77,7 @@
         # External Modules
         inputs.home-manager.nixosModules.default
         inputs.sops-nix.nixosModules.sops
-        inputs.catppuccin.nixosModules.catppuccin
+        #inputs.catppuccin.nixosModules.catppuccin
         inputs.stylix.nixosModules.stylix
         #inputs.nixos-cosmic.nixosModules.default
         inputs.jovian-nixos.nixosModules.default

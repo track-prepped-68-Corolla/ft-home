@@ -46,7 +46,7 @@
 
   modules.system.virt.enable = true;
   modules.system.nh.enable = true;
-  modules.themes.catppuccin.enable = true;
+  #modules.themes.catppuccin.enable = true;
   modules.services.tailscale.enable = true;
 
   #network drives

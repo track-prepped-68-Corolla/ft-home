@@ -31,7 +31,7 @@
     ./system/nh.nix
 
     # Themes
-    ./themes/catppuccin.nix
+    #./themes/catppuccin.nix
 
     # Containers
     ./containers/ai.nix
