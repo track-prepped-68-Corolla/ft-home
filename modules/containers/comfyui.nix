@@ -22,17 +22,19 @@ let
     echo "--- Base: Python 3.12 (Debian Bookworm) ---"
 
     # 1. Minimal System Dependencies
-    # We DO NOT install rocm via apt. We rely on the pip packages below.
-    # We only need git (for cloning) and GL libs (for image processing).
     apt-get update
     apt-get install -y git libgl1 libglib2.0-0
 
     cd $WORK_DIR
 
-    # 2. Clone ComfyUI
+    # 2. Clone ComfyUI (Safe for directory with Wheels)
     if [ ! -d "$WORK_DIR/.git" ]; then
-        echo "Cloning ComfyUI..."
-        git clone https://github.com/comfyanonymous/ComfyUI .
+        echo "Directory not empty (Wheels detected). initializing git manually..."
+        git init
+        git remote add origin https://github.com/comfyanonymous/ComfyUI
+        git fetch origin
+        # Force checkout master, overwriting conflicts if any (except your wheels)
+        git checkout -f origin/master -b master
     fi
 
     # 3. Python Environment
@@ -46,29 +48,28 @@ let
         pip uninstall torch torchvision torchaudio -y
 
         echo "Installing ROCm libraries via Pip..."
-        # This installs the runtime into the venv, avoiding the apt crash
+        # Installs the runtime (drivers) into the python environment
         pip install --index-url https://d2awnip2yjpvqn.cloudfront.net/v2/gfx1151/ rocm[libraries,devel]
 
         # 4. Install Wheels
-        # Make sure your manually downloaded wheels are in /var/lib/comfyui-rocm
         if ls *.whl 1> /dev/null 2>&1; then
             echo "Installing local wheels..."
             pip install ./*.whl
         else 
             echo "WARNING: No .whl files found!"
             echo "Please place the 4 Strix Halo wheels in $dataDir"
-            sleep 10
+            # We don't exit, just in case you installed them manually before
+            sleep 5
         fi
 
         echo "Installing Requirements..."
         pip install -r requirements.txt
         
         # 5. Linker Fix
-        # This points the OS to the ROCm libs we just installed via pip
-        # Note: In 'python:3.12' image, site-packages is the standard path
+        # Points Linux to the ROCm libs inside the venv
         ROCM_LIB_PATH="$VENV_DIR/lib/python3.12/site-packages/_rocm_sdk_core/lib"
         echo "Adding $ROCM_LIB_PATH to ld.so.conf"
-        echo "$ROCM_LIB_PATH" >> /etc/ld.so.conf
+        echo "$ROCM_LIB_PATH" > /etc/ld.so.conf.d/rocm.conf
         ldconfig
     else
         source $VENV_DIR/bin/activate
@@ -103,7 +104,6 @@ in
     ];
 
     virtualisation.oci-containers.containers.comfyui-rocm = {
-      # Official Python image = No PPA needed, no apt conflicts
       image = "python:3.12-bookworm";
       autoStart = true;
       ports = [ "${toString cfg.port}:8188" ];
