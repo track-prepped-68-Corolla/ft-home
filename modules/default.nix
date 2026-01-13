@@ -38,7 +38,7 @@
     ./containers/distrobox.nix
     ./containers/dozzle.nix
     ./containers/jellyfin.nix
-    ./containers/comfyrocm.nix
+    ./containers/comfyui.nix
     ./containers/searxng.nix
   ];
 }
