@@ -38,7 +38,7 @@
   # HARDWARE: Switched to AMD for Strix Halo 395
   modules.hardware.amd.enable = true;
   modules.hardware.asus.enable = true;
-  modules.hardware.yubikey.enable = true;
+  #modules.hardware.yubikey.enable = true;
   modules.services.printing.enable = true;
 
   # Gaming Profile

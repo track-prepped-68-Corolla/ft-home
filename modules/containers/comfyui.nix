@@ -19,56 +19,57 @@ let
     VENV_DIR="$WORK_DIR/venv"
 
     echo "--- Starting ComfyUI ROCm (Strix Halo/gfx1151) ---"
-    echo "--- Base: Ubuntu 24.04 ---"
+    echo "--- Base: Debian Bookworm (12) + Python 3.12 ---"
 
-    # 1. Install System Dependencies (Ephemeral)
-    # Since we are using a bare Ubuntu image now, we must install ROCm deps manually.
+    # 1. Install System Dependencies
+    # 'python:3.12-bookworm' is very minimal. We need the basics.
     apt-get update
-    apt-get install -y git wget python3 python3-pip python3-venv \
-                       libgl1 libglib2.0-0 software-properties-common gnupg2
+    apt-get install -y wget git software-properties-common gnupg2 libgl1 libglib2.0-0
 
-    # 2. Add ROCm Repository (Required for drivers inside container)
-    if [ ! -f /etc/apt/sources.list.d/amdgpu.list ]; then
+    # 2. Add ROCm Repository
+    # AMD doesn't have a "Debian" repo, so we use the Ubuntu 22.04 (jammy) one.
+    # Debian 12 can run these binaries perfectly.
+    if [ ! -f /etc/apt/sources.list.d/rocm.list ]; then
         echo "Adding ROCm repositories..."
-        wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key | apt-key add -
-        echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/6.3.1/ jammy main' | tee /etc/apt/sources.list.d/rocm.list
+        mkdir -p /etc/apt/keyrings
+        wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key | gpg --dearmor -o /etc/apt/keyrings/rocm.gpg
+        echo 'deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/rocm/apt/6.3.1/ jammy main' | tee /etc/apt/sources.list.d/rocm.list
         apt-get update
     fi
 
-    # Install basic HIP runtime (needed for the GPU to talk to the container)
-    # We use --no-install-recommends to keep it small
+    # 3. Install ROCm Runtime
+    # Since Debian doesn't have its own rocm packages, this shouldn't conflict.
     apt-get install -y --no-install-recommends rocm-hip-runtime-dev
 
     cd $WORK_DIR
 
-    # 3. Clone ComfyUI (Persistent)
+    # 4. Clone ComfyUI (Persistent)
     if [ ! -d "$WORK_DIR/.git" ]; then
         echo "Cloning ComfyUI..."
         git clone https://github.com/comfyanonymous/ComfyUI .
     fi
 
-    # 4. Python Environment (Persistent)
+    # 5. Python Environment (Persistent)
     if [ ! -d "$VENV_DIR" ]; then
         echo "Creating persistent Python virtual environment..."
+        # We are already in a Python 3.12 image, so 'python3' is 3.12.
         python3 -m venv $VENV_DIR
         source $VENV_DIR/bin/activate
 
         echo "Uninstalling conflicting torch packages..."
+        pip install --upgrade pip
         pip uninstall torch torchvision torchaudio -y
 
         echo "Installing ROCm python libraries..."
         pip install --index-url https://d2awnip2yjpvqn.cloudfront.net/v2/gfx1151/ rocm[libraries,devel]
 
-        # 5. Handle Wheels
-        # The script attempts to download, but you likely need to place them manually in /var/lib/comfyui-rocm
+        # 6. Install Wheels
         if ls *.whl 1> /dev/null 2>&1; then
             echo "Installing local wheels found in directory..."
             pip install ./*.whl
         else 
-            echo "WARNING: No .whl files found! You must download the gfx1151 wheels manually."
-            echo "Please download: torch, torchvision, torchaudio, flash_attn for cp312"
-            echo "Place them in $dataDir on your host machine and restart."
-            # We don't exit here, so you can check logs and fix it without crashing the loop
+            echo "WARNING: No .whl files found in $WORK_DIR!"
+            echo "You must download the 4 whl files manually to $dataDir on the host."
             sleep 10
         fi
 
@@ -76,13 +77,14 @@ let
         pip install -r requirements.txt
         
         # Linker fix
-        echo /usr/local/lib/python3.12/dist-packages/_rocm_sdk_core/lib >> /etc/ld.so.conf
+        # Note: In the python docker image, site-packages is usually the standard path
+        echo /usr/local/lib/python3.12/site-packages/_rocm_sdk_core/lib >> /etc/ld.so.conf
         ldconfig
     else
         source $VENV_DIR/bin/activate
     fi
 
-    # 6. Launch
+    # 7. Launch
     echo "Launching ComfyUI..."
     export PYTORCH_TUNABLEOP_ENABLED=1 
     export MIOPEN_FIND_MODE=FAST 
@@ -111,8 +113,8 @@ in
     ];
 
     virtualisation.oci-containers.containers.comfyui-rocm = {
-      # CHANGED: Using official Ubuntu 24.04 instead of the deleted "therock" image
-      image = "ubuntu:24.04";
+      # CHANGED: Using Official Python 3.12 image (Built on Debian 12 Bookworm)
+      image = "python:3.12-bookworm";
       autoStart = true;
       ports = [ "${toString cfg.port}:8188" ];
       volumes = [
