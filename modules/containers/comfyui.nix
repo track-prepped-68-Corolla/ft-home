@@ -130,7 +130,7 @@ let
     echo "Launching ComfyUI..."
     export PYTORCH_TUNABLEOP_ENABLED=1 
     export MIOPEN_FIND_MODE=FAST 
-    export ROCBLAS_USE_HIPBLASLT=1
+    export ROCBLAS_USE_HIPBLASLT=0
 
     python3 main.py --listen 0.0.0.0 --use-flash-attention
   '';
