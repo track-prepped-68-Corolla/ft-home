@@ -1,57 +1,43 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ config, lib, pkgs, ... }:
 
 let
-  cfg = config.modules.services.nfs;
-
-  # 1. Define your Inventory here.
-  # This is the only place you ever need to touch IPs or Paths.
-  knownMounts = {
-    streaming = {
-      server = "100.73.5.28";
-      path = "/streaming";
-    };
-    # Add more here as needed...
-  };
-
-  # Helper to create the fileSystem config for a given share name
-  mkMount = name: {
-    device = "${knownMounts.${name}.server}:${knownMounts.${name}.path}";
-    fsType = "nfs";
-    options = [
-      "x-systemd.automount"
-      "noauto"
-      "_netdev"
-      "noresvport"
-    ];
-  };
-
+  cfg = config.ft.nfs;
 in
 {
-  options.modules.services.nfs = {
-    # Create an 'enable' option for every key in your knownMounts
-    streaming.enable = lib.mkEnableOption "Streaming Share";
+  options.ft.nfs = {
+    enable = lib.mkEnableOption "NFS mount management";
+    mounts = lib.mkOption {
+      type = lib.types.attrsOf (lib.types.submodule {
+        options = {
+          remotePath = lib.mkOption { type = lib.types.str; };
+          mountPoint = lib.mkOption { type = lib.types.str; };
+        };
+      });
+      default = {};
+    };
   };
 
-  config = lib.mkMerge [
-    # 1. Base NFS support (if ANY share is enabled)
-    (lib.mkIf
-      (lib.any (x: x) [
-        cfg.streaming.enable
-      ])
-      {
-        boot.supportedFilesystems = [ "nfs" ];
-        environment.systemPackages = [ pkgs.nfs-utils ];
-      }
-    )
+  config = lib.mkIf cfg.enable {
+    # Ensure NFS tools and kernel modules are present
+    environment.systemPackages = [ pkgs.nfs-utils ];
+    services.rpcbind.enable = true;
+    boot.supportedFilesystems = [ "nfs" ];
 
-    # 2. Mount Logic
-    (lib.mkIf cfg.streaming.enable {
-      fileSystems."/mnt/streaming" = mkMount "streaming";
-    })
-  ];
+    # This is the "wiring" that connects your module to the system fstab
+    fileSystems = lib.mapAttrs' (name: value: 
+      lib.nameValuePair "${value.mountPoint}" {
+        device = "${value.remotePath}";
+        fsType = "nfs";
+        options = [
+          "x-systemd.automount"
+          "noauto"
+          "x-systemd.idle-timeout=600"
+          "nfsvers=4.1"
+          "soft"
+          "intr"
+          "_netdev"
+        ];
+      }
+    ) cfg.mounts;
+  };
 }

@@ -38,7 +38,7 @@ in
 
       volumes = [
         # The requested mount
-        "/mnt/streaming:/media"
+        "100.69.165.24/streaming:/media"
 
         # Persistence
         "jellyfin-config:/config"

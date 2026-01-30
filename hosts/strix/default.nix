@@ -31,8 +31,6 @@
   superUsers = [ "joe" ];
 
   # --- Modules ---
-  #modules.desktops.plasma.enable = true;
-  #modules.services.sddm.enable = true;
   modules.desktops.cosmic.enable = true;
 
   # HARDWARE: Switched to AMD for Strix Halo 395
@@ -46,13 +44,19 @@
 
   modules.system.virt.enable = true;
   modules.system.nh.enable = true;
-  #modules.themes.catppuccin.enable = true;
   modules.services.tailscale.enable = true;
 
-  #network drives
-  #  modules.services.nfs = {
-  #    streaming.enable = true;
-  #  };
+  # network drive mounts
+  ft.nfs = {
+    enable = true;
+    mounts = {
+      # The key "streaming-share" is just a label
+      "streaming-share" = {
+        remotePath = "100.69.165.24:/streaming";
+        mountPoint = "/mnt/streaming";
+      };
+    };
+  };
 
   #containers
   modules.system.podman.enable = true;
@@ -62,12 +66,10 @@
   modules.containers.jellyfin.enable = true;
   ft.containers.comfyui.enable = true;
   modules.containers.searxng.enable = true;
-  #modules.containers.mgmt-box.enable = true;
   modules.containers.ai = {
     enable = true;
     modelPath = "/home/joe/models";
     modelName = "qwen2.5-coder-32b-instruct-q8_0.gguf";
-    # You can override the port here if needed
     # openWebUiPort = 8888;
   };
 }
