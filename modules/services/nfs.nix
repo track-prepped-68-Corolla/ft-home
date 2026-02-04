@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.ft.nfs;
@@ -7,13 +12,15 @@ in
   options.ft.nfs = {
     enable = lib.mkEnableOption "NFS mount management";
     mounts = lib.mkOption {
-      type = lib.types.attrsOf (lib.types.submodule {
-        options = {
-          remotePath = lib.mkOption { type = lib.types.str; };
-          mountPoint = lib.mkOption { type = lib.types.str; };
-        };
-      });
-      default = {};
+      type = lib.types.attrsOf (
+        lib.types.submodule {
+          options = {
+            remotePath = lib.mkOption { type = lib.types.str; };
+            mountPoint = lib.mkOption { type = lib.types.str; };
+          };
+        }
+      );
+      default = { };
     };
   };
 
@@ -24,7 +31,8 @@ in
     boot.supportedFilesystems = [ "nfs" ];
 
     # This is the "wiring" that connects your module to the system fstab
-    fileSystems = lib.mapAttrs' (name: value: 
+    fileSystems = lib.mapAttrs' (
+      name: value:
       lib.nameValuePair "${value.mountPoint}" {
         device = "${value.remotePath}";
         fsType = "nfs";

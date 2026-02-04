@@ -32,6 +32,7 @@
       duf
       tldr
       perl
+      nodejs
     ];
   };
 }
