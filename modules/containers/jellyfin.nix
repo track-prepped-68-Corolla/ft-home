@@ -31,14 +31,14 @@ in
 
     # --- Container Configuration ---
 
-    virtualisation.oci-containers.containers.jellyfin = {
+    virtualisation.oci-containers.containers.jelllyfin = {
       image = "jellyfin/jellyfin:latest";
       autoStart = true;
       ports = [ "8096:8096" ];
 
       volumes = [
         # The requested mount
-        "100.69.165.24/streaming:/media"
+        "/mnt/streaming:/media"
 
         # Persistence
         "jellyfin-config:/config"
