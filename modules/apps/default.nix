@@ -33,6 +33,7 @@
       tldr
       perl
       nodejs
+      caffeine-ng
     ];
   };
 }
