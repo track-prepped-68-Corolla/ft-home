@@ -42,7 +42,7 @@ in
 
         cmd = [
           "-m"
-          "/home/joe/models/dolphin-2.9.2-mixtral-8x22b-Q4_K_M.gguf/dolphin-2.9.2-mixtral-8x22b-Q4_K_M-00001-of-00002.gguf"
+          "/models/dolphin-2.9.2-mixtral-8x22b-Q4_K_M.gguf/dolphin-2.9.2-mixtral-8x22b-Q4_K_M-00001-of-00002.gguf"
           "--host"
           "0.0.0.0"
           "--port"
