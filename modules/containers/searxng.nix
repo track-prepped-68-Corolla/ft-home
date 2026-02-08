@@ -55,47 +55,47 @@ in
       searxng = {
         image = "docker.io/searxng/searxng:latest";
         autoStart = true;
-
-        # CRITICAL FIX: Map host port (6080) to container's listening port (8080)
         ports = [ "${toString cfg.port}:8080" ];
 
-        # Inject the sops secret file directly
+        # Inject the secret key from sops
         environmentFiles = [ config.sops.secrets."searxng_env".path ];
 
         environment = {
-          # 1. Base URL
+          # Keep the Base URL and Bind Address
           SEARXNG_BASE_URL = "http://localhost:${toString cfg.port}/";
-
-          # 2. BIND ADDRESS (Keep this)
           SEARXNG_BIND_ADDRESS = "0.0.0.0";
-
-          # 3. CORRECTED: Enable JSON output (Required for OpenWebUI)
-          # Variable name must map to 'search' section -> 'formats' option
-          SEARXNG_SEARCH_FORMATS = "html,json";
-
-          # 4. CORRECTED: Disable the Rate Limiter (Since we removed Redis)
-          # Variable name must map to 'server' section -> 'limiter' option
-          SEARXNG_SERVER_LIMITER = "false";
-
-          # 5. SECURITY: Disable image proxying if it causes issues locally
-          # (Optional, but helps with "Forbidden" on image previews)
-          SEARXNG_SERVER_IMAGE_PROXY = "false";
         };
+
+        # MOUNT THE CONFIG FILE DIRECTLY
+        volumes = [
+          "${pkgs.writeText "searxng-settings.yml" ''
+            # inheret the defaults so we don't break search engines
+            use_default_settings: true
+
+            server:
+              # CRITICAL: Disable the limiter to stop 403 errors on local network
+              limiter: false
+              image_proxy: false
+              # Secret key is loaded from environment variable SEARXNG_SECRET_KEY automatically
+
+            search:
+              # CRITICAL: Explicitly allow JSON for OpenWebUI
+              formats:
+                - html
+                - json
+          ''}:/etc/searxng/settings.yml"
+        ];
 
         extraOptions = [
           "--network=${networkName}"
-
-          # CRITICAL FIX: Explicit DNS to bypass local resolver issues
           "--dns=1.1.1.1"
-
-          # CRITICAL FIX: Capabilities required for networking & ping
           "--cap-drop=ALL"
           "--cap-add=CHOWN"
           "--cap-add=SETGID"
           "--cap-add=SETUID"
           "--cap-add=DAC_OVERRIDE"
-          "--cap-add=NET_BIND_SERVICE" # Required to bind ports
-          "--cap-add=NET_RAW" # Required for ping/DNS checks
+          "--cap-add=NET_BIND_SERVICE"
+          "--cap-add=NET_RAW"
         ];
       };
     };
