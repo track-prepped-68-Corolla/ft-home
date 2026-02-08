@@ -74,6 +74,7 @@ in
 
         extraOptions = [
           "--network=${networkName}"
+          "--dns=8.8.8.8"
           "--cap-add=NET_BIND_SERVICE" # Allows binding to ports (vital)
           "--cap-add=NET_RAW" # Allows ping and raw sockets (vital for some network checks)
         ];
