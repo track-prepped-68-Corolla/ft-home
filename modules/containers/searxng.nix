@@ -13,7 +13,7 @@ let
 in
 {
   options.modules.containers.searxng = {
-    enable = mkEnableOption "SearXNG container with Redis and Sops integration";
+    enable = mkEnableOption "SearXNG container with Sops integration (No Redis)";
 
     port = mkOption {
       type = types.port;
@@ -25,12 +25,13 @@ in
   config = mkIf cfg.enable {
 
     # 1. Secrets Management
+    # Ensure your 'searxng_env' file contains: SEARXNG_SECRET_KEY=<random_string>
     sops.secrets."searxng_env" = {
       restartUnits = [ "podman-searxng.service" ];
     };
 
     # 2. Firewall: Allow Podman containers to use the host's DNS resolver
-    # This is critical for fixing "bad address 'google.com'" errors
+    # We use extraInputRules for nftables compatibility (fixes the "unexpected +" error)
     networking.firewall.extraInputRules = ''
       iifname "podman*" tcp dport 53 accept
       iifname "podman*" udp dport 53 accept
@@ -45,27 +46,11 @@ in
         ExecStart = "${pkgs.podman}/bin/podman network create ${networkName} --ignore";
       };
       wantedBy = [ "multi-user.target" ];
-      before = [
-        "podman-searxng.service"
-        "podman-searxng-redis.service"
-      ];
+      before = [ "podman-searxng.service" ];
     };
 
     # 4. OCI Containers
     virtualisation.oci-containers.containers = {
-
-      searxng-redis = {
-        image = "docker.io/library/redis:alpine";
-        cmd = [
-          "redis-server"
-          "--save"
-          ""
-          "--appendonly"
-          "no"
-        ];
-        autoStart = true;
-        extraOptions = [ "--network=${networkName}" ];
-      };
 
       searxng = {
         image = "docker.io/searxng/searxng:latest";
@@ -80,8 +65,12 @@ in
         environment = {
           SEARXNG_BASE_URL = "http://localhost:${toString cfg.port}/";
 
-          # Updated to VALKEY to fix deprecation warning
-          SEARXNG_VALKEY_URL = "redis://searxng-redis:6379/0";
+          # CRITICAL: Allow JSON output for OpenWebUI
+          SEARXNG_FORMATS = "html,json";
+
+          # CRITICAL: Disable rate limiter since we removed Redis
+          # This fixes the "403 Forbidden" error on local networks
+          SEARXNG_LIMITER = "false";
 
           # Ensure it listens on all interfaces so the port map works
           SEARXNG_BIND_ADDRESS = "0.0.0.0";
@@ -102,8 +91,6 @@ in
           "--cap-add=NET_BIND_SERVICE" # Required to bind ports
           "--cap-add=NET_RAW" # Required for ping/DNS checks
         ];
-
-        dependsOn = [ "searxng-redis" ];
       };
     };
   };
