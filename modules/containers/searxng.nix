@@ -24,11 +24,19 @@ in
 
   config = mkIf cfg.enable {
 
+    # 1. Secrets Management
     sops.secrets."searxng_env" = {
-      restartUnits = [ "podman-searxng.service" ]; # Restart container when secret changes
+      restartUnits = [ "podman-searxng.service" ];
     };
 
-    # 2. Network Initialization
+    # 2. Firewall: Allow Podman containers to use the host's DNS resolver
+    # This is critical for fixing "bad address 'google.com'" errors
+    networking.firewall.extraInputRules = ''
+      iifname "podman*" tcp dport 53 accept
+      iifname "podman*" udp dport 53 accept
+    '';
+
+    # 3. Network Initialization
     systemd.services.init-searxng-network = {
       description = "Create network for SearXNG";
       serviceConfig = {
@@ -43,7 +51,7 @@ in
       ];
     };
 
-    # 3. OCI Containers
+    # 4. OCI Containers
     virtualisation.oci-containers.containers = {
 
       searxng-redis = {
@@ -62,6 +70,8 @@ in
       searxng = {
         image = "docker.io/searxng/searxng:latest";
         autoStart = true;
+
+        # CRITICAL FIX: Map host port (6080) to container's listening port (8080)
         ports = [ "${toString cfg.port}:8080" ];
 
         # Inject the sops secret file directly
@@ -69,15 +79,31 @@ in
 
         environment = {
           SEARXNG_BASE_URL = "http://localhost:${toString cfg.port}/";
-          SEARXNG_REDIS_URL = "redis://searxng-redis:6379/0";
+
+          # Updated to VALKEY to fix deprecation warning
+          SEARXNG_VALKEY_URL = "redis://searxng-redis:6379/0";
+
+          # Ensure it listens on all interfaces so the port map works
+          SEARXNG_BIND_ADDRESS = "0.0.0.0";
         };
 
         extraOptions = [
           "--network=${networkName}"
-          "--dns=8.8.8.8"
-          "--cap-add=NET_BIND_SERVICE" # Allows binding to ports (vital)
-          "--cap-add=NET_RAW" # Allows ping and raw sockets (vital for some network checks)
+
+          # CRITICAL FIX: Explicit DNS to bypass local resolver issues
+          "--dns=1.1.1.1"
+
+          # CRITICAL FIX: Capabilities required for networking & ping
+          "--cap-drop=ALL"
+          "--cap-add=CHOWN"
+          "--cap-add=SETGID"
+          "--cap-add=SETUID"
+          "--cap-add=DAC_OVERRIDE"
+          "--cap-add=NET_BIND_SERVICE" # Required to bind ports
+          "--cap-add=NET_RAW" # Required for ping/DNS checks
         ];
+
+        dependsOn = [ "searxng-redis" ];
       };
     };
   };
