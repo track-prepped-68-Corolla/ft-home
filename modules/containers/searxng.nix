@@ -63,17 +63,23 @@ in
         environmentFiles = [ config.sops.secrets."searxng_env".path ];
 
         environment = {
+          # 1. Base URL
           SEARXNG_BASE_URL = "http://localhost:${toString cfg.port}/";
 
-          # CRITICAL: Allow JSON output for OpenWebUI
-          SEARXNG_FORMATS = "html,json";
-
-          # CRITICAL: Disable rate limiter since we removed Redis
-          # This fixes the "403 Forbidden" error on local networks
-          SEARXNG_LIMITER = "false";
-
-          # Ensure it listens on all interfaces so the port map works
+          # 2. BIND ADDRESS (Keep this)
           SEARXNG_BIND_ADDRESS = "0.0.0.0";
+
+          # 3. CORRECTED: Enable JSON output (Required for OpenWebUI)
+          # Variable name must map to 'search' section -> 'formats' option
+          SEARXNG_SEARCH_FORMATS = "html,json";
+
+          # 4. CORRECTED: Disable the Rate Limiter (Since we removed Redis)
+          # Variable name must map to 'server' section -> 'limiter' option
+          SEARXNG_SERVER_LIMITER = "false";
+
+          # 5. SECURITY: Disable image proxying if it causes issues locally
+          # (Optional, but helps with "Forbidden" on image previews)
+          SEARXNG_SERVER_IMAGE_PROXY = "false";
         };
 
         extraOptions = [
