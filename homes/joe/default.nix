@@ -10,6 +10,8 @@
 
   # --- User Information ---
   home.username = "joe";
+  home.homeDirectory = "/home/joe";
+  home.stateVersion = "25.11";
 
   # --- Module Toggles ---
   # Turn on the LazyVim environment
