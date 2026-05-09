@@ -13,7 +13,6 @@ in
 {
   imports = [
     inputs.stylix.homeModules.stylix
-    inputs.cosmic-manager.homeManagerModules.cosmic-manager
   ];
 
   options = {
@@ -128,7 +127,6 @@ in
             terminal = 13;
             desktop = 11;
             popups = 11;
-
           };
         };
 
