@@ -11,18 +11,19 @@ let
   cfgCosmic = config.ft.cosmic;
 in
 {
-  # stylix pulls in cosmic-manager for COSMIC desktop theming support.
-  # cosmic-manager's opencode module sets programs.opencode.tui which was
-  # removed in a recent home-manager update. Block just that module.
-  disabledModules = [
-    (inputs.stylix.inputs.cosmic-manager + "/modules/opencode/hm.nix")
-  ];
-
   imports = [
     inputs.stylix.homeModules.stylix
   ];
 
   options = {
+    # Compatibility stub: stylix pulls in cosmic-manager which sets
+    # programs.opencode.tui, but home-manager removed that sub-option.
+    # Defining it here as a no-op satisfies the module system.
+    programs.opencode.tui = lib.mkOption {
+      type = lib.types.anything;
+      default = null;
+    };
+
     ft.theme = {
       enable = lib.mkEnableOption "unified system theming via Stylix";
 
