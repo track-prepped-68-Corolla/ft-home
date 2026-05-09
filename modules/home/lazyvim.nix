@@ -57,9 +57,9 @@ in
 
       # Web & Config & CSS (prettier handles css, json, yaml, markdown)
       marksman
-      nodePackages.prettier
-      nodePackages.yaml-language-server
-      nodePackages.vscode-langservers-extracted # Provides jsonls and cssls
+      prettier
+      yaml-language-server
+      vscode-langservers-extracted # Provides jsonls and cssls
 
       # XML
       lemminx
