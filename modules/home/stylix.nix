@@ -13,7 +13,6 @@ in
 {
   imports = [
     inputs.stylix.homeModules.stylix
-    inputs.cosmic-manager.homeManagerModules.cosmic-manager
   ];
 
   options = {

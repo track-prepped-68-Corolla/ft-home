@@ -12,8 +12,8 @@
   # --- Module Toggles ---
   # Turn on the LazyVim environment
   ft.lazyvim.enable = true;
-
-  ft.catppuccin.enable = true;
+  
+  ft.theme.enable = true;
 
   # --- Environment Variables ---
   home.sessionVariables = {
