@@ -11,6 +11,13 @@ let
   cfgCosmic = config.ft.cosmic;
 in
 {
+  # Stylix imports cosmic-manager for COSMIC desktop integration, but
+  # cosmic-manager's opencode module sets programs.opencode.tui which
+  # doesn't exist in the current home-manager. Disable just that module.
+  disabledModules = [
+    (inputs.cosmic-manager + "/modules/opencode/hm.nix")
+  ];
+
   imports = [
     inputs.stylix.homeModules.stylix
   ];
@@ -88,10 +95,8 @@ in
 
   config = lib.mkMerge [
 
-    # --- STYLIX CONFIGURATION ---
     (lib.mkIf cfgTheme.enable {
 
-      # Explicitly install the selected font packages
       home.packages = [
         cfgTheme.fonts.sans.package
         cfgTheme.fonts.mono.package
@@ -127,7 +132,6 @@ in
             terminal = 13;
             desktop = 11;
             popups = 11;
-
           };
         };
 
