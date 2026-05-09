@@ -1,23 +1,18 @@
 { config, pkgs, inputs, ...}:
 
 {
-  # --- Imports ---
   imports = [
-    #these are wrong now. fix!
-    #inputs.sops-nix.homeManagerModules.sops
-    #../../home-modules
+    # Load the repo's home-manager module library (ft.lazyvim, ft.theme, etc.)
+    ../../modules/home
   ];
 
   # --- User Information ---
   home.username = "joe";
-  home.homeDirectory = "/home/joe";
-  home.stateVersion = "25.11";
+  # home.homeDirectory and home.stateVersion come from modules/home/home-core.nix
 
   # --- Module Toggles ---
-  # Turn on the LazyVim environment
   ft.lazyvim.enable = true;
-
-  ft.catppuccin.enable = true;
+  ft.theme.enable = true;
 
   # --- Environment Variables ---
   home.sessionVariables = {
