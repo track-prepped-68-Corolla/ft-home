@@ -97,31 +97,5 @@ in
         shell = pkgs.zsh;
       }))
     ];
-    # --------------------------------------------------------------------------
-    # 2. HOME MANAGER AUTOMATION
-    # --------------------------------------------------------------------------
-    # This logic takes every user defined above and attempts to import their
-    # specific Home Manager configuration file.
-
-    home-manager.users =
-      lib.genAttrs (lib.unique ([ config.mainuser ] ++ config.superUsers ++ config.normalUsers))
-        (
-          user:
-          # CRITICAL: This assumes your folder structure is standard.
-          # nixos/modules/users.nix -> ../../ -> PROJECT ROOT -> users/
-          # If this path is wrong, the build will FAIL (which is good for debugging).
-          import ../../../home/users/${user}/default.nix
-        );
-
-    # --------------------------------------------------------------------------
-    # 3. GLOBAL ARGUMENTS
-    # --------------------------------------------------------------------------
-    # Pass 'inputs' (from flake.nix) to Home Manager.
-    # This lets your user configs use inputs.nix-cachyos, inputs.stylix, etc.
-    home-manager.extraSpecialArgs = { inherit inputs; };
-
-    # Ensure Home Manager uses the system's package set to save disk space
-    home-manager.useGlobalPkgs = true;
-    home-manager.useUserPackages = true;
   };
 }

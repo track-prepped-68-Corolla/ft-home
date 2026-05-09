@@ -29,15 +29,6 @@
     # --- 1. SYSTEM IDENTITY (The Birthday) ---
     system.stateVersion = "24.05";
 
-    # --- 2. BOOTLOADER (GRUB) ---
-    boot.loader.grub = {
-      enable = lib.mkDefault true;
-      device = "nodev";
-      efiSupport = true;
-      useOSProber = lib.mkDefault true;
-    };
-    boot.loader.efi.canTouchEfiVariables = lib.mkDefault true;
-
     # --- 3. HARDWARE & CONNECTIVITY ---
     # Enable NetworkManager (Standard WiFi/Ethernet tool)
     networking.networkmanager.enable = lib.mkDefault true;

@@ -16,10 +16,12 @@
   # superUsers creates the account with isNormalUser + wheel + common groups
   superUsers = [ "joe" ];
 
+  superUsers = [ "joe" ];
+
   # Add Joe's specific Yubikey mapping here
-  u2fMappings = ''
-    joe:your_yubikey_public_key_string_here
-  '';
+  #u2fMappings = ''
+  #  joe:your_yubikey_public_key_string_here
+  #'';
 
   users.users.joe.initialPassword = "nixos";
   users.mutableUsers = true;

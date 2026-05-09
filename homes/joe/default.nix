@@ -2,7 +2,6 @@
 
 {
   imports = [
-    # Load the repo's home-manager module library (ft.lazyvim, ft.theme, etc.)
     ../../modules/home
   ];
 
@@ -12,7 +11,9 @@
 
   # --- Module Toggles ---
   ft.lazyvim.enable = true;
+  
   ft.theme.enable = true;
+
 
   # --- Environment Variables ---
   home.sessionVariables = {

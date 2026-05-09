@@ -54,13 +54,15 @@
       # Text Editors (Basic system-wide)
       micro # A modern and intuitive terminal-based text editor
       #neovim           # A Vim-fork focused on extensibility and usability
+      # a browser
+      brave
     ];
 
     services.tailscale.enable = true;
 
-    programs.nix-index-database.comma.enable = true;
-    programs.nix-index.enable = true;
-    programs.command-not-found.enable = false;
+    #programs.nix-index-database.comma.enable = true;
+    #programs.nix-index.enable = true;
+    #programs.command-not-found.enable = false;
 
     #services.tailscale.extraUpFlags = [ "--operator=${config.mainuser}" ];
   };
