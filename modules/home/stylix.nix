@@ -23,9 +23,9 @@ in
     # home-manager releases. Defining them here as no-ops unblocks evaluation.
     # Remove these once cosmic-manager is updated upstream.
     # -------------------------------------------------------------------------
-    programs.opencode.tui = lib.mkOption { type = lib.types.anything; default = null; };
-    qt.kvantum            = lib.mkOption { type = lib.types.anything; default = null; };
-    qt.platformTheme      = lib.mkOption { type = lib.types.anything; default = null; };
+  #  programs.opencode.tui = lib.mkOption { type = lib.types.anything; default = null; };
+   # qt.kvantum            = lib.mkOption { type = lib.types.anything; default = null; };
+  #  qt.platformTheme      = lib.mkOption { type = lib.types.anything; default = null; };
 
     ft.theme = {
       enable = lib.mkEnableOption "unified system theming via Stylix";
