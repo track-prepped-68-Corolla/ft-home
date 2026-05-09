@@ -6,14 +6,14 @@
     ./hardware-configuration.nix
 
     # 2. The Shared Module Library (Magic Collator)
-    ../../modules/nixos
+    ../../../modules/nixos
   ];
 
   networking.hostName = "strix";
 
   # Now the module handles 'joe' as an admin automatically
   mainuser = "joe";
-  
+
   # Add Joe's specific Yubikey mapping here
   u2fMappings = ''
     joe:your_yubikey_public_key_string_here
@@ -34,7 +34,6 @@
   ft.cli.enable = true;
 
   programs.zsh.enable = true;
-
 
   nixpkgs.hostPlatform = "x86_64-linux";
 }
