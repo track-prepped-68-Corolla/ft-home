@@ -1,0 +1,15 @@
+{
+  "providers": {
+    "ollama": {
+      "type": "openai",
+      "base_url": "http://localhost:11434/v1",
+      "api_key": "ollama",
+      "models": [
+        {
+          "id": "huihui_ai/qwen3-coder-next-abliterated:latest"
+        }
+      ]
+    }
+  },
+  "default_model": "ollama/huihui_ai/qwen3-coder-next-abliterated:latest"
+}

@@ -1,75 +1,40 @@
-{ config, pkgs, ... }:
+{ lib, ... }:
 
 {
   imports = [
+    # 1. The hardware scan for this specific machine
     ./hardware-configuration.nix
-  ];
 
-  sops.defaultSopsFormat = "yaml";
-  sops.defaultSopsFile = ../../secrets.yaml;
-  sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
-  sops.age.keyFile = "/var/lib/sops-nix/key.txt";
-  sops.age.generateKey = false;
-
-  networking.firewall.interfaces."podman0".allowedUDPPorts = [
-    53
-    80
-    443
-  ];
-  networking.firewall.interfaces."podman0".allowedTCPPorts = [
-    53
-    80
-    443
+    # 2. The Shared Module Library (Magic Collator)
+    ../../modules/nixos
   ];
 
   networking.hostName = "strix";
-  boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-latest;
 
-  # --- User Configuration ---
-  modules.system.user.enable = true;
+  # Now the module handles 'joe' as an admin automatically
   mainuser = "joe";
-  superUsers = [ "joe" ];
+  
+  # Add Joe's specific Yubikey mapping here
+  u2fMappings = ''
+    joe:your_yubikey_public_key_string_here
+  '';
 
-  # --- Modules ---
-  modules.desktops.cosmic.enable = true;
+  # Define the password for your main user.
+  # 'initialPassword' allows you to change it later; 'password' would enforce it.
+  users.users.joe.initialPassword = "nixos";
+  users.mutableUsers = true;
 
-  # HARDWARE: Switched to AMD for Strix Halo 395
-  modules.hardware.amd.enable = true;
-  modules.hardware.asus.enable = true;
-  #modules.hardware.yubikey.enable = true;
-  modules.services.printing.enable = true;
+  # --- FEATURE TOGGLES ---
+  ft.boot.limine.enable = true;
+  ft.security.sops.enable = true;
+  ft.security.sops.useTPM = true;
 
-  # Gaming Profile
-  modules.profiles.gaming.enable = true;
+  ft.desktop.cosmic.enable = true;
 
-  modules.system.virt.enable = true;
-  modules.system.nh.enable = true;
-  modules.services.tailscale.enable = true;
+  ft.cli.enable = true;
 
-  # network drive mounts
-  ft.nfs = {
-    enable = true;
-    mounts = {
-      # The key "streaming-share" is just a label
-      "streaming-share" = {
-        remotePath = "100.69.165.24:/streaming";
-        mountPoint = "/mnt/streaming";
-      };
-    };
-  };
+  programs.zsh.enable = true;
 
-  #containers
-  modules.system.podman.enable = true;
-  modules.containers.distrobox.enable = true;
-  modules.containers.dozzle.enable = true;
-  modules.containers.distrobox.enableBoxBuddy = true;
-  modules.containers.jellyfin.enable = true;
-  ft.containers.comfyui.enable = true;
-  modules.containers.searxng.enable = true;
-  modules.containers.ai = {
-    enable = true;
-    modelPath = "/home/joe/models";
-    modelName = "qwen2.5-coder-32b-instruct-q8_0.gguf";
-    # openWebUiPort = 8888;
-  };
+
+  nixpkgs.hostPlatform = "x86_64-linux";
 }

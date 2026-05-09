@@ -1,0 +1,93 @@
+# Get editor completions based on the config schema
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# --- LAYOUT ---
+format = """
+$git_branch$git_status$python$nodejs$rust$golang$lua$cmd_duration
+$username$directory$character"""
+
+palette = "catppuccin_mocha"
+
+# --- MODULES ---
+
+[username]
+show_always = true
+style_user = "bold mauve" # Using the palette name directly
+style_root = "bold red"
+format = "[$user]($style) "
+disabled = false
+
+[directory]
+style = "bold lavender"
+truncation_length = 5
+truncation_symbol = "…/"
+home_symbol = "󱂵 ~"
+read_only = " 󰌾"
+use_os_path_sep = true
+truncate_to_repo = true
+
+[character]
+success_symbol = "[❯](bold teal)"
+error_symbol = "[❯](bold red)"
+
+[git_branch]
+symbol = "󰊢 "
+style = "bold mauve"
+
+[git_status]
+style = "bold red"
+format = '([\[$all_status$ahead_behind\]]($style) )'
+
+[cmd_duration]
+min_time = 2000
+style = "yellow"
+format = "󱎫 [$duration]($style) "
+
+[python]
+symbol = "󱔎 "
+style = "teal"
+
+[nodejs]
+symbol = "󰎙 "
+style = "green"
+
+[rust]
+symbol = "󱘗 "
+style = "maroon"
+
+[golang]
+symbol = "󰟓 "
+style = "sapphire"
+
+[lua]
+symbol = "󰢱 "
+style = "blue"
+
+# --- THE CATPPUCCIN MOCHA PALETTE ---
+[palettes.catppuccin_mocha]
+rosewater = "#f5e0dc"
+flamingo = "#f2cdcd"
+pink = "#f5c2e7"
+mauve = "#cba6f7"
+red = "#f38ba8"
+maroon = "#eba0ac"
+peach = "#fab387"
+yellow = "#f9e2af"
+green = "#a6e3a1"
+teal = "#94e2d5"
+sky = "#89dceb"
+sapphire = "#74c7ec"
+blue = "#89b4fa"
+lavender = "#b4befe"
+text = "#cdd6f4"
+subtext1 = "#bac2de"
+subtext0 = "#a6adc8"
+overlay2 = "#9399b2"
+overlay1 = "#7f849c"
+overlay0 = "#6c7086"
+surface2 = "#585b70"
+surface1 = "#45475a"
+surface0 = "#313244"
+base = "#1e1e2e"
+mantle = "#181825"
+crust = "#11111b"
