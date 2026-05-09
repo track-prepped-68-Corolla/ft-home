@@ -31,8 +31,8 @@ in
       enable = lib.mkEnableOption "unified system theming via Stylix";
 
       wallpaper = lib.mkOption {
-        type = lib.types.path;
-        default = ./pixel-planet.png;
+        type = lib.types.either lib.types.path lib.types.str;
+        default = "${pkgs.nixos-artwork.wallpapers.nineish-dark-gray}/share/backgrounds/nixos/nineish-dark-gray.png";
         description = "Path to the primary desktop wallpaper.";
       };
 
