@@ -11,11 +11,11 @@ let
   cfgCosmic = config.ft.cosmic;
 in
 {
-  # Stylix imports cosmic-manager for COSMIC desktop integration, but
-  # cosmic-manager's opencode module sets programs.opencode.tui which
-  # doesn't exist in the current home-manager. Disable just that module.
+  # stylix pulls in cosmic-manager for COSMIC desktop theming support.
+  # cosmic-manager's opencode module sets programs.opencode.tui which was
+  # removed in a recent home-manager update. Block just that module.
   disabledModules = [
-    (inputs.cosmic-manager + "/modules/opencode/hm.nix")
+    (inputs.stylix.inputs.cosmic-manager + "/modules/opencode/hm.nix")
   ];
 
   imports = [
