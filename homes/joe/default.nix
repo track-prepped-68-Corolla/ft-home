@@ -3,9 +3,7 @@
 {
   # --- Imports ---
   imports = [
-    #these are wrong now. fix!
-    #inputs.sops-nix.homeManagerModules.sops
-    #../../home-modules
+    ../../modules/home
   ];
 
   # --- User Information ---
@@ -15,7 +13,7 @@
   # Turn on the LazyVim environment
   ft.lazyvim.enable = true;
 
-  ft.catppuccin.enable
+  ft.catppuccin.enable = true;
 
   # --- Environment Variables ---
   home.sessionVariables = {

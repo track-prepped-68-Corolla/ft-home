@@ -14,10 +14,12 @@
   # Now the module handles 'joe' as an admin automatically
   mainuser = "joe";
 
+  superUsers = [ "joe" ];
+
   # Add Joe's specific Yubikey mapping here
-  u2fMappings = ''
-    joe:your_yubikey_public_key_string_here
-  '';
+  #u2fMappings = ''
+  #  joe:your_yubikey_public_key_string_here
+  #'';
 
   # Define the password for your main user.
   # 'initialPassword' allows you to change it later; 'password' would enforce it.
