@@ -1,30 +1,44 @@
 # Current Plan
 
-## Task
+## Task: Module Integration
 
-Create `CLAUDE.md` in nixos-config documenting the project, dual-flake
-architecture, directory conventions, and rules for Claude.
+Reconcile ft-home `.bak` modules with consumer duplicates. Move framework
+modules to ft-home, delete consumer copies.
+
+## Branches
+
+- ft-home: `claude/module-integration` (based on `generator-fix`)
+- nixos-config: `claude/module-integration` (based on `claude/flake-generator-consumer-X3fNL`)
 
 ## Status
 
-Complete — `CLAUDE.md` committed to `claude/flake-generator-consumer-X3fNL`.
+In progress.
 
-## What was done this session
+### ft-home `claude/module-integration`
+- [x] `modules/nixos/system/core.nix` — comprehensive baseline, flakeDir default fixed to `""`
+- [x] `modules/nixos/system/user.nix` — u2fMappings option, conditional groups
+- [x] `modules/nixos/system/limine.nix`
+- [x] `modules/nixos/system/sops.nix`
+- [x] `modules/nixos/system/just.nix`
+- [x] `modules/nixos/desktops/cosmic.nix`
+- [x] `modules/nixos/profiles/gaming.nix` — user default uses config.mainuser
+- [x] `modules/home/home-core.nix` — without openldap overlay
+- [ ] Delete .bak files
 
-- Fixed home-manager build errors (nodePackages removed, unfree packages,
-  wallpaper path)
-- Added CachyOS kernel module to `nixos-config/modules/nixos/system/kernel.nix`
-- Implemented idiomatic module exposure in ft-home (`generator-fix` branch):
-  ft-home exports `nixosModules.default` / `homeManagerModules.default`;
-  generator receives them as `ftNixos` / `ftHome` args captured before inputs merge
-- Renamed ft-home module `.nix` files to `.bak` to prevent option collision
-  until consumer modules are reconciled
-- Updated and committed `todo.md`
-- Created `CLAUDE.md` and this `plan.md`
+### nixos-config `claude/module-integration`
+- [x] `hosts/x86_64-linux/strix/default.nix` — added ft.flakeDir
+- [ ] Delete consumer duplicate modules
 
-## Next up (from todo.md)
+## Verification
 
-- Reconcile ft-home `.bak` modules with consumer duplicates
-- Fix `ft.flakeDir` hardcoded path in `core.nix.bak`
-- Export `packages.default` (ft CLI wrapper) from ft-home flake
-- Re-enable sops-nix and set up ssh-to-age pipeline
+```bash
+sudo nixos-rebuild switch --flake .#strix
+home-manager switch --flake .#joe@x86_64-linux
+```
+
+## What was done previously
+
+- Fixed home-manager build errors
+- Added CachyOS kernel module (nixos-config)
+- Implemented idiomatic module exposure in ft-home (generator-fix branch)
+- Created CLAUDE.md and plan.md
