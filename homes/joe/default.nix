@@ -12,6 +12,9 @@
   # --- Repo path (used by terminal, lazyvim, dotfiles modules) ---
   ft.repoPath = "/home/joe/git/nixos-config";
 
+  # --- Wallpaper (pixel-planet.png lives in nixos-config, referenced via repoPath) ---
+  ft.theme.wallpaper = "${config.ft.repoPath}/modules/home/pixel-planet.png";
+
   # --- Module Toggles ---
   ft.lazyvim.enable = true;
   ft.theme.enable = true;

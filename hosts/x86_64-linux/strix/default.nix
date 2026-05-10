@@ -26,5 +26,8 @@
   ft.kernel.cachyos.variant = "bore";
   ft.cli.enable = true;
 
+  # Pre-set U2F mapping; enable with ft.hardware.yubikey.enable = true when ready
+  ft.hardware.yubikey.u2fMapping = "joe:MMWc0ZbVifMF3Ah0YM3NLnt4xQKLZY75LuZH5LzElyOXheEMiFjC8s0dxFaKMxRvkpBOqz3uIeksC6VcwNF7FQ==,MINo8SZhJxCR+UO9JNJMwKx/Bi+/8TvSOHFCYLLTWhZotMiikV5aAHRKuGV4liqWGVjRdQ==,es256,+presence";
+
   nixpkgs.hostPlatform = "x86_64-linux";
 }
