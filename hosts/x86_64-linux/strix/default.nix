@@ -12,7 +12,7 @@
   superUsers = [ "joe" ];
 
   # Required by sops-nix (secrets/secrets.yaml resolved relative to this path)
-  ft.flakeDir = "/home/joe/git/nixos-config";
+  ft.repoPath = "/home/joe/git/nixos-config";
 
   users.users.joe.initialPassword = "nixos";
   users.mutableUsers = true;
