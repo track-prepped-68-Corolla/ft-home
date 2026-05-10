@@ -23,16 +23,16 @@ in
     # home-manager releases. Defining them here as no-ops unblocks evaluation.
     # Remove these once cosmic-manager is updated upstream.
     # -------------------------------------------------------------------------
-    programs.opencode.tui = lib.mkOption { type = lib.types.anything; default = null; };
-    qt.kvantum            = lib.mkOption { type = lib.types.anything; default = null; };
-    qt.platformTheme      = lib.mkOption { type = lib.types.anything; default = null; };
+  #  programs.opencode.tui = lib.mkOption { type = lib.types.anything; default = null; };
+   # qt.kvantum            = lib.mkOption { type = lib.types.anything; default = null; };
+  #  qt.platformTheme      = lib.mkOption { type = lib.types.anything; default = null; };
 
     ft.theme = {
       enable = lib.mkEnableOption "unified system theming via Stylix";
 
       wallpaper = lib.mkOption {
-        type = lib.types.either lib.types.path lib.types.str;
-        default = "${pkgs.nixos-artwork.wallpapers.nineish-dark-gray}/share/backgrounds/nixos/nineish-dark-gray.png";
+        type    = lib.types.either lib.types.path lib.types.str;
+        default = ./pixel-planet.png;
         description = "Path to the primary desktop wallpaper.";
       };
 
