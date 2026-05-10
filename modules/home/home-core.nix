@@ -21,6 +21,6 @@
 
   #force programs to put their dotfiles in an orderly fashion
   xdg.enable = true;
-  
+
   nixpkgs.config.allowUnfree = true;
 }
