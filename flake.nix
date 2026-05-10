@@ -4,8 +4,10 @@
   inputs = {
     ft-home.url = "github:track-prepped-68-corolla/ft-home/generator-fix";
 
-    # Follow ft-home's nixpkgs and home-manager to avoid duplicate fetches
-    nixpkgs.follows = "ft-home/nixpkgs";
+    # Pin directly to nixos-unstable so packages come from Hydra's binary cache.
+    # The generator merges consumer inputs on top of ft-home's, so this nixpkgs
+    # takes precedence over ft-home's potentially stale lock.
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     home-manager.follows = "ft-home/home-manager";
   };
 
