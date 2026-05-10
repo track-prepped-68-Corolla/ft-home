@@ -44,7 +44,7 @@ nixos-config/
     nixos/             ← consumer-specific NixOS modules (auto-discovered)
     home/              ← consumer-specific home-manager modules (auto-discovered)
   todo.md              ← next steps / backlog
-  plan.md              ← current active Claude working plan
+  plan.md              ← current working plan (overwritten each session)
 ```
 
 ## How to add things
