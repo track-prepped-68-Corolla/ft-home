@@ -10,9 +10,7 @@
   home.username = "joe";
 
   # --- Module Toggles ---
-  # Turn on the LazyVim environment
   ft.lazyvim.enable = true;
-  
   ft.theme.enable = true;
 
   # --- Environment Variables ---
@@ -48,7 +46,7 @@
     inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.openscad
     inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.freecad
     inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.blender
-    libreoffice
+    inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.libreoffice
 
     # GAMING
     mangohud
