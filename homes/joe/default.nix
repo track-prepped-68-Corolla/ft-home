@@ -44,10 +44,6 @@
     nixfmt
 
     # CREATIVE & OFFICE
-    #krita
-    #openscad
-    #freecad
-    #blender
     inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.krita
     inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.openscad
     inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.freecad
@@ -57,7 +53,6 @@
     # GAMING
     mangohud
     heroic
-    lutris
     discord
   ];
 }
