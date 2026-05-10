@@ -21,6 +21,7 @@
 
   ft.desktop.cosmic.enable = true;
   ft.kernel.cachyos.enable = true;
+  ft.kernel.cachyos.variant = "bore";
 
   ft.cli.enable = true;
 
