@@ -1,4 +1,4 @@
-MULLET_FILE := "nixos/modules/apps/mullet.txt"
+MULLET_FILE := "modules/nixos/apps/mullet.txt"
 
 @search query:
     #!/usr/bin/env bash

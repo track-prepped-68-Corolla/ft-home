@@ -20,3 +20,5 @@ poppler
 pdftk
 pdfarranger
 flameshot
+gowall
+nh

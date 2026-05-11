@@ -30,6 +30,5 @@
     home-manager.follows = "ft-home/home-manager";
   };
 
-  outputs = inputs @ { ft-home, ... }:
-    ft-home.lib.mkFlake inputs;
+  outputs = inputs@{ ft-home, ... }: ft-home.lib.mkFlake inputs;
 }
