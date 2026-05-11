@@ -9,6 +9,9 @@
   # --- User Information ---
   home.username = "joe";
 
+  # --- Repo path (used by terminal, lazyvim, dotfiles modules) ---
+  ft.repoPath = "/home/joe/git/nixos-config";
+
   # --- Module Toggles ---
   ft.lazyvim.enable = true;
   ft.theme.enable = true;

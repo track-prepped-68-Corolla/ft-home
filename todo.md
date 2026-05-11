@@ -15,10 +15,10 @@
 
 ### 📦 Module Management & Migration
 - [x] purge modules and bring back mvp
-- [ ] **Import modules:**
-  - [ ] Audit the purged modules to determine which are required for the MVP.
-  - [ ] Import and verify core system-level (NixOS) modules.
-  - [ ] Import and verify core user-level (Home Manager) modules.
+- [x] **Import modules:**
+  - [x] Audit the purged modules to determine which are required for the MVP.
+  - [x] Import and verify core system-level (NixOS) modules.
+  - [x] Import and verify core user-level (Home Manager) modules.
 - [ ] **Convert any applicable modules from system level to user level:**
   - [ ] Identify which existing system modules only affect user environments.
   - [ ] Rewrite Nix expressions to use Home Manager options (e.g., `home.packages`, `home.file`).
@@ -74,7 +74,7 @@
 ### 🌐 Public Release Preparation (Two-Repo Architecture)
 **🧹 Sanitization & Security**
 - [ ] Audit all modules for hardcoded personal data (usernames, hostnames, absolute local paths, private IPs).
-- [ ] Replace hardcoded user strings with variable references (e.g., `config.home.username`).
+- [x] Replace hardcoded user strings with variable references (e.g., `config.home.username`).
 - [ ] Move highly specific private modules out of the repo entirely.
 - [ ] **Crucial:** Reset Git history (delete `.git` and re-run `git init`) right before publishing.
 
@@ -85,7 +85,7 @@
 - [ ] Export `nixosModules.mullet` as a standalone backend feature.
 - [ ] Export the `ft` CLI wrapper via `packages.default` using `writeShellApplication`.
   - [ ] Inject `runtimeInputs` (`just`, `glow`, `nh`, `git`, `delta`, `trufflehog`) to ensure zero global dependency footprint for the user.
-- [ ] **External Base Path:** Refactor `mkOutOfStoreSymlink` to accept an `absoluteBasePath` from the consumer.
+- [x] **External Base Path:** Refactor `mkOutOfStoreSymlink` to accept an `absoluteBasePath` from the consumer.
 
 **📖 Documentation & Onboarding**
 - [ ] Add inline comments to `lib` functions.

@@ -1,29 +1,98 @@
-Context — Branch cleanup before merge to main
-Three tasks to complete on claude/module-integration before merging both repos to main:
-Delete all .bak files (dead weight from the reconciliation pass)
-Move kernel.nix (CachyOS) from nixos-config → ft-home (it's generic — no hardcodes)
-Add a default wallpaper path to ft.theme.wallpaper in ft-home's stylix.nix
-.bak files to delete — nixos-config claude/module-integration
-modules/nixos/system/cosmic.nix.bak
-modules/nixos/system/rclone.nix.bak
-modules/nixos/system/stylix.nix.bak
-modules/nixos/hardware/gpu.nix.bak
-kernel.nix — move to ft-home
-Create modules/nixos/system/kernel.nix in ft-home with the existing content from nixos-config (verbatim — no changes needed). inputs.nix-cachyos is already declared in ft-home's flake.nix so the reference resolves correctly.
-Delete modules/nixos/system/kernel.nix from nixos-config.
-stylix.nix — add wallpaper default
-In ft-home modules/home/stylix.nix, change the wallpaper option from no-default (required) to:
-Nix
-ft.dotfiles.path evaluates to ${ft.repoPath}/homes/${username}/dotfiles, so ../wallpapers/default.jpg resolves to homes/<user>/wallpapers/default.jpg in the consumer's repo. Consumers who set ft.theme.wallpaper explicitly (like joe does) are unaffected.
-Wallpaper asset — relocate pixel-planet.png
-modules/home/pixel-planet.png needs to move to homes/joe/wallpapers/default.jpg in nixos-config, establishing the convention the new default path expects.
-Steps:
-Read modules/home/pixel-planet.png (binary, base64 via GitHub API)
-Create homes/joe/wallpapers/default.png with that content
-Delete modules/home/pixel-planet.png
-In homes/joe/default.nix, remove the explicit ft.theme.wallpaper line — the stylix default will resolve to the new location
-Critical files
-ft-home: modules/nixos/system/kernel.nix (new), modules/home/stylix.nix (wallpaper default)
-nixos-config: 4 .bak deletions, modules/nixos/system/kernel.nix deletion, modules/home/pixel-planet.png deletion, homes/joe/wallpapers/default.jpg (new), homes/joe/default.nix (remove explicit wallpaper override)
-After this
-Merge both claude/module-integration branches to main, then open new branches for docs/formatting/linting/quality pipeline.
+# Next Session Plan
+
+## Context
+The `claude/module-integration` branch in both repos is complete. All framework
+modules have been reconciled between ft-home and nixos-config. Path options
+(`ft.repoPath`, `ft.dotfiles.path`) are centralized. Ready to merge and move on.
+
+---
+
+## Step 1 — Merge branches
+
+**ft-home:** `claude/module-integration` → `generator-fix`
+**nixos-config:** `claude/module-integration` → `claude/flake-generator-consumer-X3fNL`
+
+Nothing below can build cleanly until these are merged.
+
+---
+
+## Step 2 — Enable dotfiles symlinking
+
+In `homes/joe/default.nix`, add:
+```nix
+ft.dotfiles.enable = true;
+```
+
+`ft.dotfiles.path` already defaults to
+`${ft.repoPath}/homes/joe/dotfiles` — no other config needed.
+Verify that files under `homes/joe/dotfiles/` land in `~/` after
+`home-manager switch`.
+
+---
+
+## Step 3 — Clean up .bak files in nixos-config
+
+Delete these dead files from `modules/nixos/`:
+- `hardware/gpu.nix.bak`
+- `system/cosmic.nix.bak`
+- `system/rclone.nix.bak`
+- `system/stylix.nix.bak`
+
+---
+
+## Step 4 — The Mullet
+
+Two files:
+
+### `ft-home/modules/nixos/apps/mullet.nix`
+```nix
+options.ft.mullet = {
+  enable = lib.mkEnableOption "imperative package list";
+  path = lib.mkOption {
+    type = lib.types.str;
+    default = "${config.ft.repoPath}/mullet.txt";
+  };
+};
+config = lib.mkIf cfg.enable {
+  environment.systemPackages =
+    map (name: pkgs.${name})
+      (lib.splitString "\n"
+        (lib.strings.removeSuffix "\n"
+          (builtins.readFile cfg.path)));
+};
+```
+
+### `nixos-config/mullet.txt`
+Flat list of package attribute names, one per line:
+```
+brave
+vscodium
+...
+```
+
+Enable in strix with `ft.mullet.enable = true`.
+
+---
+
+## Step 5 — sops-nix scaffolding
+
+`ft.security.sops` option and module already exist. What's missing:
+
+1. `ssh-to-age` derivation in `sops.nix` to auto-derive the age key from
+   `/etc/ssh/ssh_host_ed25519_key` on first boot.
+2. A `just bootstrap-secrets` recipe that:
+   - Runs `ssh-keyscan` → `ssh-to-age` to get the host's public age key
+   - Generates a Diceware passphrase
+   - Creates `secrets/secrets.yaml` with `sops --encrypt`
+3. Consumer adds `ft.security.sops.enable = true` in their host file
+   (strix already has this set).
+
+---
+
+## Remaining consumer-specific files in nixos-config
+
+These stay in nixos-config intentionally — not framework material:
+- `modules/nixos/system/containers.nix` — Komodo stack
+- `modules/nixos/system/kernel.nix` — CachyOS
+- `modules/nixos/hardware/vm.nix` — VM defaults
+- `modules/home/pixel-planet.png` — wallpaper asset
