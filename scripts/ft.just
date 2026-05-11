@@ -20,7 +20,7 @@ alias s  := sync
 
 fmt:
     echo ":: Formatting ::"
-    find . -name "*.nix" -exec nixfmt {} +
+    nix shell nixpkgs#treefmt nixpkgs#nixfmt nixpkgs#deadnix nixpkgs#statix --command bash -c 'treefmt && statix fix .'
 
 check: fmt
     echo ":: Scanning for leaked secrets ::"
