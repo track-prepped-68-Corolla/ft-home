@@ -49,18 +49,19 @@ test: check
 facter:
     #!/usr/bin/env bash
     set -e
+    REPO=$(git rev-parse --show-toplevel)
     ARCH="x86_64-linux"
     HOST=$(hostname)
-    OUTPUT="hosts/$ARCH/$HOST/facter.json"
+    OUTPUT="$REPO/hosts/$ARCH/$HOST/facter.json"
 
-    if [ ! -d "hosts/$ARCH/$HOST" ]; then
+    if [ ! -d "$REPO/hosts/$ARCH/$HOST" ]; then
       echo ":: Error: no host directory found at hosts/$ARCH/$HOST ::"
       exit 1
     fi
 
     echo ":: Generating hardware report for $HOST → $OUTPUT ::"
     sudo nix run nixpkgs#nixos-facter -- --output "$OUTPUT"
-    git add "$OUTPUT"
+    git -C "$REPO" add "$OUTPUT"
     echo ":: Staged $OUTPUT — commit with: git commit -m 'chore: add facter report for $HOST' ::"
 
 switch: check
@@ -71,7 +72,8 @@ switch: check
     # Soft facter gate — warn if facter.json is missing for this host
     ARCH="x86_64-linux"
     HOST=$(hostname)
-    if [ ! -f "hosts/$ARCH/$HOST/facter.json" ]; then
+    REPO=$(git rev-parse --show-toplevel)
+    if [ ! -f "$REPO/hosts/$ARCH/$HOST/facter.json" ]; then
       echo ":: Warning: no facter.json found for $HOST — run 'just facter' to generate ::"
     fi
 
