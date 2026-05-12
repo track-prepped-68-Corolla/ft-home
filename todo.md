@@ -35,7 +35,7 @@
   - [ ] Integrate Gammastep for circadian color temperature shifting.
   - [ ] Configure `ddcutil` for hardware backlight control (with a silent fallback to Wayland brightness shaders).
 - [ ] **Typography & Spatial Scaling:**
-  - [ ] Set Atkinson Hyperlegible (or Lexend) as the default system font via Stylix.
+  - [x] Set Atkinson Hyperlegible (or Lexend) as the default system font via Stylix.
   - [ ] Script dynamic UI padding and text scaling based on time of day/fatigue levels.
 - [ ] **Kinematics & Input (RSI Prevention):**
   - [ ] Set up `kanata` for kernel-level Home Row Mods.
@@ -73,9 +73,9 @@
 
 ### 🌐 Public Release Preparation (Two-Repo Architecture)
 **🧹 Sanitization & Security**
-- [ ] Audit all modules for hardcoded personal data (usernames, hostnames, absolute local paths, private IPs).
+- [x] Audit all modules for hardcoded personal data (usernames, hostnames, absolute local paths, private IPs).
 - [x] Replace hardcoded user strings with variable references (e.g., `config.home.username`).
-- [ ] Move highly specific private modules out of the repo entirely.
+- [x] Move highly specific private modules out of the repo entirely.
 - [ ] **Crucial:** Reset Git history (delete `.git` and re-run `git init`) right before publishing.
 
 **🔌 Flake API & Exports**
@@ -89,13 +89,12 @@
 
 **📖 Documentation & Onboarding**
 - [ ] Add inline comments to `lib` functions.
-- [ ] Write `README.md` explaining the framework's consumption.
-- [ ] Create `template/` directory for the "Private Repo" skeleton.
+- [x] Write `README.md` explaining the framework's consumption.
   - [ ] Ensure template includes a blank `mullet.txt` and a consumer `flake.nix` wired to the upstream tool.
 
 **✨ Code Polish & Linting**
 - [x] Run a standard formatter.
-- [ ] Run a linter (like `statix` or `deadnix`).
+- [x] Run a linter (like `statix` or `deadnix`).
 - [ ] Clean up and standardize the `justfile` scripts.
 
 ### 👾 Just files & Deployment Orchestration
