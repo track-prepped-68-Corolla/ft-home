@@ -20,7 +20,7 @@ alias s  := sync
 
 fmt:
     echo ":: Formatting ::"
-    find . -name "*.nix" -exec nixfmt {} +
+    nix shell nixpkgs#treefmt nixpkgs#nixfmt nixpkgs#deadnix nixpkgs#statix --command bash -c 'treefmt && statix fix .'
 
 check: fmt
     echo ":: Scanning for leaked secrets ::"
@@ -45,10 +45,37 @@ test: check
 
 # --- 3. Core Workflow ---
 
+# Generate a facter.json hardware report for the current host
+facter:
+    #!/usr/bin/env bash
+    set -e
+    REPO=$(git rev-parse --show-toplevel)
+    ARCH="x86_64-linux"
+    HOST=$(hostname)
+    OUTPUT="$REPO/hosts/$ARCH/$HOST/facter.json"
+
+    if [ ! -d "$REPO/hosts/$ARCH/$HOST" ]; then
+      echo ":: Error: no host directory found at hosts/$ARCH/$HOST ::"
+      exit 1
+    fi
+
+    echo ":: Generating hardware report for $HOST → $OUTPUT ::"
+    sudo nix run nixpkgs#nixos-facter -- --output "$OUTPUT"
+    git -C "$REPO" add "$OUTPUT"
+    echo ":: Staged $OUTPUT — commit with: git commit -m 'chore: add facter report for $HOST' ::"
+
 switch: check
     #!/usr/bin/env bash
     set -e
     just _check-reqs
+
+    # Soft facter gate — warn if facter.json is missing for this host
+    ARCH="x86_64-linux"
+    HOST=$(hostname)
+    REPO=$(git rev-parse --show-toplevel)
+    if [ ! -f "$REPO/hosts/$ARCH/$HOST/facter.json" ]; then
+      echo ":: Warning: no facter.json found for $HOST — run 'just facter' to generate ::"
+    fi
 
     echo ":: Previewing Build ::"
     just _stage

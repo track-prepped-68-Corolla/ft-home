@@ -88,8 +88,9 @@
 - [x] **External Base Path:** Refactor `mkOutOfStoreSymlink` to accept an `absoluteBasePath` from the consumer.
 
 **📖 Documentation & Onboarding**
-- [ ] Add inline comments to `lib` functions.
+- [x] Add inline comments to `lib` functions.
 - [x] Write `README.md` explaining the framework's consumption.
+- [ ] Create `template/` directory for the "Private Repo" skeleton.
   - [ ] Ensure template includes a blank `mullet.txt` and a consumer `flake.nix` wired to the upstream tool.
 
 **✨ Code Polish & Linting**

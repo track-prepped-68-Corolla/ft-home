@@ -1,36 +1,53 @@
-{ config, pkgs, inputs, ...}:
+# =============================================================================
+# joe — Home Manager Configuration
+# =============================================================================
+#
+# Discovered by lib/generator.nix at homes/joe/default.nix and becomes
+# homeConfigurations.joe@x86_64-linux (and any other active arch).
+#
+# WHAT GOES HERE
+#   modules/home     consumer Home Manager modules (auto-gated by ft.*)
+#   home.username    required by home-core.nix to set homeDirectory
+#   ft.repoPath      used by terminal.nix, lazyvim.nix, and dotfiles.nix to
+#                    build live out-of-store symlink paths into this repo
+#   ft.* toggles     enable framework features for this specific user
+#   home.packages    user-specific packages not covered by framework modules
+#
+# Do not import ft-home home modules directly — the generator injects them.
+# =============================================================================
+{ config, pkgs, inputs, ... }:
 
 {
-  # --- Imports ---
   imports = [
     ../../modules/home
   ];
 
-  # --- User Information ---
+  # --- IDENTITY ---
   home.username = "joe";
 
-  # --- Repo path (used by terminal, lazyvim, dotfiles modules) ---
+  # ft.repoPath is used by terminal.nix, lazyvim.nix, and dotfiles.nix to
+  # construct live out-of-store symlink paths into this repo on disk.
   ft.repoPath = "/home/joe/git/nixos-config";
 
-  # --- Module Toggles ---
+  # --- FEATURE TOGGLES ---
   ft.lazyvim.enable = true;
   ft.theme.enable = true;
 
-  # --- Environment Variables ---
+  # --- ENVIRONMENT ---
   home.sessionVariables = {
     EDITOR = "nvim";
   };
 
-  # --- Packages ---
+  # --- PACKAGES ---
   home.packages = with pkgs; [
 
-    # SYSTEM / CLI TOOLS
+    # System / CLI
     fastfetch
     htop
     micro
     yazi
 
-    # DESKTOP APPS
+    # Desktop apps
     brave
     kitty
     vesktop
@@ -38,20 +55,20 @@
     slack
     localsend
 
-    # DEVELOPMENT
+    # Development
     github-desktop
     vscodium
     direnv
     nixfmt
 
-    # CREATIVE & OFFICE
+    # Creative & office (pinned to stable for ABI stability)
     inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.krita
     inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.openscad
     inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.freecad
     inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.blender
     inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.libreoffice
 
-    # GAMING
+    # Gaming
     mangohud
     heroic
     discord

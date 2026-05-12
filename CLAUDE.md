@@ -87,9 +87,8 @@ See **`todo.md`** in this repo root.
 
 ## Rules for Claude
 
-1. **Branch**: always develop on the branch named in the session instructions
-   (currently `claude/flake-generator-consumer-X3fNL`). Never push to `master`
-   without explicit permission.
+1. **Branch**: always develop on the branch named in the session instructions.
+   Never push to `master` without explicit permission.
 
 2. **Consumer vs framework**: consumer-specific options and modules belong in
    *this* repo. Shared framework features belong in `ft-home`. When in doubt,
