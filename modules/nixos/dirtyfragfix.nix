@@ -2,7 +2,11 @@
 
 {
   # 1. Prevent the modules from loading automatically
-  boot.blacklistedKernelModules = [ "esp4" "esp6" "rxrpc" ];
+  boot.blacklistedKernelModules = [
+    "esp4"
+    "esp6"
+    "rxrpc"
+  ];
 
   # 2. Hard-block them even if something else tries to pull them in as a dependency
   # This maps the "install" command for these modules to /bin/false

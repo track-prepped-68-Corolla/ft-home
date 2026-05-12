@@ -16,7 +16,7 @@
 #   Do not import ft-home modules directly — the generator injects them.
 #   Per-user Home Manager config belongs in homes/<username>/default.nix.
 # =============================================================================
-{ lib, ... }:
+{ ... }:
 
 {
   imports = [
