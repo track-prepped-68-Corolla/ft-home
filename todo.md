@@ -24,10 +24,10 @@
   - [ ] Rewrite Nix expressions to use Home Manager options (e.g., `home.packages`, `home.file`).
   - [ ] Remove the old system-level configurations and test the user-level replacements.
 - [ ] create a user level komodo module
-- [ ] **Implement "The Mullet" (Imperative Escape Hatch):**
-  - [ ] Create `mullet.nix` module to ingest a flat text file (`mullet.txt`).
+- [x] **Implement "The Mullet" (Imperative Escape Hatch):**
+  - [x] Create `mullet.nix` module to ingest a flat text file (`mullet.txt`).
   - [ ] Add config option to specify the path of `mullet.txt`.
-  - [ ] Map parsed text strings to `pkgs` and append to `environment.systemPackages` or `home.packages`.
+  - [x] Map parsed text strings to `pkgs` and append to `environment.systemPackages` or `home.packages`.
 
 ### 👁️ Ergonomics & Accessibility (The "Chaotic Good" Stack)
 - [ ] **Visual & Circadian Automation:**
@@ -35,7 +35,7 @@
   - [ ] Integrate Gammastep for circadian color temperature shifting.
   - [ ] Configure `ddcutil` for hardware backlight control (with a silent fallback to Wayland brightness shaders).
 - [ ] **Typography & Spatial Scaling:**
-  - [ ] Set Atkinson Hyperlegible (or Lexend) as the default system font via Stylix.
+  - [x] Set Atkinson Hyperlegible (or Lexend) as the default system font via Stylix.
   - [ ] Script dynamic UI padding and text scaling based on time of day/fatigue levels.
 - [ ] **Kinematics & Input (RSI Prevention):**
   - [ ] Set up `kanata` for kernel-level Home Row Mods.
@@ -73,9 +73,9 @@
 
 ### 🌐 Public Release Preparation (Two-Repo Architecture)
 **🧹 Sanitization & Security**
-- [ ] Audit all modules for hardcoded personal data (usernames, hostnames, absolute local paths, private IPs).
+- [x] Audit all modules for hardcoded personal data (usernames, hostnames, absolute local paths, private IPs).
 - [x] Replace hardcoded user strings with variable references (e.g., `config.home.username`).
-- [ ] Move highly specific private modules out of the repo entirely.
+- [x] Move highly specific private modules out of the repo entirely.
 - [ ] **Crucial:** Reset Git history (delete `.git` and re-run `git init`) right before publishing.
 
 **🔌 Flake API & Exports**
