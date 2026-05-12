@@ -4,12 +4,13 @@ let
   cfg = config.ft.autoprovision;
 in
 {
-  options.ft.autoprovision.enable =
-    lib.mkEnableOption "user home manager auto-provisioning" // { default = true; };
+  options.ft.autoprovision.enable = lib.mkEnableOption "user home manager auto-provisioning" // {
+    default = true;
+    description = "Installs three helper scripts (`hm-template-wrapper`, `hm-git-add`, `hm-gui-bootstrap`) and a COSMIC autostart entry that run the first Home Manager switch for new users on their first graphical login. Grants passwordless sudo for the template and git-stage wrappers.";
+  };
 
   config = lib.mkIf cfg.enable {
     environment.systemPackages = [
-      # 1. The provisioning wrapper
       (pkgs.writeShellScriptBin "hm-template-wrapper" ''
         USERNAME=$1
         REPO="/etc/nixos"
@@ -20,22 +21,18 @@ in
         echo "Creating new profile from generic template..."
         cp -r "$REPO/homes/generic" "$REPO/homes/$USERNAME"
 
-        # Guarantee write access and ownership for the non-wheel user
         chown -R "$USERNAME:users" "$REPO/homes/$USERNAME"
         chmod -R u+rwX "$REPO/homes/$USERNAME"
 
-        # Stage it so the initial switch works
         git -C "$REPO" add "homes/$USERNAME"
       '')
 
-      # 2. A git wrapper so non-wheel users can stage NEW files they create later
       (pkgs.writeShellScriptBin "hm-git-add" ''
         # Runs as root; strictly limited to git add within the user's directory.
         REPO="/etc/nixos"
         git -C "$REPO" add "$REPO/homes/$SUDO_USER"
       '')
 
-      # 3. The GUI trigger
       (pkgs.writeShellScriptBin "hm-gui-bootstrap" ''
         if [ ! -e "$HOME/.local/state/nix/profiles/home-manager" ]; then
           ${pkgs.cosmic-term}/bin/cosmic-term -e ${pkgs.just}/bin/just -f /etc/nixos/autoprovision.just bootstrap-user "$USER"

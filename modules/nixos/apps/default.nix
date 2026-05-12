@@ -7,21 +7,19 @@
 
 ################################################################################
 # DEFAULT APPLICATIONS MODULE
-# ------------------------------------------------------------------------------
-# System-wide applications and utilities common across all hosts.
-# Note: user-specific apps are better managed via Home Manager.
 ################################################################################
 
 let
   cfg = config.ft.apps;
 in
 {
-  options.ft.apps.enable =
-    lib.mkEnableOption "default system applications" // { default = true; };
+  options.ft.apps.enable = lib.mkEnableOption "default system applications" // {
+    default = true;
+    description = "Installs the consumer's default system-wide application suite (ripgrep, fd, fzf, zoxide, eza, bat, lazygit, obsidian, brave, trufflehog, etc.) and enables the Tailscale daemon. Disable to strip all consumer-specific packages from the system closure.";
+  };
 
   config = lib.mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
-      # System Utilities and Tools
       nixos-generators
       direnv
       sops
@@ -37,7 +35,6 @@ in
       just
       trufflehog
 
-      # File System and Search Tools
       ripgrep
       fd
       fzf
@@ -45,17 +42,13 @@ in
       eza
       bat
 
-      # Version Control
       git
       lazygit
 
-      # Terminal Multiplexer
       tmux
 
-      # Text Editors
       micro
 
-      # Browser
       brave
     ];
 

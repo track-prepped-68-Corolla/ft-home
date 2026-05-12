@@ -10,7 +10,9 @@ let
 in
 {
   options.ft.containers = {
-    enable = lib.mkEnableOption "the FT container stack (Podman, Distrobox, Komodo)";
+    enable = lib.mkEnableOption "the FT container stack (Podman, Distrobox, Komodo)" // {
+      description = "Enables Podman with Docker compatibility shims (docker socket + compose) and launches a pre-configured Komodo container orchestrator, MongoDB, and Periphery agent as OCI containers. Adds `mainuser` to the podman/docker groups and opens required firewall ports (8120, 8121, 9120, 27017).";
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -31,14 +33,12 @@ in
       oci-containers.backend = "podman";
 
       oci-containers.containers = {
-        # --- MongoDB ---
         komodo-db = {
           image = "mongo:latest";
           volumes = [ "/opt/containers/komodo/mongodb:/data/db" ];
           extraOptions = [ "--network=host" ];
         };
 
-        # --- Komodo Core ---
         komodo = {
           image = "ghcr.io/mbecker20/komodo:latest";
           ports = [ "8120:9120" ];
@@ -56,7 +56,6 @@ in
           extraOptions = [ "--network=host" ];
         };
 
-        # --- Periphery ---
         periphery = {
           image = "ghcr.io/mbecker20/periphery:latest";
           environment = {

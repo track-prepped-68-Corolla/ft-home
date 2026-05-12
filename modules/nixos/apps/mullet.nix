@@ -8,14 +8,10 @@
 let
   cfg = config.ft.mullet;
 
-  # Safely read the file, providing an empty string if it doesn't exist yet
   content = if builtins.pathExists cfg.sourcePath then builtins.readFile cfg.sourcePath else "";
-
-  # Clean up the raw text into a list of strings
   rawLines = lib.splitString "\n" content;
   pkgNames = builtins.filter (n: n != "") rawLines;
 
-  # The magic resolver for nested attributes (e.g., "vimPlugins.LazyVim" -> ["vimPlugins" "LazyVim"])
   resolvePkg =
     name:
     let
@@ -23,13 +19,14 @@ let
     in
     lib.attrsets.attrByPath pathList null pkgs;
 
-  # Map the names to actual packages, filtering out any nulls in case of manual typos
   mulletPackages = builtins.filter (p: p != null) (builtins.map resolvePkg pkgNames);
 
 in
 {
   options.ft.mullet = {
-    enable = lib.mkEnableOption "Imperative package management (The Mullet)";
+    enable = lib.mkEnableOption "Imperative package management (The Mullet)" // {
+      description = "Reads a plain-text package list from `ft.mullet.sourcePath` (one `pkgs.attr` name per line; dotted paths like `vimPlugins.LazyVim` are supported) and installs all resolved packages as system packages. Silently skips any names that can't be resolved.";
+    };
     sourcePath = lib.mkOption {
       type = lib.types.path;
       default = ./mullet.txt;

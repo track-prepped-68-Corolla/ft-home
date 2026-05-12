@@ -9,8 +9,10 @@ let
   cfg = config.ft.hardware.vm;
 in
 {
-  options.ft.hardware.vm.enable =
-    lib.mkEnableOption "VM variant configuration" // { default = true; };
+  options.ft.hardware.vm.enable = lib.mkEnableOption "VM variant configuration" // {
+    default = true;
+    description = "Configures the NixOS VM variant (built with `nixos-rebuild build-vm`) with 8 GB RAM, 6 cores, virtio GPU, and host port 2222 forwarded to guest SSH. This configuration only takes effect when explicitly building a VM image — it does not affect normal system builds.";
+  };
 
   config = lib.mkIf cfg.enable {
     virtualisation.vmVariant = {
