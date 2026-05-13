@@ -3,12 +3,11 @@
 # Suppress all command echoing globally for a cleaner terminal
 set quiet := true
 
-
 import "./mullet.just"
 import "./store.just"
 
 default:
-    just --list
+    ft --list
 
 alias r  := switch
 alias t  := test
@@ -22,7 +21,7 @@ fmt:
     echo ":: Formatting ::"
     nix shell nixpkgs#treefmt nixpkgs#nixfmt nixpkgs#deadnix nixpkgs#statix --command bash -c 'treefmt && statix fix .'
 
-check: fmt
+check: _check-reqs fmt
     echo ":: Scanning for leaked secrets ::"
     trufflehog git file://. --since-commit HEAD --fail 2>/dev/null
 
@@ -32,12 +31,10 @@ clean:
 
 # --- 2. Testing ---
 
-test: check
+test: check _stage
     #!/usr/bin/env bash
-    just _check-reqs
     echo ":: Staging & Diffs ::"
-    just _stage
-    just _diff-src
+    ft _diff-src
     
     echo ":: Running Test ::"
     nh os test . --ask
@@ -67,7 +64,6 @@ facter:
 switch: check
     #!/usr/bin/env bash
     set -e
-    just _check-reqs
 
     # Soft facter gate — warn if facter.json is missing for this host
     ARCH="x86_64-linux"
@@ -78,23 +74,22 @@ switch: check
     fi
 
     echo ":: Previewing Build ::"
-    just _stage
     nh os test . --dry
     
     echo ":: Source Code Changes ::"
-    just _diff-src
+    ft _diff-src
     
     read -p "Apply and commit? [y/N]: " choice
     if [[ "$choice" =~ ^[yY]$ ]]; then
       # Capture current generation BEFORE building
-      OLD_GEN=$(just _current-gen)
+      OLD_GEN=$(ft _current-gen)
       
       # Build and switch
       nh os switch .
       
       # Extract new generation and diff packages
-      GEN=$(just _current-gen)
-      NVD_DIFF=$(nvd --color never diff $(just _last-two-gens))
+      GEN=$(ft _current-gen)
+      NVD_DIFF=$(nvd --color never diff $(ft _last-two-gens))
       
       # Handle Git Commits (Triggers on ANY text change)
       if ! git diff --cached --quiet; then
@@ -107,7 +102,7 @@ switch: check
       
       # Handle Generation Cleanup (Triggers ONLY if Nix built a new system)
       if [ "$GEN" -gt "$OLD_GEN" ]; then
-          just clean
+          ft clean
       else
           echo ":: System generation did not change. Skipping cleanup. ::"
       fi
@@ -131,12 +126,12 @@ pull:
     nh os switch . --ask
     
     echo ":: System Package Changes ::"
-    nvd diff $(just _last-two-gens)
+    nvd diff $(ft _last-two-gens)
 
 push:
     #!/usr/bin/env bash
     if [[ -n $(git status --porcelain) ]]; then
-      echo ":: Error: Uncommitted changes. Run 'just switch' or commit manually first. ::"
+      echo ":: Error: Uncommitted changes. Run 'ft switch' or commit manually first. ::"
       exit 1
     fi
     echo ":: Pushing to Remote ::"
@@ -152,7 +147,7 @@ sync: pull push
 rollback:
     #!/usr/bin/env bash
     echo ":: Current Generation ::"
-    just _current-gen
+    ft _current-gen
     
     echo ":: Rolling back to previous generation ::"
     sudo nix-env --profile /nix/var/nix/profiles/system --rollback

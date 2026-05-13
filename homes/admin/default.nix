@@ -9,7 +9,7 @@
 # default via ft.terminal.enable) and git. Add ft.* toggles or packages
 # following the same pattern as homes/joe/default.nix.
 # =============================================================================
-{ config, pkgs, ... }:
+{ ... }:
 
 {
   imports = [
