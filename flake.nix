@@ -23,7 +23,7 @@
   description = "NixOS configuration consuming the ft-home framework";
 
   inputs = {
-    ft-home.url = "github:track-prepped-68-corolla/ft-home/generator-fix";
+    ft-home.url = "github:track-prepped-68-corolla/ft-home/main";
 
     # Follow ft-home's pins to avoid duplicate fetches and version drift.
     nixpkgs.follows = "ft-home/nixpkgs";
