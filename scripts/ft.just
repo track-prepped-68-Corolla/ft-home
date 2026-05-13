@@ -60,7 +60,7 @@ facter:
     fi
 
     echo ":: Generating hardware report for $HOST → $OUTPUT ::"
-    sudo nix run "github:numtide/nixos-facter/e43c4459184a39ed6f3aa746a49170ae79d93bcd" -- --output "$OUTPUT"
+    sudo nix run "$REPO#nixos-facter" -- --output "$OUTPUT"
     git -C "$REPO" add "$OUTPUT"
     echo ":: Staged $OUTPUT — commit with: git commit -m 'chore: add facter report for $HOST' ::"
 
