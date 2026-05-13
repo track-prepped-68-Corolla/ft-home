@@ -103,8 +103,7 @@ in
     hardware.graphics.enable = lib.mkDefault true;
     hardware.graphics.enable32Bit = lib.mkDefault cfg.enable32Bit;
 
-    # AMD — prefer RADV (Mesa) over AMDVLK for Vulkan
-    hardware.amdgpu.amdvlk.enable = lib.mkIf hasAMD (lib.mkDefault false);
+    # AMD
     hardware.amdgpu.opencl.enable = lib.mkIf hasAMD (lib.mkDefault true);
 
     # NVIDIA
