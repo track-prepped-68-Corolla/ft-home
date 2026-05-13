@@ -1,5 +1,10 @@
 # HM Refactor Todo
 
+### 🎯 Sidequests
+- [ ] **nixos-facter PR:** Add `--ignore-errors` flag so unknown device types (e.g. `platform` bus) are skipped rather than aborting the scan. Simple Go change — wrap per-device scan errors as warnings and continue.
+
+
+
 ### 🏗️ Flake Architecture & Core Structure
 - [x] wire up all flake inputs
 - [x] create code to send flake outputs to magic folder functions
