@@ -123,17 +123,16 @@ in
         enable = cfg.nvidia.enablePowerManagement;
         finegrained = cfg.nvidia.finegrainedPowerManagement;
       };
-    };
-
-    # PRIME hybrid offload — only when two GPUs detected
-    hardware.nvidia.prime = lib.mkIf (hasNVIDIA && cfg.prime.enable) {
-      offload = {
-        enable = true;
-        enableOffloadCmd = true;
+      # PRIME hybrid offload — only when two GPUs detected
+      prime = lib.mkIf cfg.prime.enable {
+        offload = {
+          enable = true;
+          enableOffloadCmd = true;
+        };
+        nvidiaBusId = slotToNixBusId discreteGpuSlot;
+        amdgpuBusId = lib.mkIf hasAMD (slotToNixBusId primaryGpuSlot);
+        intelBusId = lib.mkIf hasIntel (slotToNixBusId primaryGpuSlot);
       };
-      nvidiaBusId = slotToNixBusId discreteGpuSlot;
-      amdgpuBusId = lib.mkIf hasAMD (slotToNixBusId primaryGpuSlot);
-      intelBusId = lib.mkIf hasIntel (slotToNixBusId primaryGpuSlot);
     };
   };
 }
