@@ -44,6 +44,7 @@
   ft.security.sops.useTPM = true;
   ft.desktop.cosmic.enable = true;
   ft.kernel.cachyos.enable = true;
+  ft.mullet.enable = true;
   ft.kernel.cachyos.variant = "bore";
   ft.cli.enable = true;
 
