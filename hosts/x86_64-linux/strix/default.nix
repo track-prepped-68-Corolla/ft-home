@@ -21,7 +21,6 @@
 {
   imports = [
     ./modules/
-    ./hardware-configuration.nix
     ../../../modules/nixos
   ];
 
