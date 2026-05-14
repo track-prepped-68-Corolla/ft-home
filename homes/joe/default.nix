@@ -15,7 +15,7 @@
 #
 # Do not import ft-home home modules directly — the generator injects them.
 # =============================================================================
-{ config, pkgs, inputs, ... }:
+{ pkgs, inputs, ... }:
 
 {
   imports = [
@@ -29,9 +29,14 @@
   # construct live out-of-store symlink paths into this repo on disk.
   ft.repoPath = "/home/joe/git/nixos-config";
 
+  home.sessionVariables = {
+    FLAKE = "ft.repoPath";
+  };
+
   # --- FEATURE TOGGLES ---
   ft.lazyvim.enable = true;
   ft.theme.enable = true;
+  ft.theme.wallpaper = ./wallpapers/default.png;
 
   # --- ENVIRONMENT ---
   home.sessionVariables = {

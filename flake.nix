@@ -23,7 +23,7 @@
   description = "NixOS configuration consuming the ft-home framework";
 
   inputs = {
-    ft-home.url = "github:track-prepped-68-corolla/ft-home/generator-fix";
+    ft-home.url = "github:track-prepped-68-corolla/ft-home/main";
 
     # Follow ft-home's pins to avoid duplicate fetches and version drift.
     nixpkgs.follows = "ft-home/nixpkgs";
@@ -31,9 +31,5 @@
     nixos-facter.follows = "ft-home/nixos-facter";
   };
 
-  outputs = inputs @ { ft-home, nixos-facter, ... }:
-    (ft-home.lib.mkFlake inputs) // {
-      # Re-export so `nix run .#nixos-facter` uses the version pinned in flake.lock.
-      packages.x86_64-linux.nixos-facter = nixos-facter.packages.x86_64-linux.nixos-facter;
-    };
+  outputs = inputs@{ ft-home, ... }: ft-home.lib.mkFlake inputs;
 }
