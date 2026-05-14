@@ -24,7 +24,14 @@ in
     };
   };
 
-  config = lib.mkIf (cfg.enable && cfg.reportPath != null && builtins.pathExists cfg.reportPath) {
-    hardware.facter.reportPath = cfg.reportPath;
-  };
+  config = lib.mkIf cfg.enable (lib.mkMerge [
+    {
+      # not-detected.nix used to set this implicitly; make it explicit when facter
+      # takes over as the hardware detection source.
+      hardware.enableRedistributableFirmware = lib.mkDefault true;
+    }
+    (lib.mkIf (cfg.reportPath != null && builtins.pathExists cfg.reportPath) {
+      hardware.facter.reportPath = cfg.reportPath;
+    })
+  ]);
 }
