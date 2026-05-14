@@ -16,10 +16,12 @@
 #   Do not import ft-home modules directly — the generator injects them.
 #   Per-user Home Manager config belongs in homes/<username>/default.nix.
 # =============================================================================
-{ ... }:
+{ lib, inputs, ... }:
 
 {
   imports = [
+    inputs.Disko.nixosModules.disko
+    ./disko.nix
     ./hardware-configuration.nix
     ../../../modules/nixos
   ];
