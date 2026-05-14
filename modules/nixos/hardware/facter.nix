@@ -1,8 +1,6 @@
 {
   lib,
   config,
-  inputs,
-  pkgs,
   ...
 }:
 
@@ -16,18 +14,17 @@ in
 {
   options.ft.hardware.facter = {
     enable = lib.mkEnableOption "nixos-facter hardware detection" // {
-      description = "Imports the nixos-facter NixOS module and points it at a facter.json report committed to the host directory. Replaces hardware-configuration.nix for kernel-module and filesystem detection. Generate the report by running 'just facter' on the target machine and saving the output as hosts/<arch>/<hostname>/facter.json.";
+      description = "Points the nixos-facter NixOS module at a facter.json report committed to the host directory. Replaces hardware-configuration.nix for kernel-module detection. Generate the report by running 'just facter' on the target machine and saving the output as hosts/<arch>/<hostname>/facter.json, then set ft.hardware.facter.reportPath = ./facter.json in the host's default.nix.";
     };
 
     reportPath = lib.mkOption {
-      type = lib.types.path;
-      default = inputs.self + "/hosts/${pkgs.system}/${config.networking.hostName}/facter.json";
-      defaultText = lib.literalExpression ''"<flake>/hosts/''${pkgs.system}/''${config.networking.hostName}/facter.json"'';
-      description = "Path to the facter.json committed in the repo. Defaults to the host's own facter.json; only override if the file lives elsewhere.";
+      type = lib.types.nullOr lib.types.path;
+      default = null;
+      description = "Absolute path to the facter.json committed in the repo. Use a flake-relative path, e.g. reportPath = ./facter.json; from the host's default.nix.";
     };
   };
 
-  config = lib.mkIf (cfg.enable && builtins.pathExists cfg.reportPath) {
+  config = lib.mkIf (cfg.enable && cfg.reportPath != null && builtins.pathExists cfg.reportPath) {
     hardware.facter.reportPath = cfg.reportPath;
   };
 }

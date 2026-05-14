@@ -51,6 +51,9 @@
   ft.kernel.cachyos.variant = "bore";
   ft.cli.enable = true;
 
+  ft.hardware.facter.enable = true;
+  ft.hardware.facter.reportPath = ./modules/facter.json;
+
   # U2F key pre-registered. Activate hardware auth by also setting
   # ft.hardware.yubikey.enable = true when the key is physically present.
   ft.hardware.yubikey.u2fMapping = "joe:MMWc0ZbVifMF3Ah0YM3NLnt4xQKLZY75LuZH5LzElyOXheEMiFjC8s0dxFaKMxRvkpBOqz3uIeksC6VcwNF7FQ==,MINo8SZhJxCR+UO9JNJMwKx/Bi+/8TvSOHFCYLLTWhZotMiikV5aAHRKuGV4liqWGVjRdQ==,es256,+presence";
