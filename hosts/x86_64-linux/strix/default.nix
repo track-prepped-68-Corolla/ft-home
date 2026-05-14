@@ -45,7 +45,6 @@
   ft.desktop.cosmic.enable = true;
   ft.kernel.cachyos.enable = true;
   ft.mullet.enable = true;
-  ft.hardware.facter.enable = true;
   ft.hardware.gpu.enable = true;
   ft.hardware.yubikey.enable = true;
   ft.kernel.cachyos.variant = "bore";
