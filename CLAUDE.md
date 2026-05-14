@@ -87,29 +87,30 @@ See **`todo.md`** in this repo root.
 
 ## Rules for Claude
 
-1. **Branch**: always develop on the branch named in the session instructions.
+1. **Branch**: always look for code on the main branch.
+   develop on the claude branch.
    Never push to `master` without explicit permission.
 
-2. **Consumer vs framework**: consumer-specific options and modules belong in
+3. **Consumer vs framework**: consumer-specific options and modules belong in
    *this* repo. Shared framework features belong in `ft-home`. When in doubt,
    ask — don't silently put things in the wrong repo.
 
-3. **No hardcoded paths**: never embed absolute filesystem paths (e.g.
+4. **No hardcoded paths**: never embed absolute filesystem paths (e.g.
    `/home/joe/git/nixos-config`) in Nix expressions. Use `inputs.self` or
    flake-relative paths instead.
 
-4. **`ft.*` namespace**: all framework-provided options live under `ft.*`.
+5. **`ft.*` namespace**: all framework-provided options live under `ft.*`.
    Follow `lib.mkEnableOption` / `lib.mkOption` patterns already in use.
 
-5. **Don't import ft-home modules manually**: host and home files must not
+6. **Don't import ft-home modules manually**: host and home files must not
    `import` ft-home module paths directly. The generator injects them.
 
-6. **`nix flake update ft-home`**: when you need a newer ft-home (new modules,
+7. **`nix flake update ft-home`**: when you need a newer ft-home (new modules,
    fixes), update the ft-home input, not nixpkgs.
 
-7. **Check todo.md first**: before proposing new work, read `todo.md` to
+8. **Check todo.md first**: before proposing new work, read `todo.md` to
    understand what is already planned and what priority the user has set.
 
-8. **plan.md is the current working plan**: at the start of any new plan,
+9. **plan.md is the current working plan**: at the start of any new plan,
    overwrite `plan.md` in the repo root with the new plan. At the start of a
    new session, read `plan.md` to recover context on what was in progress.
