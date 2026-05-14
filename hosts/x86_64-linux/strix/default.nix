@@ -51,7 +51,7 @@
   ft.cli.enable = true;
 
   ft.hardware.facter.enable = true;
-  ft.hardware.facter.reportPath = ./modules/facter.json;
+  ft.hardware.facter.reportPath = ./facter.json;
 
   # U2F key pre-registered. Activate hardware auth by also setting
   # ft.hardware.yubikey.enable = true when the key is physically present.
