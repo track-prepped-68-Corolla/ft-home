@@ -58,4 +58,18 @@
   ft.hardware.yubikey.u2fMapping = "joe:MMWc0ZbVifMF3Ah0YM3NLnt4xQKLZY75LuZH5LzElyOXheEMiFjC8s0dxFaKMxRvkpBOqz3uIeksC6VcwNF7FQ==,MINo8SZhJxCR+UO9JNJMwKx/Bi+/8TvSOHFCYLLTWhZotMiikV5aAHRKuGV4liqWGVjRdQ==,es256,+presence";
 
   nixpkgs.hostPlatform = "x86_64-linux";
+
+  # --- LOCAL AI STACK ---
+  # Uncomment and fill in your actual paths to enable: llamafile → Hermes → AnythingLLM
+  # Requires: hermes-agent installed for joe (pip install --user hermes-agent)
+  # After first boot, open http://localhost:3001 and configure LLM provider:
+  #   Generic OpenAI → Base URL: http://localhost:9119/v1 → API key: local
+  #
+  # ft.services.localAi = {
+  #   enable = true;
+  #   llamafile.execPath = "/home/joe/models/<llamafile-thin-binary>";
+  #   llamafile.modelPath = "/home/joe/models/<Qwen3-model>.gguf";
+  #   # Optional: GPU offload and context size
+  #   # llamafile.extraArgs = [ "--ctx-size" "32768" "--n-gpu-layers" "99" ];
+  # };
 }
