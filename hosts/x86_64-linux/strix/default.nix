@@ -16,7 +16,7 @@
 #   Do not import ft-home modules directly — the generator injects them.
 #   Per-user Home Manager config belongs in homes/<username>/default.nix.
 # =============================================================================
-{ lib, ... }:
+{ ... }:
 
 {
   imports = [
@@ -45,6 +45,9 @@
   ft.desktop.cosmic.enable = true;
   ft.kernel.cachyos.enable = true;
   ft.mullet.enable = true;
+  ft.hardware.facter.enable = true;
+  ft.hardware.gpu.enable = true;
+  ft.hardware.yubikey.enable = true;
   ft.kernel.cachyos.variant = "bore";
   ft.cli.enable = true;
 
