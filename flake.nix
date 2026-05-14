@@ -31,9 +31,5 @@
     nixos-facter.follows = "ft-home/nixos-facter";
   };
 
-  outputs = inputs @ { ft-home, nixos-facter, ... }:
-    (ft-home.lib.mkFlake inputs) // {
-      # Re-export so `nix run .#nixos-facter` uses the version pinned in flake.lock.
-      packages.x86_64-linux.nixos-facter = nixos-facter.packages.x86_64-linux.nixos-facter;
-    };
+  outputs = inputs@{ ft-home, ... }: ft-home.lib.mkFlake inputs;
 }
