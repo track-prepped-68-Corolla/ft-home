@@ -57,8 +57,8 @@
 ### 💻 Hardware, Boot & Vendor Support
 - [x] swap bootloader to limine
 - [x] remove lanzaboote from inputs and add facter
-- [ ] set up facter modules
-- [ ] create GPU module for facter
+- [x] set up facter modules
+- [x] create GPU module for facter
 - [ ] enable Asus support 
 - [ ] **Look into supporting other vendors:**
   - [ ] Review `nixos-hardware` for common vendor profiles (Lenovo, Dell, etc.).
