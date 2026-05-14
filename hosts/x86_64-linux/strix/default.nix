@@ -20,8 +20,7 @@
 
 {
   imports = [
-    inputs.Disko.nixosModules.disko
-    ./disko.nix
+    ./modules/disko.nix
     ./hardware-configuration.nix
     ../../../modules/nixos
   ];
