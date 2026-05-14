@@ -1,7 +1,6 @@
-{ ... }:
+{ lib, ... }:
 {
-  imports = [
-    ./hardware-configuration.nix
-    ./disko.nix
-  ];
+  imports = builtins.filter
+    (f: lib.hasSuffix ".nix" (toString f) && f != ./default.nix)
+    (lib.filesystem.listFilesRecursive ./.);
 }
