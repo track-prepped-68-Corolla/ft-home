@@ -74,6 +74,7 @@
       "--ctx-size"
       "32768"
       "--n-gpu-layers"
+      "--server"
       "99"
     ];
   };
