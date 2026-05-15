@@ -16,14 +16,6 @@
   #  This allows you to override these settings in a host file if necessary.
   # -------------------------------------------------------------------------
 
-  options = {
-    ft.flakeDir = lib.mkOption {
-      type = lib.types.str;
-      default = "/home/joe/git/ft-home";
-      description = "The absolute path to the Fast Track Nix flake directory.";
-    };
-  };
-
   config = {
 
     # --- 1. SYSTEM IDENTITY (The Birthday) ---

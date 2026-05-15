@@ -1,37 +1,27 @@
-{ config, pkgs, inputs, ...}:
+{ config, pkgs, inputs, ... }:
 
 {
-  # --- Imports ---
   imports = [
-    #these are wrong now. fix!
-    #inputs.sops-nix.homeManagerModules.sops
-    #../../home-modules
+    # ft-home framework home modules (provides ft.primaryHost, ft.repoPath, ft.hostFacts, etc.)
+    inputs.ft-home.homeManagerModules.default
+
+    # This repo's additive home modules (terminal, lazyvim, stylix, etc.)
+    ../../modules/home
   ];
 
-  # --- User Information ---
-  home.username = "joe";
+  home.username  = "joe";
+  ft.primaryHost = "strix";
 
-  # --- Module Toggles ---
-  # Turn on the LazyVim environment
-  ft.lazyvim.enable = true;
-
-  ft.catppuccin.enable
-
-  # --- Environment Variables ---
   home.sessionVariables = {
     EDITOR = "nvim";
   };
 
-  # --- Packages ---
   home.packages = with pkgs; [
-
-    # SYSTEM / CLI TOOLS
     fastfetch
     htop
     micro
     yazi
 
-    # DESKTOP APPS
     brave
     kitty
     vesktop
@@ -39,24 +29,17 @@
     slack
     localsend
 
-    # DEVELOPMENT
     github-desktop
     vscodium
     direnv
     nixfmt
 
-    # CREATIVE & OFFICE
-    #krita
-    #openscad
-    #freecad
-    #blender
     inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.krita
     inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.openscad
     inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.freecad
     inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.blender
     libreoffice
 
-    # GAMING
     mangohud
     heroic
     lutris
