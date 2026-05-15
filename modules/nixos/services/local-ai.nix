@@ -88,7 +88,6 @@ in
             -m ${lib.escapeShellArg cfg.llamafile.modelPath} \
             --port ${llamaPort} \
             --host 127.0.0.1 \
-            --nobrowser \
             ${lib.escapeShellArgs cfg.llamafile.extraArgs}
         '';
         User = cfg.user;
