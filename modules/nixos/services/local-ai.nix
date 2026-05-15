@@ -126,6 +126,10 @@ in
       volumes = [
         "/opt/containers/anythingllm/storage:/app/server/storage"
       ];
+      environment = {
+        STORAGE_DIR = "/app/server/storage";
+        SERVER_PORT = toString cfg.anythingllm.port;
+      };
       # host network so the container can reach Hermes on 127.0.0.1
       extraOptions = [ "--network=host" ];
     };
