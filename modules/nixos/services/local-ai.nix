@@ -71,8 +71,8 @@ in
       };
       port = lib.mkOption {
         type = lib.types.port;
-        default = 9119;
-        description = "Port for the hermes dashboard / API server.";
+        default = 8642;
+        description = "Port for the hermes API server (API_SERVER_PORT).";
       };
       apiKey = lib.mkOption {
         type = lib.types.str;
@@ -122,11 +122,13 @@ in
         OPENAI_BASE_URL = "http://127.0.0.1:${llamaPort}/v1";
         OPENAI_API_KEY = "local";
         API_SERVER_ENABLED = "true";
+        API_SERVER_PORT = hermesPort;
+        API_SERVER_HOST = "127.0.0.1";
         API_SERVER_KEY = cfg.hermes.apiKey;
       };
       serviceConfig = {
         ExecStart = pkgs.writeShellScript "hermes-start" ''
-          exec ${lib.escapeShellArg hermesExec} dashboard --port ${hermesPort}
+          exec ${lib.escapeShellArg hermesExec} gateway run
         '';
         User = cfg.user;
         WorkingDirectory = "/home/${cfg.user}";
