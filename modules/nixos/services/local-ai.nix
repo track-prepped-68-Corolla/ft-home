@@ -84,9 +84,9 @@ in
       description = "llamafile LLM API server";
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" ];
-      path = [ pkgs.gzip ];
       serviceConfig = {
         ExecStart = pkgs.writeShellScript "llamafile-start" ''
+          export PATH="${pkgs.gzip}/bin:${pkgs.coreutils}/bin:$PATH"
           exec ${lib.escapeShellArg cfg.llamafile.execPath} \
             -m ${lib.escapeShellArg cfg.llamafile.modelPath} \
             --port ${llamaPort} \
