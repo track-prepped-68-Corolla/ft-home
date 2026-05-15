@@ -133,10 +133,17 @@ in
       extraOptions = [ "--network=host" ];
     };
 
+    # Ensure storage dir exists before Podman tries to mount it.
+    systemd.services.podman-anythingllm.serviceConfig.ExecStartPre =
+      "+" + pkgs.writeShellScript "anythingllm-mkdir" ''
+        ${pkgs.coreutils}/bin/mkdir -p /opt/containers/anythingllm/storage
+        ${pkgs.coreutils}/bin/chown -R ${cfg.user} /opt/containers/anythingllm
+      '';
+
     systemd.tmpfiles.rules = [
       "d /opt/containers 0775 root root -"
       "d /opt/containers/anythingllm 0775 root root -"
-      "d /opt/containers/anythingllm/storage 0775 ${cfg.user} ${cfg.user} -"
+      "d /opt/containers/anythingllm/storage 0775 ${cfg.user} - -"
     ];
 
     networking.firewall.allowedTCPPorts = [ cfg.anythingllm.port ];
