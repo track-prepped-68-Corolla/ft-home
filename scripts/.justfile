@@ -146,20 +146,19 @@ tailscale-init:
     git diff --cached --quiet || git commit -m "chore: tailscale config"
     echo ":: Tailscale configured for tailnet: $TS_TAILNET ::"
 
-# Scaffold a new host in hosts/<arch>/<name>/ and write var/<name>/repo-path.
+# Scaffold a new host in hosts/<name>/ (flat) and create its var/ directory.
 add-host hostname:
     #!/usr/bin/env bash
     set -e
     HOSTNAME="{{hostname}}"
-    ARCH="${2:-x86_64-linux}"
-    HOST_DIR="hosts/${ARCH}/${HOSTNAME}"
+    HOST_DIR="hosts/${HOSTNAME}"
     if [ -d "$HOST_DIR" ]; then
       echo ":: Host ${HOSTNAME} already exists at ${HOST_DIR} ::"
       exit 0
     fi
     REPO_PATH="$(git rev-parse --show-toplevel)"
-    mkdir -p "$HOST_DIR" "var/${HOSTNAME}"
-    printf '%s' "$REPO_PATH" > "var/${HOSTNAME}/repo-path"
+    printf '%s' "$REPO_PATH" > var/local
+    mkdir -p "${HOST_DIR}/var"
     cat > "${HOST_DIR}/default.nix" <<EOF
 { lib, inputs, ... }:
 {
@@ -172,6 +171,8 @@ add-host hostname:
   networking.hostName = "${HOSTNAME}";
   mainuser = "joe";
 
+  ft.repoPath = "$REPO_PATH";
+
   ft.runtimeFacts.enable   = true;
   ft.boot.limine.enable    = true;
   ft.security.sops.enable  = true;
@@ -179,11 +180,10 @@ add-host hostname:
   ft.cli.enable            = true;
 
   programs.zsh.enable = true;
-  nixpkgs.hostPlatform = "${ARCH}";
 }
 EOF
     touch "${HOST_DIR}/hardware-configuration.nix"
-    git add "${HOST_DIR}/" "var/${HOSTNAME}/repo-path"
+    git add "${HOST_DIR}/"
     git diff --cached --quiet || git commit -m "bootstrap: scaffold host ${HOSTNAME}"
     echo ":: Host ${HOSTNAME} scaffolded at ${HOST_DIR} ::"
 
@@ -201,45 +201,19 @@ secrets-init hostname:
     echo "Add to secrets/.sops.yaml:   - &${HOSTNAME}  ${AGE_KEY}"
     echo "Then run:  sops updatekeys secrets/shared/*.yaml"
 
-# SSH into target, collect hardware facts, write var/<host>/facts.nix.
+# SSH into target and collect hardware facts into hosts/<host>/var/facter.json.
 facter hostname ip:
     #!/usr/bin/env bash
     set -e
     HOSTNAME="{{hostname}}"
     IP="{{ip}}"
+    mkdir -p "hosts/${HOSTNAME}/var"
     ssh "root@${IP}" \
       "nix run github:numtide/nixos-facter -- -o /tmp/facter.json && cat /tmp/facter.json" \
-      > "hosts/x86_64-linux/${HOSTNAME}/facter.json"
-    just generate-facts "{{hostname}}"
-
-# Read hosts/<host>/facter.json and write var/<host>/facts.nix.
-generate-facts hostname:
-    #!/usr/bin/env bash
-    set -e
-    HOSTNAME="{{hostname}}"
-    FACTER="hosts/x86_64-linux/${HOSTNAME}/facter.json"
-    if [ ! -f "$FACTER" ]; then
-      echo "Error: ${FACTER} not found. Run: just facter ${HOSTNAME} <ip>"; exit 1
-    fi
-    GPU_VENDOR=$(jq -r '[.hardware.pci_devices[]? | select(.class_id == "0300" or .class_id == "0302") | .vendor_name // "unknown"] | first // "unknown"' "$FACTER" | tr '[:upper:]' '[:lower:]')
-    HAS_NVIDIA=$(echo "$GPU_VENDOR" | grep -c nvidia || true)
-    HAS_AMD=$(echo "$GPU_VENDOR"    | grep -c amd    || true)
-    mkdir -p "var/${HOSTNAME}"
-    cat > "var/${HOSTNAME}/facts.nix" <<EOF
-{
-  hostname    = "${HOSTNAME}";
-  arch        = "x86_64-linux";
-  primaryUser = "joe";
-  gpu = {
-    vendor      = "${GPU_VENDOR}";
-    hasDiscrete = false;
-    hasNvidia   = $([ "$HAS_NVIDIA" -gt 0 ] && echo true || echo false);
-    hasAmd      = $([ "$HAS_AMD"    -gt 0 ] && echo true || echo false);
-  };
-}
-EOF
-    git add "var/${HOSTNAME}/facts.nix" "${FACTER}"
+      > "hosts/${HOSTNAME}/var/facter.json"
+    git add "hosts/${HOSTNAME}/var/facter.json"
     git diff --cached --quiet || git commit -m "bootstrap: hardware facts for ${HOSTNAME}"
+    echo ":: hosts/${HOSTNAME}/var/facter.json written ::"
 
 # Install NixOS on target via nixos-anywhere.
 deploy hostname ip:

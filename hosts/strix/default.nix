@@ -13,6 +13,7 @@
 
   networking.hostName = "strix";
   mainuser            = "joe";
+  ft.repoPath         = "/home/joe/git/nixos-config";
 
   u2fMappings = ''
     joe:your_yubikey_public_key_string_here
