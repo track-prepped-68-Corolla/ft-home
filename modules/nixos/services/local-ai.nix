@@ -139,7 +139,8 @@ in
 
     # Ensure storage dir exists before Podman tries to mount it.
     systemd.services.podman-anythingllm.serviceConfig.ExecStartPre =
-      "+" + pkgs.writeShellScript "anythingllm-mkdir" ''
+      "+"
+      + pkgs.writeShellScript "anythingllm-mkdir" ''
         ${pkgs.coreutils}/bin/mkdir -p /opt/containers/anythingllm/storage
         ${pkgs.coreutils}/bin/chown -R ${cfg.user} /opt/containers/anythingllm
       '';
