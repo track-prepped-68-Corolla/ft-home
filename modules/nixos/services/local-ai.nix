@@ -57,7 +57,13 @@ in
         type = lib.types.listOf lib.types.str;
         default = [ ];
         description = "Extra flags passed to llamafile, e.g. --server, --ctx-size, --n-gpu-layers.";
-        example = [ "--server" "--ctx-size" "32768" "--n-gpu-layers" "99" ];
+        example = [
+          "--server"
+          "--ctx-size"
+          "32768"
+          "--n-gpu-layers"
+          "99"
+        ];
       };
     };
 
@@ -120,7 +126,10 @@ in
     systemd.services.hermes-agent = lib.mkIf cfg.hermes.enable {
       description = "Hermes AI agent dashboard";
       wantedBy = [ "multi-user.target" ];
-      after = [ "network.target" "llamafile.service" ];
+      after = [
+        "network.target"
+        "llamafile.service"
+      ];
       environment = {
         OPENAI_BASE_URL = "http://127.0.0.1:${llamaPort}/v1";
         OPENAI_API_KEY = "local";
