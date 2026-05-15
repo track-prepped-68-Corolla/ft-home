@@ -1,13 +1,16 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.ft.services.localAi;
   llamaPort = toString cfg.llamafile.port;
   hermesPort = toString cfg.hermes.port;
   hermesExec =
-    if cfg.hermes.execPath != ""
-    then cfg.hermes.execPath
-    else "/home/${cfg.user}/.local/bin/hermes";
+    if cfg.hermes.execPath != "" then cfg.hermes.execPath else "/home/${cfg.user}/.local/bin/hermes";
 in
 {
   options.ft.services.localAi = {

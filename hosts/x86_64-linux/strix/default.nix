@@ -65,11 +65,16 @@
   # After first boot, open http://localhost:3001 and configure LLM provider:
   #   Generic OpenAI → Base URL: http://localhost:9119/v1 → API key: local
   #
-  # ft.services.localAi = {
-  #   enable = true;
-  #   llamafile.execPath = "/home/joe/models/<llamafile-thin-binary>";
-  #   llamafile.modelPath = "/home/joe/models/<Qwen3-model>.gguf";
-  #   # Optional: GPU offload and context size
-  #   # llamafile.extraArgs = [ "--ctx-size" "32768" "--n-gpu-layers" "99" ];
-  # };
+  ft.services.localAi = {
+    enable = true;
+    llamafile.execPath = "/home/joe/Documents/llamafile-0.10.1-thin";
+    llamafile.modelPath = "/home/joe/Documents/Qwen3.5-27B.Q6_K.gguf";
+    # Optional: GPU offload and context size
+    llamafile.extraArgs = [
+      "--ctx-size"
+      "32768"
+      "--n-gpu-layers"
+      "99"
+    ];
+  };
 }
