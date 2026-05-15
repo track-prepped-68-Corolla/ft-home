@@ -84,6 +84,7 @@ in
       description = "llamafile LLM API server";
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" ];
+      path = [ pkgs.gzip ];
       serviceConfig = {
         ExecStart = pkgs.writeShellScript "llamafile-start" ''
           exec ${lib.escapeShellArg cfg.llamafile.execPath} \
