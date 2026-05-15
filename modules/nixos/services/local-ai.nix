@@ -112,7 +112,7 @@ in
       };
       serviceConfig = {
         ExecStart = pkgs.writeShellScript "hermes-start" ''
-          exec ${lib.escapeShellArg hermesExec} web --port ${hermesPort}
+          exec ${lib.escapeShellArg hermesExec} dashboard --port ${hermesPort}
         '';
         User = cfg.user;
         WorkingDirectory = "/home/${cfg.user}";
@@ -131,6 +131,7 @@ in
     };
 
     systemd.tmpfiles.rules = [
+      "d /opt/containers 0775 root root -"
       "d /opt/containers/anythingllm 0775 root root -"
       "d /opt/containers/anythingllm/storage 0775 ${cfg.user} ${cfg.user} -"
     ];
