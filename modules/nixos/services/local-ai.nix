@@ -11,55 +11,73 @@ let
 in
 {
   options.ft.services.localAi = {
-    enable = lib.mkEnableOption "local AI stack: llamafile → Hermes agent → AnythingLLM UI" // {
-      description = "Runs a three-tier local AI stack: llamafile serves a GGUF model as an OpenAI-compatible API; Hermes Agent wraps it as a tool-calling agent with its own OpenAI-compatible HTTP API; AnythingLLM provides the chat UI backed by Hermes. Configure LLM provider in AnythingLLM's web UI after first boot: use 'Generic OpenAI' pointing at http://localhost:${hermesPort}/v1.";
+    enable = lib.mkEnableOption "local AI stack: llamafile + AnythingLLM" // {
+      description = ''
+        Runs a local AI stack:
+
+          llamafile  — serves a GGUF model as an OpenAI-compatible API (port ${llamaPort})
+          AnythingLLM — RAG/agent chat UI backed by llamafile (port ${toString cfg.anythingllm.port})
+          hermes-agent — optional companion CLI agent also pointed at llamafile (port ${hermesPort})
+
+        After first boot, open AnythingLLM at http://localhost:${toString cfg.anythingllm.port},
+        configure LLM provider → Generic OpenAI → Base URL: http://localhost:${llamaPort}/v1.
+
+        hermes-agent (dashboard) is available at http://localhost:${hermesPort} for its
+        own management UI; it requires a manually built frontend to serve completions
+        and is not wired into AnythingLLM by default.
+      '';
     };
 
     user = lib.mkOption {
       type = lib.types.str;
       default = config.mainuser;
-      description = "User under which llamafile and Hermes run. Must own the model files and have Hermes installed (pip install hermes-agent).";
+      description = "User under which llamafile and hermes-agent run. Must own the model files.";
     };
 
     llamafile = {
       execPath = lib.mkOption {
         type = lib.types.str;
         description = "Absolute path to the llamafile (or llamafile-thin) binary.";
-        example = "/home/joe/models/llamafile-0.8.18";
+        example = "/home/joe/Documents/llamafile-0.10.1-thin";
       };
       modelPath = lib.mkOption {
         type = lib.types.str;
         description = "Absolute path to the GGUF model file.";
-        example = "/home/joe/models/Qwen3-235B-A22B-128K-UD-Q2_K_XL.gguf";
+        example = "/home/joe/Documents/Qwen3.5-27B.Q6_K.gguf";
       };
       port = lib.mkOption {
         type = lib.types.port;
         default = 8080;
-        description = "Port for the llamafile OpenAI-compatible API (loopback only; consumed by Hermes).";
+        description = "Port for the llamafile OpenAI-compatible API.";
       };
       extraArgs = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [ ];
-        description = "Extra flags passed to llamafile, e.g. --ctx-size, --n-gpu-layers.";
-        example = [
-          "--ctx-size"
-          "32768"
-          "--n-gpu-layers"
-          "99"
-        ];
+        description = "Extra flags passed to llamafile, e.g. --server, --ctx-size, --n-gpu-layers.";
+        example = [ "--server" "--ctx-size" "32768" "--n-gpu-layers" "99" ];
       };
     };
 
     hermes = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Run hermes-agent dashboard as a companion service. Requires hermes installed via pipx.";
+      };
       execPath = lib.mkOption {
         type = lib.types.str;
         default = "";
-        description = "Absolute path to the hermes binary. Empty string defaults to ~/.local/bin/hermes under the service user.";
+        description = "Absolute path to the hermes binary. Empty defaults to ~/.local/bin/hermes under the service user.";
       };
       port = lib.mkOption {
         type = lib.types.port;
         default = 9119;
-        description = "Port for the Hermes web API server. AnythingLLM connects here for chat completions.";
+        description = "Port for the hermes dashboard / API server.";
+      };
+      apiKey = lib.mkOption {
+        type = lib.types.str;
+        default = "local";
+        description = "API key for the Hermes API server (API_SERVER_KEY). Use this same value as the API key in AnythingLLM's Generic OpenAI provider config.";
       };
     };
 
@@ -96,19 +114,15 @@ in
       };
     };
 
-    systemd.services.hermes-agent = {
-      description = "Hermes AI agent web API server";
+    systemd.services.hermes-agent = lib.mkIf cfg.hermes.enable {
+      description = "Hermes AI agent dashboard";
       wantedBy = [ "multi-user.target" ];
-      after = [
-        "network.target"
-        "llamafile.service"
-      ];
+      after = [ "network.target" "llamafile.service" ];
       environment = {
-        # Point Hermes at the local llamafile backend.
-        # ~/.hermes/.env is loaded by Hermes with override=true, so place any
-        # persistent overrides there rather than fighting this value.
         OPENAI_BASE_URL = "http://127.0.0.1:${llamaPort}/v1";
         OPENAI_API_KEY = "local";
+        API_SERVER_ENABLED = "true";
+        API_SERVER_KEY = cfg.hermes.apiKey;
       };
       serviceConfig = {
         ExecStart = pkgs.writeShellScript "hermes-start" ''
@@ -130,7 +144,7 @@ in
         STORAGE_DIR = "/app/server/storage";
         SERVER_PORT = toString cfg.anythingllm.port;
       };
-      # host network so the container can reach Hermes on 127.0.0.1
+      # host network so the container can reach llamafile on 127.0.0.1
       extraOptions = [ "--network=host" ];
     };
 
