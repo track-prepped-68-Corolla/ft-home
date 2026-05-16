@@ -24,11 +24,6 @@
 
   inputs = {
     ft-home.url = "github:track-prepped-68-corolla/ft-home/main";
-
-    # Follow ft-home's pins to avoid duplicate fetches and version drift.
-    nixpkgs.follows = "ft-home/nixpkgs";
-    home-manager.follows = "ft-home/home-manager";
-    nixos-facter.follows = "ft-home/nixos-facter";
   };
 
   outputs = inputs@{ ft-home, ... }: ft-home.lib.mkFlake inputs;
