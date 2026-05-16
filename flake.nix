@@ -1,51 +1,35 @@
+# =============================================================================
+# nixos-config — Consumer Flake
+# =============================================================================
+#
+# This flake is intentionally minimal. All output generation is delegated to
+# ft-home.lib.mkFlake, which runs lib/generator.nix against this repo's
+# hosts/ and homes/ directories.
+#
+# Generated outputs:
+#   nixosConfigurations.<hostname>        one per hosts/<arch>/<hostname>/
+#   darwinConfigurations.<hostname>       one per hosts/<arch>-darwin/<hostname>/
+#   homeConfigurations.<user>@<arch>      one per homes/<user>/ x host arch
+#
+# To add a new host:           create hosts/<arch>/<hostname>/default.nix
+# To add a new home:           create homes/<username>/default.nix
+# To add a consumer module:    drop a .nix file under modules/nixos/ or modules/home/
+# To pull framework updates:   nix flake update ft-home
+#
+# Do NOT run `nix flake update nixpkgs` — nixpkgs follows ft-home's pin
+# and has no standalone input node in this flake.
+# =============================================================================
 {
-  description = "NixOS configuration — consumer of ft-home";
+  description = "NixOS configuration consuming the ft-home framework";
 
   inputs = {
-    nixpkgs.url          = "github:nixos/nixpkgs/nixos-unstable";
-    nixpkgs-stable.url   = "github:nixos/nixpkgs/nixos-25.11";
-    nixos-hardware.url   = "github:NixOS/nixos-hardware/master";
+    ft-home.url = "github:track-prepped-68-corolla/ft-home/main";
 
-    home-manager = {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    darwin = {
-      url = "github:LnL7/nix-darwin";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    ft-home = {
-      url = "github:track-prepped-68-corolla/ft-home";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    Disko = {
-      url = "github:nix-community/disko";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    nixos-facter = {
-      url = "github:numtide/nixos-facter";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    sops-nix = {
-      url = "github:Mic92/sops-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    nix-index-database = {
-      url = "github:nix-community/nix-index-database";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    jovian-nixos = {
-      url = "github:jovian-experiments/jovian-nixos";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # Follow ft-home's pins to avoid duplicate fetches and version drift.
+    nixpkgs.follows = "ft-home/nixpkgs";
+    home-manager.follows = "ft-home/home-manager";
+    nixos-facter.follows = "ft-home/nixos-facter";
   };
 
-  outputs = inputs: inputs.ft-home.lib.mkFlake inputs;
+  outputs = inputs@{ ft-home, ... }: ft-home.lib.mkFlake inputs;
 }
