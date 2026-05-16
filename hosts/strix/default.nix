@@ -13,7 +13,6 @@
 
   networking.hostName = "strix";
   mainuser            = "joe";
-  ft.repoPath         = "/home/joe/git/nixos-config";
 
   u2fMappings = ''
     joe:your_yubikey_public_key_string_here
@@ -22,7 +21,6 @@
   users.users.joe.initialPassword = "nixos";
   users.mutableUsers = true;
 
-  ft.runtimeFacts.enable    = true;
   ft.boot.limine.enable     = true;
   ft.security.sops.enable   = true;
   ft.security.sops.useTPM   = true;

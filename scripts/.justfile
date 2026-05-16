@@ -146,18 +146,21 @@ tailscale-init:
     git diff --cached --quiet || git commit -m "chore: tailscale config"
     echo ":: Tailscale configured for tailnet: $TS_TAILNET ::"
 
-# Scaffold a new host in hosts/<name>/ (flat) and create its var/ directory.
-add-host hostname:
+# Scaffold a new host in hosts/<name>/ (flat) and write var/local/{hostName,repoPath}.
+add-host hostname ip:
     #!/usr/bin/env bash
     set -e
     HOSTNAME="{{hostname}}"
+    IP="{{ip}}"
     HOST_DIR="hosts/${HOSTNAME}"
     if [ -d "$HOST_DIR" ]; then
       echo ":: Host ${HOSTNAME} already exists at ${HOST_DIR} ::"
       exit 0
     fi
     REPO_PATH="$(git rev-parse --show-toplevel)"
-    printf '%s' "$REPO_PATH" > var/local
+    mkdir -p var/local
+    printf '%s' "$REPO_PATH" > var/local/repoPath
+    printf '%s' "$HOSTNAME"  > var/local/hostName
     mkdir -p "${HOST_DIR}/var"
     cat > "${HOST_DIR}/default.nix" <<EOF
 { lib, inputs, ... }:
@@ -171,9 +174,6 @@ add-host hostname:
   networking.hostName = "${HOSTNAME}";
   mainuser = "joe";
 
-  ft.repoPath = "$REPO_PATH";
-
-  ft.runtimeFacts.enable   = true;
   ft.boot.limine.enable    = true;
   ft.security.sops.enable  = true;
   ft.desktop.cosmic.enable = true;
@@ -183,9 +183,10 @@ add-host hostname:
 }
 EOF
     touch "${HOST_DIR}/hardware-configuration.nix"
-    git add "${HOST_DIR}/"
+    git add "var/local/" "${HOST_DIR}/"
     git diff --cached --quiet || git commit -m "bootstrap: scaffold host ${HOSTNAME}"
     echo ":: Host ${HOSTNAME} scaffolded at ${HOST_DIR} ::"
+    just generate-facts "${HOSTNAME}" "${IP}"
 
 # Generate SSH host key + age pubkey, print instructions for .sops.yaml.
 secrets-init hostname:
@@ -202,12 +203,13 @@ secrets-init hostname:
     echo "Then run:  sops updatekeys secrets/shared/*.yaml"
 
 # SSH into target and collect hardware facts into hosts/<host>/var/facter.json.
-facter hostname ip:
+generate-facts hostname ip:
     #!/usr/bin/env bash
     set -e
     HOSTNAME="{{hostname}}"
     IP="{{ip}}"
     mkdir -p "hosts/${HOSTNAME}/var"
+    echo ":: Scanning hardware on ${IP} ::"
     ssh "root@${IP}" \
       "nix run github:numtide/nixos-facter -- -o /tmp/facter.json && cat /tmp/facter.json" \
       > "hosts/${HOSTNAME}/var/facter.json"
@@ -231,14 +233,13 @@ deploy hostname ip:
     fi
     nixos-anywhere --flake ".#${HOSTNAME}" $EXTRA_FILES "root@${IP}"
 
-# Full bootstrap: git-init → add-host → secrets-init → facter → deploy.
+# Full bootstrap: git-init → add-host (includes generate-facts) → secrets-init → deploy.
 bootstrap hostname ip:
     #!/usr/bin/env bash
     set -e
-    just git-init      2>/dev/null || true
-    just add-host      "{{hostname}}"
+    just git-init                      2>/dev/null || true
+    just add-host      "{{hostname}}" "{{ip}}"
     just secrets-init  "{{hostname}}"
-    just facter        "{{hostname}}" "{{ip}}"
     just deploy        "{{hostname}}" "{{ip}}"
     echo ":: Bootstrap complete for {{hostname}} ::"
 

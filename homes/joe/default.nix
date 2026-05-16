@@ -9,8 +9,7 @@
     ../../modules/home
   ];
 
-  home.username  = "joe";
-  ft.primaryHost = "strix";
+  home.username = "joe";
 
   home.sessionVariables = {
     EDITOR = "nvim";
