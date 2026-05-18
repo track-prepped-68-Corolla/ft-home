@@ -15,7 +15,7 @@
 #   Do not import ft-home modules directly — the generator injects them.
 #   Per-user Home Manager config belongs in homes/<username>/default.nix.
 # =============================================================================
-{ ... }:
+{ lib, ... }:
 
 {
   imports = [
@@ -31,6 +31,8 @@
   superUsers = [ "joe" ];
   users.users.joe.initialPassword = "nixos";
   users.mutableUsers = true;
+
+  ft.repoPath = lib.removeSuffix "\n" (builtins.readFile ../../var/local/repoPath);
 
   # --- FEATURE TOGGLES ---
   ft.boot.limine.enable = true;
