@@ -7,61 +7,51 @@
 
 ################################################################################
 # DEFAULT APPLICATIONS MODULE
-# ------------------------------------------------------------------------------
-# This module defines a set of essential applications and utilities that are
-# commonly used across different NixOS configurations. It aims to provide a
-# robust baseline of tools for development, system management, and general use.
-#
-# Note: Many applications are better managed via Home Manager for user-specific
-# configurations. This module focuses on system-wide installations.
 ################################################################################
 
+let
+  cfg = config.ft.apps;
+in
 {
-  config = {
+  options.ft.apps.enable = lib.mkEnableOption "default system applications" // {
+    default = true;
+    description = "Installs the consumer's default system-wide application suite (ripgrep, fd, fzf, zoxide, eza, bat, lazygit, obsidian, brave, trufflehog, etc.) and enables the Tailscale daemon. Disable to strip all consumer-specific packages from the system closure.";
+  };
+
+  config = lib.mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
-      # System Utilities and Tools
-      nixos-generators # Tool for generating various NixOS artifacts
-      direnv # Environment switcher for shell
-      #tailscale
-      sops # Secrets management (used with sops-nix)
-      wget # Network downloader
-      curl # Transfer data from or to a server
-      unzip # Decompress zip archives
-      bottom # Interactive process viewer
-      duf # Disk Usage/Free Utility
-      tldr # Simplified man pages
-      perl # Practical Extraction and Report Language
-      nodejs # JavaScript runtime
+      nixos-generators
+      direnv
+      sops
+      wget
+      curl
+      unzip
+      bottom
+      duf
+      tldr
+      perl
+      nodejs
       obsidian
       just
       trufflehog
 
-      # File System and Search Tools
-      ripgrep # Super-fast grep alternative
-      fd # Simple, fast and user-friendly alternative to find
-      fzf # A command-line fuzzy finder
-      zoxide # A smarter cd command
-      eza # A modern replacement for 'ls'
-      bat # A 'cat' clone with wings (syntax highlighting, Git integration)
+      ripgrep
+      fd
+      fzf
+      zoxide
+      eza
+      bat
 
-      # Version Control
-      git # The famous version control system
-      lazygit # A simple terminal UI for git commands
+      git
+      lazygit
 
-      # Terminal Multiplexer
-      tmux # Terminal multiplexer
+      tmux
 
-      # Text Editors (Basic system-wide)
-      micro # A modern and intuitive terminal-based text editor
-      #neovim           # A Vim-fork focused on extensibility and usability
+      micro
+
+      brave
     ];
 
     services.tailscale.enable = true;
-
-    programs.nix-index-database.comma.enable = true;
-    programs.nix-index.enable = true;
-    programs.command-not-found.enable = false;
-
-    #services.tailscale.extraUpFlags = [ "--operator=${config.mainuser}" ];
   };
 }
