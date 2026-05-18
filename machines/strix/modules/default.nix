@@ -3,7 +3,7 @@
 # =============================================================================
 #
 # Single entry-point for ALL consumer-specific NixOS modules. Imported from
-# hosts/<hostname>/default.nix and evaluated alongside the framework modules
+# machines/<name>/default.nix and evaluated alongside the framework modules
 # that ft-home injects automatically.
 #
 # HOW IT WORKS

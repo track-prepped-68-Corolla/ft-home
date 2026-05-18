@@ -20,7 +20,7 @@ let
 in
 {
   # --- THE API (Options) ---
-  # These are the "knobs" you turn in your host files (e.g., hosts/spec/default.nix).
+  # These are the "knobs" you turn in your machine files (e.g., machines/spec/default.nix).
   options = {
     mainuser = lib.mkOption {
       type = lib.types.str;

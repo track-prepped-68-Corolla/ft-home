@@ -2,7 +2,7 @@
 # joe — Home Manager Configuration
 # =============================================================================
 #
-# Discovered by lib/generator.nix at homes/joe/default.nix and becomes
+# Discovered by lib/generator.nix at users/joe/default.nix and becomes
 # homeConfigurations.joe@x86_64-linux (and any other active arch).
 #
 # WHAT GOES HERE

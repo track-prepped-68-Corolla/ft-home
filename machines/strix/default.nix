@@ -2,7 +2,7 @@
 # strix — Host Configuration
 # =============================================================================
 #
-# Discovered by lib/generator.nix at hosts/strix/default.nix
+# Discovered by lib/generator.nix at machines/strix/default.nix
 # and becomes nixosConfigurations.strix.
 #
 # WHAT GOES HERE
@@ -13,7 +13,7 @@
 #
 # WHAT DOES NOT GO HERE
 #   Do not import ft-home modules directly — the generator injects them.
-#   Per-user Home Manager config belongs in homes/<username>/default.nix.
+#   Per-user Home Manager config belongs in users/<username>/default.nix.
 # =============================================================================
 { lib, ... }:
 

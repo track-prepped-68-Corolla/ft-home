@@ -4,15 +4,15 @@
 #
 # This flake is intentionally minimal. All output generation is delegated to
 # ft-home.lib.mkFlake, which runs lib/generator.nix against this repo's
-# hosts/ and homes/ directories.
+# machines/ and users/ directories.
 #
 # Generated outputs:
-#   nixosConfigurations.<hostname>        one per hosts/<arch>/<hostname>/
-#   darwinConfigurations.<hostname>       one per hosts/<arch>-darwin/<hostname>/
-#   homeConfigurations.<user>@<arch>      one per homes/<user>/ x host arch
+#   nixosConfigurations.<name>        one per machines/<name>/
+#   darwinConfigurations.<name>       one per machines/<name>/ (Darwin systems)
+#   homeConfigurations.<user>@<arch>  one per users/<user>/ x machine arch
 #
-# To add a new host:           create hosts/<arch>/<hostname>/default.nix
-# To add a new home:           create homes/<username>/default.nix
+# To add a new machine:        create machines/<name>/default.nix
+# To add a new user:           create users/<username>/default.nix
 # To add a consumer module:    drop a .nix file under modules/nixos/ or modules/home/
 # To pull framework updates:   nix flake update ft-home
 #
