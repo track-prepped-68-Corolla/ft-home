@@ -25,6 +25,7 @@
 
   # --- IDENTITY ---
   networking.hostName = "strix";
+  ft.repoPath = lib.removeSuffix "\n" (builtins.readFile ../../var/local/repoPath);
 
   # mainuser is read by user.nix, sops.nix, gaming.nix, virt.nix, and others.
   mainuser = "joe";
