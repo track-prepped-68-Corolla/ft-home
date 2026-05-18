@@ -32,8 +32,6 @@
   users.users.joe.initialPassword = "nixos";
   users.mutableUsers = true;
 
-  ft.repoPath = lib.removeSuffix "\n" (builtins.readFile ../../var/local/repoPath);
-
   # --- FEATURE TOGGLES ---
   ft.boot.limine.enable = true;
   ft.desktop.cosmic.enable = true;
