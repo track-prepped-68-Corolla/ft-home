@@ -120,8 +120,10 @@ git-init:
     git config user.name  "$GIT_NAME"
     git config user.email "$GIT_EMAIL"
     git remote add origin "$GIT_REMOTE" 2>/dev/null || git remote set-url origin "$GIT_REMOTE"
-    git add var/git/
-    git diff --cached --quiet || git commit -m "chore: store git config in var"
+    mkdir -p var/local
+    printf '%s' "$(nix eval --impure --expr 'builtins.currentSystem' --raw)" > var/local/system
+    git add var/git/ var/local/
+    git diff --cached --quiet || git commit -m "chore: store git config and local system in var"
     echo ":: Git initialised. Remote: $GIT_REMOTE ::"
 
 # Initialize tailscale config.
@@ -146,7 +148,7 @@ tailscale-init:
     git diff --cached --quiet || git commit -m "chore: tailscale config"
     echo ":: Tailscale configured for tailnet: $TS_TAILNET ::"
 
-# Scaffold a new host in hosts/<name>/ (flat) and write var/local/{hostName,repoPath}.
+# Scaffold a new host in hosts/<name>/ (flat) and write var/local/{hostName,repoPath,system}.
 add-host hostname ip:
     #!/usr/bin/env bash
     set -e
@@ -158,16 +160,17 @@ add-host hostname ip:
       exit 0
     fi
     REPO_PATH="$(git rev-parse --show-toplevel)"
+    SYSTEM="$(nix eval --impure --expr 'builtins.currentSystem' --raw)"
     mkdir -p var/local
     printf '%s' "$REPO_PATH" > var/local/repoPath
     printf '%s' "$HOSTNAME"  > var/local/hostName
+    printf '%s' "$SYSTEM"    > var/local/system
     mkdir -p "${HOST_DIR}/var"
     cat > "${HOST_DIR}/default.nix" <<EOF
-{ lib, inputs, ... }:
+{ ... }:
 {
   imports = [
     ./hardware-configuration.nix
-    inputs.ft-home.nixosModules.default
     ../../modules/nixos
   ];
 
