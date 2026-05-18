@@ -2,13 +2,21 @@
 # strix — Host Configuration
 # =============================================================================
 #
+<<<<<<< HEAD
 # Discovered by lib/generator.nix at hosts/strix/default.nix
+=======
+# Discovered by lib/generator.nix at hosts/x86_64-linux/strix/default.nix
+>>>>>>> 76da5d6 (sync)
 # and becomes nixosConfigurations.strix.
 #
 # WHAT GOES HERE
 #   hardware-configuration.nix   machine-specific kernel modules and filesystems
 #   modules/nixos                consumer NixOS modules (auto-gated by ft.*)
 #   Identity                     hostName, mainuser, superUsers
+<<<<<<< HEAD
+=======
+#   ft.repoPath                  required by sops-nix, the ft CLI, and dotfile paths
+>>>>>>> 76da5d6 (sync)
 #   ft.* feature toggles         enable framework and consumer modules
 #
 # WHAT DOES NOT GO HERE
@@ -20,19 +28,31 @@
 {
   imports = [
     ./modules
+<<<<<<< HEAD
     ../../modules/nixos
+=======
+    ../../../modules/nixos
+>>>>>>> 76da5d6 (sync)
   ];
 
   # --- IDENTITY ---
   networking.hostName = "strix";
 
+<<<<<<< HEAD
   # mainuser is read by user.nix, sops.nix, gaming.nix, virt.nix, and others.
   mainuser = "joe";
   superUsers = [ "joe" ];
+=======
+  nixpkgs.hostPlatform = "x86_64-linux";
+>>>>>>> 76da5d6 (sync)
 
+  # mainuser is read by user.nix, sops.nix, gaming.nix, virt.nix, and others.
+  mainuser = "joe";
+  superUsers = [ "joe" ];
   users.users.joe.initialPassword = "nixos";
   users.mutableUsers = true;
 
+<<<<<<< HEAD
   # --- FEATURE TOGGLES ---
   ft.boot.limine.enable = true;
   ft.security.sops.enable = true;
@@ -53,13 +73,50 @@
   ft.hardware.yubikey.u2fMapping = "joe:v+e+ZRyIL4d1FLrvbYhngm1tii+MlU2KAxoJd1b6OBNAe+bZ5h6l5ycVBhsOk+Dkm4Npok3XYT0PQtElOpr6hQ==,CRTxD7nPfvMv59eurT72PVdEKDjfx+a8jj8nzzkzd9lrvB/wpepu17QDRfOm5Du2PmR+Uas8glT+/rEStt+sEA==,es256,+presence%";
 
   nixpkgs.hostPlatform = "x86_64-linux";
+=======
+  # ft.repoPath is used by sops.nix (secrets path), just.nix (ft wrapper),
+  # and any module that resolves dotfile or config paths on disk.
+  ft.repoPath = lib.removeSuffix "\n" (builtins.readFile ../../../var/local/repoPath);
+
+  # --- FEATURE TOGGLES ---
+  ft.boot.limine.enable = true;
+  ft.desktop.cosmic.enable = true;
+  ft.mullet.enable = true;
+  ft.hardware.gpu.enable = true;
+  ft.hardware.yubikey.enable = true;
+  ft.cli.enable = true;
+  ft.keepass.enable = true;
+
+  ft.security.sops = {
+    enable = true;
+    useTPM = true;
+  };
+
+  ft.kernel.cachyos =  {
+    enable = true;
+    variant = "bore";
+  };
+
+  ft.hardware.facter = {
+    enable = true;
+    reportPath = ./facter.json;
+  };
+
+  # U2F key pre-registered. Activate hardware auth by also setting
+  # ft.hardware.yubikey.enable = true when the key is physically present.
+  ft.hardware.yubikey.u2fMapping = "joe:v+e+ZRyIL4d1FLrvbYhngm1tii+MlU2KAxoJd1b6OBNAe+bZ5h6l5ycVBhsOk+Dkm4Npok3XYT0PQtElOpr6hQ==,CRTxD7nPfvMv59eurT72PVdEKDjfx+a8jj8nzzkzd9lrvB/wpepu17QDRfOm5Du2PmR+Uas8glT+/rEStt+sEA==,es256,+presence%";
+>>>>>>> 76da5d6 (sync)
 
   # --- LOCAL AI STACK ---
   # Uncomment and fill in your actual paths to enable: llamafile → Hermes → AnythingLLM
   # Requires: hermes-agent installed for joe (pip install --user hermes-agent)
   # After first boot, open http://localhost:3001 and configure LLM provider:
+<<<<<<< HEAD
   #   Generic OpenAI → Base URL: http://localhost:9119/v1 → API key: local
   #
+=======
+  # Generic OpenAI → Base URL: http://localhost:9119/v1 → API key: local
+>>>>>>> 76da5d6 (sync)
   ft.services.localAi = {
     enable = true;
     llamafile.execPath = "/home/joe/Documents/llamafile-0.10.1-thin";
@@ -73,4 +130,8 @@
       "99"
     ];
   };
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 76da5d6 (sync)
