@@ -37,7 +37,7 @@
   ft.boot.limine.enable = true;
   ft.desktop.cosmic.enable = true;
   ft.mullet.enable = true;
-  ft.hardware.gpu.enable = true;
+ # ft.hardware.gpu.enable = true;
   ft.hardware.yubikey.enable = true;
   ft.cli.enable = true;
   ft.keepass.enable = true;
@@ -52,10 +52,10 @@
     variant = "bore";
   };
 
-  ft.hardware.facter = {
-    enable = true;
-    reportPath = ./facter.json;
-  };
+ # ft.hardware.facter = {
+  #  enable = true;
+   # reportPath = ./facter.json;
+ # };
 
   # U2F key pre-registered. Activate hardware auth by also setting
   # ft.hardware.yubikey.enable = true when the key is physically present.
