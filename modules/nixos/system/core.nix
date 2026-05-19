@@ -21,13 +21,9 @@
     # --- 1. SYSTEM IDENTITY (The Birthday) ---
     system.stateVersion = "24.05";
 
-    # --- 2. BOOTLOADER (GRUB) ---
-    boot.loader.grub = {
-      enable = lib.mkDefault true;
-      device = "nodev";
-      efiSupport = true;
-      useOSProber = lib.mkDefault true;
-    };
+    # Bootloader is machine-specific — set in machines/<name>/default.nix or via
+    # ft.boot.limine.enable. No default here to avoid conflicting with ft-home's
+    # limine module which sets boot.loader.grub.enable = lib.mkDefault false.
     boot.loader.efi.canTouchEfiVariables = lib.mkDefault true;
 
     # --- 3. HARDWARE & CONNECTIVITY ---
