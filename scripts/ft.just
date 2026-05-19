@@ -34,11 +34,11 @@ clean:
 
 test: check
     #!/usr/bin/env bash
-    just _check-reqs
+    just --justfile "{{justfile()}}" _check-reqs
     echo ":: Staging & Diffs ::"
-    just _stage
-    just _diff-src
-    
+    just --justfile "{{justfile()}}" _stage
+    just --justfile "{{justfile()}}" _diff-src
+
     echo ":: Running Test ::"
     nh os test . --ask
     echo ":: Test complete. Reboot to revert. ::"
@@ -48,27 +48,27 @@ test: check
 switch: check
     #!/usr/bin/env bash
     set -e
-    just _check-reqs
+    just --justfile "{{justfile()}}" _check-reqs
 
     echo ":: Previewing Build ::"
-    just _stage
+    just --justfile "{{justfile()}}" _stage
     nh os test . --dry
-    
+
     echo ":: Source Code Changes ::"
-    just _diff-src
+    just --justfile "{{justfile()}}" _diff-src
     
     read -p "Apply and commit? [y/N]: " choice
     if [[ "$choice" =~ ^[yY]$ ]]; then
       # Capture current generation BEFORE building
-      OLD_GEN=$(just _current-gen)
-      
+      OLD_GEN=$(just --justfile "{{justfile()}}" _current-gen)
+
       # Build and switch
       nh os switch .
-      
+
       # Extract new generation and diff packages
-      GEN=$(just _current-gen)
-      NVD_DIFF=$(nvd --color never diff $(just _last-two-gens))
-      
+      GEN=$(just --justfile "{{justfile()}}" _current-gen)
+      NVD_DIFF=$(nvd --color never diff $(just --justfile "{{justfile()}}" _last-two-gens))
+
       # Handle Git Commits (Triggers on ANY text change)
       if ! git diff --cached --quiet; then
           echo ""
@@ -77,10 +77,10 @@ switch: check
       else
           echo ":: No source changes detected. Skipping git commit. ::"
       fi
-      
+
       # Handle Generation Cleanup (Triggers ONLY if Nix built a new system)
       if [ "$GEN" -gt "$OLD_GEN" ]; then
-          just clean
+          just --justfile "{{justfile()}}" clean
       else
           echo ":: System generation did not change. Skipping cleanup. ::"
       fi
@@ -104,7 +104,7 @@ pull:
     nh os switch . --ask
     
     echo ":: System Package Changes ::"
-    nvd diff $(just _last-two-gens)
+    nvd diff $(just --justfile "{{justfile()}}" _last-two-gens)
 
 push:
     #!/usr/bin/env bash
@@ -125,7 +125,7 @@ sync: pull push
 rollback:
     #!/usr/bin/env bash
     echo ":: Current Generation ::"
-    just _current-gen
+    just --justfile "{{justfile()}}" _current-gen
     
     echo ":: Rolling back to previous generation ::"
     sudo nix-env --profile /nix/var/nix/profiles/system --rollback

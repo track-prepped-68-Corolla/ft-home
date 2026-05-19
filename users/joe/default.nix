@@ -15,7 +15,7 @@
 #
 # Do not import ft-home home modules directly — the generator injects them.
 # =============================================================================
-{ pkgs, inputs, ... }:
+{ pkgs, inputs, config, ... }:
 
 {
   imports = [
@@ -25,10 +25,6 @@
   # --- IDENTITY ---
   home.username = "joe";
 
-  home.sessionVariables = {
-    FLAKE = "ft.repoPath";
-  };
-
   # --- FEATURE TOGGLES ---
   ft.lazyvim.enable = true;
   ft.theme.enable = true;
@@ -37,6 +33,7 @@
   # --- ENVIRONMENT ---
   home.sessionVariables = {
     EDITOR = "nvim";
+    NH_FLAKE = config.ft.repoPath;
   };
 
   # --- PACKAGES ---
