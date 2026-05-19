@@ -49,7 +49,7 @@
 
   ft.kernel.cachyos = {
     enable = true;
-    variant = "bore";
+    variant = "bore-x86_64-v4";
   };
 
  # ft.hardware.facter = {
