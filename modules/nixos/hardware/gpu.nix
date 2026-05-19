@@ -104,54 +104,58 @@ in
     };
   };
 
-  config = lib.mkIf cfg.enable (lib.mkMerge [
-    {
-      hardware.graphics = {
-        enable = true;
-        enable32Bit = cfg.enable32Bit;
-      };
+  config = lib.mkIf cfg.enable (
+    lib.mkMerge [
+      {
+        hardware.graphics = {
+          enable = true;
+          enable32Bit = cfg.enable32Bit;
+        };
 
-      services.xserver.videoDrivers =
-        lib.optional isNvidia "nvidia"
-        ++ lib.optional isAmd "amdgpu"
-        ++ lib.optional isIntel "intel";
+        services.xserver.videoDrivers =
+          lib.optional isNvidia "nvidia" ++ lib.optional isAmd "amdgpu" ++ lib.optional isIntel "intel";
 
-      users.users.${config.mainuser}.extraGroups = [ "render" "video" ];
-    }
+        users.users.${config.mainuser}.extraGroups = [
+          "render"
+          "video"
+        ];
+      }
 
-    # --------------------------------------------------------------------------
-    # NVIDIA Configuration
-    # --------------------------------------------------------------------------
-    (lib.mkIf isNvidia {
-      hardware.nvidia = lib.mkMerge [
-        {
-          modesetting.enable = true;
-          open = cfg.nvidia.openKernelModules;
-          nvidiaSettings = cfg.nvidia.enableSettings;
-          powerManagement.enable = cfg.nvidia.enablePowerManagement;
-          powerManagement.finegrained = cfg.nvidia.finegrainedPowerManagement;
-          package =
-            if cfg.nvidia.driverPackage == "beta"
-            then config.boot.kernelPackages.nvidiaPackages.beta
-            else config.boot.kernelPackages.nvidiaPackages.stable;
-        }
-        # PRIME Offloading (for hybrid graphics)
-        (lib.mkIf cfg.prime.enable {
-          prime.offload.enable = true;
-          prime.offload.enableOffloadCmd = true;
-          prime.nvidiaBusId = cfg.prime.secondaryBusId;
-          prime.amdgpuBusId = lib.mkIf isAmd cfg.prime.primaryBusId;
-          prime.intelBusId = lib.mkIf isIntel cfg.prime.primaryBusId;
-        })
-      ];
-    })
+      # --------------------------------------------------------------------------
+      # NVIDIA Configuration
+      # --------------------------------------------------------------------------
+      (lib.mkIf isNvidia {
+        hardware.nvidia = lib.mkMerge [
+          {
+            modesetting.enable = true;
+            open = cfg.nvidia.openKernelModules;
+            nvidiaSettings = cfg.nvidia.enableSettings;
+            powerManagement.enable = cfg.nvidia.enablePowerManagement;
+            powerManagement.finegrained = cfg.nvidia.finegrainedPowerManagement;
+            package =
+              if cfg.nvidia.driverPackage == "beta" then
+                config.boot.kernelPackages.nvidiaPackages.beta
+              else
+                config.boot.kernelPackages.nvidiaPackages.stable;
+          }
+          # PRIME Offloading (for hybrid graphics)
+          (lib.mkIf cfg.prime.enable {
+            prime.offload.enable = true;
+            prime.offload.enableOffloadCmd = true;
+            prime.nvidiaBusId = cfg.prime.secondaryBusId;
+            prime.amdgpuBusId = lib.mkIf isAmd cfg.prime.primaryBusId;
+            prime.intelBusId = lib.mkIf isIntel cfg.prime.primaryBusId;
+          })
+        ];
+      })
 
-    # --------------------------------------------------------------------------
-    # AMD Specific Enhancements
-    # --------------------------------------------------------------------------
-    (lib.mkIf isAmd {
-      hardware.amdgpu.amdvlk.enable = true;
-      hardware.amdgpu.opencl.enable = true;
-    })
-  ]);
+      # --------------------------------------------------------------------------
+      # AMD Specific Enhancements
+      # --------------------------------------------------------------------------
+      (lib.mkIf isAmd {
+        hardware.amdgpu.amdvlk.enable = true;
+        hardware.amdgpu.opencl.enable = true;
+      })
+    ]
+  );
 }
