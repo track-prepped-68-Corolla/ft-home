@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  inputs,
   ...
 }:
 
@@ -28,10 +29,10 @@
 ################################################################################
 
 let
-  # Create a shortcut 'cfg' to access our custom options
   cfg = config.ft.theme;
 in
 {
+  imports = [ inputs.stylix.nixosModules.stylix ];
   # ----------------------------------------------------------------------------
   # 1. DEFINE OPTIONS (The Control Panel)
   # ----------------------------------------------------------------------------
