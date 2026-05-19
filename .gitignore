@@ -1,0 +1,10 @@
+# nix build output symlinks
+result
+result-*
+
+# QEMU VM disk state (generated when the VM runs)
+*.qcow2
+*.img
+
+# local-only repo path (written by bootstrap; never committed)
+/var/local
