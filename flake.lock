@@ -432,11 +432,11 @@
         "stylix": "stylix"
       },
       "locked": {
-        "lastModified": 1779150210,
-        "narHash": "sha256-/GJmQ9elABoVO9POOcDIlWybWwxT1RZPgRReo3LpVTA=",
+        "lastModified": 1779150670,
+        "narHash": "sha256-jkvw4rNvaHseqVM+p6UlYKzoZ/r7AL9tyUvZ51R6QJo=",
         "owner": "track-prepped-68-corolla",
         "repo": "ft-home",
-        "rev": "9eff1cf1c40ec5a39470ebc49686cf1df63364ef",
+        "rev": "d0b80cca4b98962014de999043d4e020e3e9205b",
         "type": "github"
       },
       "original": {
