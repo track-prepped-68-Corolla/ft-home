@@ -104,79 +104,54 @@ in
     };
   };
 
-  config = lib.mkIf cfg.enable {
-    hardware.graphics.enable = true;
-    hardware.graphics.enable32Bit = cfg.enable32Bit;
+  config = lib.mkIf cfg.enable (lib.mkMerge [
+    {
+      hardware.graphics = {
+        enable = true;
+        enable32Bit = cfg.enable32Bit;
+      };
+
+      services.xserver.videoDrivers =
+        lib.optional isNvidia "nvidia"
+        ++ lib.optional isAmd "amdgpu"
+        ++ lib.optional isIntel "intel";
+
+      users.users.${config.mainuser}.extraGroups = [ "render" "video" ];
+    }
 
     # --------------------------------------------------------------------------
     # NVIDIA Configuration
     # --------------------------------------------------------------------------
-    services.xserver.videoDrivers =
-      lib.mkIf isNvidia [
-        "nvidia"
-      ]
-      ++ lib.mkIf isAmd [
-        "amdgpu"
-      ]
-      ++ lib.mkIf isIntel [
-        "intel"
+    (lib.mkIf isNvidia {
+      hardware.nvidia = lib.mkMerge [
+        {
+          modesetting.enable = true;
+          open = cfg.nvidia.openKernelModules;
+          nvidiaSettings = cfg.nvidia.enableSettings;
+          powerManagement.enable = cfg.nvidia.enablePowerManagement;
+          powerManagement.finegrained = cfg.nvidia.finegrainedPowerManagement;
+          package =
+            if cfg.nvidia.driverPackage == "beta"
+            then config.boot.kernelPackages.nvidiaPackages.beta
+            else config.boot.kernelPackages.nvidiaPackages.stable;
+        }
+        # PRIME Offloading (for hybrid graphics)
+        (lib.mkIf cfg.prime.enable {
+          prime.offload.enable = true;
+          prime.offload.enableOffloadCmd = true;
+          prime.nvidiaBusId = cfg.prime.secondaryBusId;
+          prime.amdgpuBusId = lib.mkIf isAmd cfg.prime.primaryBusId;
+          prime.intelBusId = lib.mkIf isIntel cfg.prime.primaryBusId;
+        })
       ];
-
-    hardware.nvidia = lib.mkIf isNvidia {
-      modesetting.enable = true;
-      open = cfg.nvidia.openKernelModules;
-      nvidiaSettings = cfg.nvidia.enableSettings;
-      powerManagement = {
-        enable = cfg.nvidia.enablePowerManagement;
-        finegrained = cfg.nvidia.finegrainedPowerManagement;
-      };
-      package =
-        if cfg.nvidia.driverPackage == "beta" then
-          config.boot.kernelPackages.nvidiaPackages.beta
-        else
-          config.boot.kernelPackages.nvidiaPackages.stable;
-    };
-
-    # --------------------------------------------------------------------------
-    # PRIME Offloading Configuration (for hybrid graphics)
-    # --------------------------------------------------------------------------
-    hardware.nvidia.prime = lib.mkIf (isNvidia && cfg.prime.enable) {
-      offload = {
-        enable = true;
-        enableOffloadCmd = true;
-      };
-      nvidiaBusId = cfg.prime.secondaryBusId;
-      amdgpuBusId = lib.mkIf (cfg.vendor == "amd") cfg.prime.primaryBusId; # Use if iGPU is AMD
-      intelBusId = lib.mkIf (cfg.vendor == "intel") cfg.prime.primaryBusId; # Use if iGPU is Intel
-    };
+    })
 
     # --------------------------------------------------------------------------
     # AMD Specific Enhancements
     # --------------------------------------------------------------------------
-    hardware.amdgpu.amdvlk.enable = lib.mkIf (isAmd && config.hardware.opengl.enable) true;
-    hardware.amdgpu.opencl.enable = lib.mkIf (isAmd && config.hardware.opengl.enable) true;
-
-    # --------------------------------------------------------------------------
-    # Intel Specific Enhancements
-    # --------------------------------------------------------------------------
-    hardware.intel.enable = lib.mkIf isIntel true;
-    hardware.intel.enableEarlyKms = lib.mkIf isIntel true;
-
-    # For any GPU type, ensure basic OpenGL and Vulkan support is enabled
-    hardware.opengl.enable = true;
-    hardware.opengl.dri.driver = lib.mkIf isAmd "radeonsi"; # For AMD
-    hardware.opengl.dri.driver = lib.mkIf isIntel "i965"; # For Intel
-
-    # Ensure the main user is in the 'render' and 'video' groups for GPU access.
-    users.users.${config.mainuser or "joe"}.extraGroups =
-      lib.mkIf cfg.enable [
-        "render"
-        "video"
-      ]
-      ++ lib.mkIf (isNvidia && cfg.nvidia.enable) [
-        "nvidia_modeset"
-        "nvidia_uvm"
-        "nvidia_runtime"
-      ];
-  };
+    (lib.mkIf isAmd {
+      hardware.amdgpu.amdvlk.enable = true;
+      hardware.amdgpu.opencl.enable = true;
+    })
+  ]);
 }
