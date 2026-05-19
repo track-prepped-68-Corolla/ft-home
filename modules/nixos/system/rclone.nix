@@ -24,44 +24,15 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    # --- NIXOS SYSTEM LEVEL ---
-    # These must stay outside the home-manager block
     environment.systemPackages = [
       pkgs.rclone
       pkgs.fuse
     ];
     programs.fuse.userAllowOther = true;
 
-    # --- HOME MANAGER USER LEVEL ---
-    home-manager.users.${username} = {
-      # In Home Manager, we use 'home.packages' and 'systemd.user.services'
-      home.packages = [ pkgs.rclone ];
-
-      systemd.user.services.rclone-gdrive-mount = {
-        Unit = {
-          Description = "Mount Google Drive (${cfg.remoteName})";
-          After = [ "network-online.target" ];
-        };
-
-        Service = {
-          Type = "simple";
-          ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p %h/${cfg.mountPoint}";
-          ExecStart = ''
-            ${pkgs.rclone}/bin/rclone mount ${cfg.remoteName}: %h/${cfg.mountPoint} \
-              --vfs-cache-mode full \
-              --vfs-cache-max-age 24h \
-              --vfs-cache-max-size 10G \
-              --vfs-fast-fingerprint
-          '';
-          ExecStop = "/run/current-system/sw/bin/fusermount -u %h/${cfg.mountPoint}";
-          Restart = "on-failure";
-          RestartSec = "10s";
-        };
-
-        Install = {
-          WantedBy = [ "default.target" ];
-        };
-      };
-    };
+    # The rclone mount systemd user service belongs in the user's home config
+    # (users/<username>/default.nix or a home module), not here. The generator
+    # creates standalone homeConfigurations so home-manager.users.* is not
+    # a valid NixOS option in this setup.
   };
 }
