@@ -25,7 +25,6 @@
 
   # --- IDENTITY ---
   networking.hostName = "strix";
-  ft.repoPath = lib.removeSuffix "\n" (builtins.readFile ../../var/local/repoPath);
 
   # mainuser is read by user.nix, sops.nix, gaming.nix, virt.nix, and others.
   mainuser = "joe";
@@ -37,7 +36,7 @@
   ft.boot.limine.enable = true;
   ft.desktop.cosmic.enable = true;
   ft.mullet.enable = true;
- # ft.hardware.gpu.enable = true;
+  ft.hardware.gpu.enable = true;
   ft.hardware.yubikey.enable = true;
   ft.cli.enable = true;
   ft.keepass.enable = true;
@@ -49,13 +48,13 @@
 
   ft.kernel.cachyos = {
     enable = true;
-    variant = "bore-lto-x86_64-v4";
+    variant = "latest-lto-x86_64-v4";
   };
 
- # ft.hardware.facter = {
-  #  enable = true;
-   # reportPath = ./facter.json;
- # };
+  ft.hardware.facter = {
+    enable = true;
+    reportPath = ./facter.json;
+  };
 
   # U2F key pre-registered. Activate hardware auth by also setting
   # ft.hardware.yubikey.enable = true when the key is physically present.
