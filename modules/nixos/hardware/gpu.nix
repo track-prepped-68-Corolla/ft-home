@@ -153,7 +153,6 @@ in
       # AMD Specific Enhancements
       # --------------------------------------------------------------------------
       (lib.mkIf isAmd {
-        hardware.amdgpu.amdvlk.enable = true;
         hardware.amdgpu.opencl.enable = true;
       })
     ]
