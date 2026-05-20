@@ -42,6 +42,6 @@ jobs:
       # Trufflehog scans git history for secrets; runs outside the Nix sandbox
       # where the full git tree is available.
       - name: Secret scan
-        uses: trufflesecurity/trufflehog@v3
+        uses: trufflesecurity/trufflehog@main
         with:
           extra_args: --only-verified
