@@ -48,7 +48,7 @@
 
   ft.kernel.cachyos = {
     enable = true;
-    variant = "latest-lto";
+    variant = "latest-lto-x86_64-v4";
   };
 
   ft.hardware.facter = {
