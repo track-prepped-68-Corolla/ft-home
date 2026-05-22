@@ -27,9 +27,11 @@ jobs:
 
       - uses: DeterminateSystems/magic-nix-cache-action@v8
 
-      # Resolve inputs from the lock file (updates the lock for this CI run).
-      - name: Resolve flake inputs
-        run: nix flake lock
+      # Update ft-home to the latest testing commit so the formatter and
+      # statix fixes are available. Followers (nixpkgs, home-manager,
+      # nixos-facter) update automatically via their follows constraints.
+      - name: Update ft-home input
+        run: nix flake update ft-home
 
       # Auto-format via treefmt (nixfmt + deadnix) and commit if anything changed.
       - name: Auto-format (treefmt)
