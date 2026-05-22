@@ -35,7 +35,10 @@
   # --- FEATURE TOGGLES ---
   ft.boot.limine.enable = true;
   ft.desktop.cosmic.enable = true;
-  ft.mullet.enable = true;
+  ft.mullet = {
+    enable     = true;
+    sourcePath = ../../users/joe/var/mullet.txt;
+  };
   ft.hardware.gpu.enable = true;
   ft.hardware.yubikey.enable = true;
   ft.cli.enable = true;
