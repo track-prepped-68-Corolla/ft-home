@@ -8,7 +8,6 @@
 let
   cfg = config.ft.rclone;
   # Use the username variable if you have one, or hardcode it to "joe"
-  username = "joe";
 in
 {
   options.ft.rclone = {
