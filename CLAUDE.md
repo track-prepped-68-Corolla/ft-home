@@ -1,5 +1,11 @@
 # nixos-config — Developer Reference
 
+## Repository naming
+
+This repo is named **`ft-home`** on GitHub but is called **`nixos-config`** throughout this file — that name reflects what any private consumer repo using this framework would typically be called. The framework that this repo consumes is in the separate **`fast-track-nix`** GitHub repo, aliased as `ft-home` in flake inputs. The naming is an inversion: the *framework* is called `ft-home` in inputs; the *consumer* is the `ft-home` repo. Keep this in mind when reading across repos.
+
+---
+
 ## What this is
 
 nixos-config is the personal consumer of the ft-home framework. It serves three purposes:
@@ -31,13 +37,21 @@ users/
   <username>/
     default.nix
 modules/
-  nixos/                            # consumer-local NixOS overrides not yet in ft-home
-  home/                             # consumer-local HM overrides not yet in ft-home
+  nixos/                            # consumer-local NixOS modules (staging area for framework candidates)
+                                    # contains: apps/ (mullet), hardware/ (facter, gpu, disk, nfs, vm),
+                                    #           services/ (local-ai)
+  home/                             # consumer-local HM modules (currently sparse — single default.nix)
 var/
   local/                            # local machine state (system string written by bootstrap)
   secrets/
     .sops.yaml                      # sops key configuration
 scripts/
+  ft.just                           # entry point: imports all sub-modules
+  sys.just                          # daily driver: switch, pull, rollback, clean, fmt, check
+  bootstrap.just                    # provisioning: git-init, add-machine, secrets-init, deploy
+  mullet.just                       # package escape hatch: add/remove/list packages
+  store.just                        # dotfile store management (experimental)
+  drives.just                       # drive/disk utilities (mount, format, SMART checks)
 ```
 
 ---
@@ -76,7 +90,16 @@ New machines are provisioned with nixos-anywhere + disko + nixos-facter:
 1. Boot the target into a NixOS live environment.
 2. Run `nixos-facter` to generate `facter.json`; commit it to `machines/<name>/var/`.
 3. Define the disk layout in `machines/<name>/modules/disko.nix`.
-4. Run nixos-anywhere pointing at `nixos-config#<name>`. Disko handles partitioning declaratively as part of the install.
+4. Enable `ft.hardware.facter` (consumer-local module in `modules/nixos/hardware/facter.nix`) and the GPU module if needed.
+5. Run nixos-anywhere pointing at `nixos-config#<name>`. Disko handles partitioning declaratively as part of the install.
+
+Note: `ft.hardware.facter` and `ft.hardware.gpu` are currently consumer-local modules (not yet in the framework). They live in `modules/nixos/hardware/` here and must be imported explicitly in your machine config until they are upstreamed.
+
+---
+
+## Known issues / pending fixes
+
+- **Broken wallpaper default path in `ft.theme` / `stylix.nix`:** The framework module (`fast-track-nix/modules/home/stylix.nix`) defaults the wallpaper to `../../homes/guest/wallpapers/default.png`. The actual directory is `users/`, not `homes/` — this path resolves to a nonexistent location. Tracked in `Todo.md`. Until fixed upstream, always set `ft.theme.wallpaper` explicitly in your user config.
 
 ---
 
