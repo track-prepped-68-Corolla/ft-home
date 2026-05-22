@@ -30,9 +30,7 @@ jobs:
       # Auto-format via treefmt (nixfmt + deadnix) and commit if anything changed.
       - name: Auto-format (treefmt)
         run: |
-          nix fmt \
-            --override-input ft-home \
-            "github:track-prepped-68-corolla/fast-track-nix?ref=claude/disable-statix-repeated-keys-5Agt3"
+          nix fmt
           if ! git diff --quiet; then
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git config user.name "github-actions[bot]"
