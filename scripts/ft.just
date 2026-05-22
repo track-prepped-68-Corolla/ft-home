@@ -4,6 +4,7 @@ import "./sys.just"
 import "./bootstrap.just"
 import "./mullet.just"
 import "./store.just"
+import "./drives.just"
 
 default:
     just --list
