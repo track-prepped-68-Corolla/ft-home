@@ -1,1 +1,1 @@
-disabled = [20]
+disabled = ["repeated_keys"]

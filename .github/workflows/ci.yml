@@ -27,6 +27,10 @@ jobs:
 
       - uses: DeterminateSystems/magic-nix-cache-action@v8
 
+      # Resolve inputs from the lock file (updates the lock for this CI run).
+      - name: Resolve flake inputs
+        run: nix flake lock
+
       # Auto-format via treefmt (nixfmt + deadnix) and commit if anything changed.
       - name: Auto-format (treefmt)
         run: |
@@ -37,19 +41,15 @@ jobs:
             git commit -am "style: auto-format"
           fi
 
-      # Runs checks.<system>.{format,lint} via the feature branch of fast-track-nix.
-      # Revert --override-input once both PRs are merged to testing.
+      # Runs checks.<system>.{format,lint} defined by the framework.
       - name: nix flake check
-        run: |
-          nix flake check
+        run: nix flake check
 
       # Evaluate all NixOS configurations to their derivation path without
       # building. Fails immediately if any configuration cannot be evaluated.
       - name: Evaluate NixOS configurations
         run: |
           nix eval --json '.#nixosConfigurations' \
-            --override-input ft-home \
-            "github:track-prepped-68-corolla/fast-track-nix?ref=claude/disable-statix-repeated-keys-5Agt3" \
             --apply 'builtins.mapAttrs (_: m: m.config.system.build.toplevel.drvPath)'
 
       - name: Secret scan
