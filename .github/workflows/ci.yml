@@ -43,9 +43,7 @@ jobs:
       # Revert --override-input once both PRs are merged to testing.
       - name: nix flake check
         run: |
-          nix flake check \
-            --override-input ft-home \
-            "github:track-prepped-68-corolla/fast-track-nix?ref=claude/disable-statix-repeated-keys-5Agt3"
+          nix flake check
 
       # Evaluate all NixOS configurations to their derivation path without
       # building. Fails immediately if any configuration cannot be evaluated.
