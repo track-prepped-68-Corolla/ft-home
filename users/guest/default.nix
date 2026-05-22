@@ -1,6 +1,10 @@
 { pkgs, ... }:
 
 {
+  imports = [
+    ../../modules/home
+  ];
+
   # --- IDENTITY ---
   home.username = "guest";
 
