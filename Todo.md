@@ -103,19 +103,41 @@
 **✨ Code Polish & Linting**
 - [x] Run a standard formatter. *(treefmt + nixfmt wired into `nix fmt` and CI checks)*
 - [x] Run a linter. *(statix + deadnix wired into `nix flake check` CI gate)*
-- [ ] Clean up and standardize the `justfile` scripts. *(core workflow is solid; dashboard, routing, and init commands still needed)*
+- [x] Clean up and standardize the `justfile` scripts:
+  - [x] Delete legacy `.justfile`; make `ft.just` a thin entry point (imports + aliases only).
+  - [x] Split into modules: `sys.just` (daily driver), `bootstrap.just` (provisioning), `mullet.just` (packages), `store.just` (dotfiles, experimental).
+  - [x] Fix `add-machine` template to match actual machine structure (`modules/` hub, `var/` for facter).
+  - [x] Fix `mullet.just` path — moved `mullet.txt` to `users/<user>/var/mullet.txt`; path now uses `env_var("USER")`.
+  - [x] Update `machines/strix/default.nix` with explicit `ft.mullet.sourcePath`.
+  - [x] Port `home-switch` with correct just parameter syntax (was broken using `$1`/`$2`).
+  - [x] Fix secrets and bootstrap paths to match `var/secrets/` layout.
 
-### 👾 Just files & Deployment Orchestration
-- [x] pass flake directory back and forth between nh and the repo *(resolved: `nh os switch .` uses cwd; no separate variable needed)*
-- [ ] make helper scripts for imperative steps
-- [ ] **Dashboard Rendering Engine:** Implement the custom `##@` dynamic parsing hack using `sed`/`grep`, piped into `glow` for the default `ft` display.
-- [ ] **Agnostic Build Routing:**
-  - [ ] Create `ft os` to dynamically detect and run either `nh os switch` or `nh darwin switch`.
-  - [ ] Create `ft home` to explicitly trigger `nh home switch`.
-- [ ] **Graceful Degradation Guardrails:** Wrap all version control integrations (`git diff`, `delta`, auto-commits) in `git rev-parse --is-inside-work-tree` checks to prevent crashes in uninitialized directories.
-- [ ] **The Bootstrapper (`init`):** Write `ft init` to safely scaffold `mullet.txt` and coach the user on exporting the `$FLAKE` environment variable.
+### 👾 Scripts & CLI (remaining)
 - [ ] Write a wrapper for the Lix fork of the Determinate Systems installer.
-- [ ] Create `just bootstrap-secrets <host>` to handle Diceware, SOPS, and Vault generation.
-- [ ] Create `just deploy <host>` utilizing `nixos-anywhere`.
-- [ ] Create `just init-remote` for secure upstream Git forge setup.
-- [ ] **Create `just dump-logs`:** Build a telemetry script that sanitizes and packages `facter` output, `dmesg`, and core logs into an automated payload (e.g., via a GitHub issue URL generator or encrypted pastebin) to eliminate PR friction.
+- [ ] **Graceful Degradation:** Wrap git integrations (`git diff`, `delta`, auto-commits) in `git rev-parse --is-inside-work-tree` checks.
+
+### 🖥️ Fast Track TUI App (Trolley)
+See `scripts/plan.md` for full architecture and development sequence.
+
+**Target audience:** gamers and regular PC users who prefer not to touch the terminal.
+**Packaging:** Trolley (bundles libghostty into a portable application).
+**Framework:** Python + Textual. Async subprocesses throughout.
+
+- [ ] **`ui-settings.nix` overlay pattern**
+  - [ ] Add `import ./ui-settings.nix` to machine `default.nix` templates (update `add-machine` scaffold in `bootstrap.just`).
+  - [ ] Create initial empty `ui-settings.nix` stubs for existing machines (`strix`, `strix-vm`).
+- [ ] **Python backend (`ft/ops/`)**
+  - [ ] `sys.py` — switch, pull, rollback, clean, fmt, check (async subprocess, streaming output).
+  - [ ] `bootstrap.py` — git_init, add_machine, secrets_init, generate_facts, deploy.
+  - [ ] `mullet.py` — search (nix-index + nix search), add, remove, list, clear.
+  - [ ] `options.py` — option discovery via `nix eval`, `ui-settings.nix` read/write.
+- [ ] **Module toggle panel** (split-pane: checkboxes left, live Nix preview right)
+  - [ ] Option tree from `nix eval .#nixosConfigurations.<name>.options.ft --json`.
+  - [ ] Dynamic widget generation from Nix option types (bool→checkbox, str→input, enum→dropdown).
+  - [ ] Live `ui-settings.nix` preview with syntax highlighting.
+  - [ ] Write-on-confirm; in-memory updates only until confirmed.
+- [ ] **Maintenance screen** — switch/pull/rollback with streaming output and package diff view.
+- [ ] **Package manager screen** — mullet with fuzzy search, add/remove, apply.
+- [ ] **OOBE / provisioning wizard** — screen stack: git-init → add-machine → secrets-init → deploy.
+- [ ] **Dashboard** — home screen with navigation, system status summary.
+- [ ] **Trolley packaging** — bundle Python app + libghostty into portable application.
