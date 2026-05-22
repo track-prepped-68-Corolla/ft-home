@@ -22,10 +22,9 @@ jobs:
           # Full history required for trufflehog secret scanning.
           fetch-depth: 0
 
-      - uses: cachix/install-nix-action@v30
-        with:
-          extra_nix_config: |
-            experimental-features = nix-command flakes
+      - uses: DeterminateSystems/nix-installer-action@v14
+
+      - uses: DeterminateSystems/magic-nix-cache-action@v8
 
       # Runs checks.<system>.{format,lint} using the feature branch of
       # fast-track-nix, which includes the statix config fix and the
