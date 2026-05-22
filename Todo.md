@@ -21,17 +21,17 @@
   - [ ] Rewrite Nix expressions to use Home Manager options (e.g., `home.packages`, `home.file`).
   - [ ] Remove the old system-level configurations and test the user-level replacements.
 - [ ] create a user level komodo module
-- [x] **Implement “The Mullet” (Imperative Escape Hatch) — consumer side (ft-home):**
+- [x] **Implement "The Mullet" (Imperative Escape Hatch) — consumer side (ft-home):**
   - [x] Create `mullet.nix` module to ingest a flat text file (`mullet.txt`).
   - [x] Add config option to specify the path of `mullet.txt`.
   - [x] Map parsed text strings to `pkgs` and append to `environment.systemPackages` or `home.packages`.
-- [ ] **Port “The Mullet” to the framework (fast-track-nix):**
+- [ ] **Port "The Mullet" to the framework (fast-track-nix):**
   - [ ] Move `mullet.nix` logic into `fast-track-nix/modules/nixos/` as a proper `ft.mullet` option module.
   - [ ] Consumer (`ft-home`) enables `ft.mullet` and sets `ft.mullet.filePath` to their local `mullet.txt`; remove the local `mullet.nix`.
   - [ ] Update `mullet.just` hardcoded `MULLET_FILE` path to use the configured option path.
   - [ ] Export `nixosModules.mullet` as a standalone output in `fast-track-nix/flake.nix`.
 
-### 👁️ Ergonomics & Accessibility (The “Chaotic Good” Stack)
+### 👁️ Ergonomics & Accessibility (The "Chaotic Good" Stack)
 - [ ] **Visual & Circadian Automation:**
   - [ ] Build the Matugen to Stylix pipeline for Base24 HCT contrast manipulation.
   - [ ] Integrate Gammastep for circadian color temperature shifting.
@@ -48,7 +48,7 @@
 
 ### 👥 User Provisioning & Environment
 - [ ] create a script that creates generic home folders for new users
-- [ ] create a script that runs the first home manager switch on users that don’t have a home manager profile yet
+- [ ] create a script that runs the first home manager switch on users that don't have a home manager profile yet
 - [ ] create mackup dot file script
 
 ### 💻 Hardware, Boot & Vendor Support
@@ -71,11 +71,11 @@
 - [ ] setup systemd userd
 - [ ] **Setup sops-nix scaffolding (The Silent Setup):**
   - [x] Add `sops-nix` to flake inputs and wire it into the core module system.
-  - [ ] Implement `ssh-to-age` pipeline to derive SOPS decryption keys silently from the target’s SSH host keys.
+  - [ ] Implement `ssh-to-age` pipeline to derive SOPS decryption keys silently from the target's SSH host keys.
   - [ ] Create an automated Diceware generator to create high-entropy passphrases for initial user creation.
   - [ ] Script the programmatic creation of a KeePassXC (`.kdbx`) vault using the Diceware password as the master key.
-  - [ ] Configure the repo’s `.gitignore` to explicitly allow the `.kdbx` vault file for local version-controlled redundancy.
-  - [ ] Implement conditional logic (`mkIf cfg.enableSecrets`) so the system degrades gracefully if secrets aren’t ready.
+  - [ ] Configure the repo's `.gitignore` to explicitly allow the `.kdbx` vault file for local version-controlled redundancy.
+  - [ ] Implement conditional logic (`mkIf cfg.enableSecrets`) so the system degrades gracefully if secrets aren't ready.
 
 ### 🌐 Public Release Preparation (Two-Repo Architecture)
 **🧹 Sanitization & Security**
@@ -84,6 +84,11 @@
 - [ ] Replace hardcoded user strings with variable references (e.g., `config.home.username`).
 - [ ] Move highly specific private modules out of the repo entirely.
 - [ ] **Crucial:** Reset Git history (delete `.git` and re-run `git init`) right before publishing.
+- [ ] **Remove hard-coded defaults from `fast-track-nix` framework modules:**
+  - [ ] `ft.system.core`: Remove the `time.timeZone` default (`"America/New_York"`) — require consumers to set their own timezone explicitly.
+  - [ ] `ft.system.core`: Remove `system.stateVersion` from the framework — consumers must own this value to control when NixOS upgrade paths activate.
+  - [ ] `ft.users`: Remove the hard-coded `initialPassword = "snp"` for the `admin` user — require password to be supplied via sops or an explicit consumer option.
+  - [ ] `ft.users`: Remove the hard-coded U2F key for `admin` from the PAM `authfile` — the framework should ship with no pre-registered keys; consumers supply their own via `ft.hardware.yubikey.u2fMapping`.
 
 **🔌 Flake API & Exports**
 - [x] Move purely functional code into a dedicated `lib/` (`lib/generator.nix`).
@@ -96,8 +101,8 @@
 
 **📖 Documentation & Onboarding**
 - [ ] Add inline comments to `lib` functions.
-- [x] Write `README.md` explaining the framework’s consumption.
-- [ ] Create `template/` directory for the “Private Repo” skeleton.
+- [x] Write `README.md` explaining the framework's consumption.
+- [ ] Create `template/` directory for the "Private Repo" skeleton.
   - [ ] Ensure template includes a blank `mullet.txt` and a consumer `flake.nix` wired to the upstream tool.
 
 **✨ Code Polish & Linting**
