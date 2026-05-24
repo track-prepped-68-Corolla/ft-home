@@ -33,7 +33,7 @@ in
 
     user = lib.mkOption {
       type = lib.types.str;
-      default = config.mainuser;
+      default = config.ft.users.mainUser;
       description = "User under which llamafile and hermes-agent run. Must own the model files.";
     };
 

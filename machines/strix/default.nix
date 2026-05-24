@@ -8,7 +8,7 @@
 # WHAT GOES HERE
 #   hardware-configuration.nix   machine-specific kernel modules and filesystems
 #   modules/nixos                consumer NixOS modules (auto-gated by ft.*)
-#   Identity                     hostName, mainuser, superUsers
+#   Identity                     hostName, ft.users.mainUser, ft.users.superUsers
 #   ft.* feature toggles         enable framework and consumer modules
 #
 # WHAT DOES NOT GO HERE
@@ -26,9 +26,11 @@
   # --- IDENTITY ---
   networking.hostName = "strix";
 
-  # mainuser is read by user.nix, sops.nix, gaming.nix, virt.nix, and others.
-  mainuser = "joe";
-  superUsers = [ "joe" ];
+  ft.users = {
+    mainUser = "joe";
+    superUsers = [ "joe" ];
+    u2f.mappings.joe = "v+e+ZRyIL4d1FLrvbYhngm1tii+MlU2KAxoJd1b6OBNAe+bZ5h6l5ycVBhsOk+Dkm4Npok3XYT0PQtElOpr6hQ==,CRTxD7nPfvMv59eurT72PVdEKDjfx+a8jj8nzzkzd9lrvB/wpepu17QDRfOm5Du2PmR+Uas8glT+/rEStt+sEA==,es256,+presence%";
+  };
   users.users.joe.initialPassword = "nixos";
   users.mutableUsers = true;
 
@@ -58,10 +60,6 @@
     enable = true;
     reportPath = ./facter.json;
   };
-
-  # U2F key pre-registered. Activate hardware auth by also setting
-  # ft.hardware.yubikey.enable = true when the key is physically present.
-  ft.hardware.yubikey.u2fMapping = "joe:v+e+ZRyIL4d1FLrvbYhngm1tii+MlU2KAxoJd1b6OBNAe+bZ5h6l5ycVBhsOk+Dkm4Npok3XYT0PQtElOpr6hQ==,CRTxD7nPfvMv59eurT72PVdEKDjfx+a8jj8nzzkzd9lrvB/wpepu17QDRfOm5Du2PmR+Uas8glT+/rEStt+sEA==,es256,+presence%";
 
   nixpkgs.hostPlatform = "x86_64-linux";
 

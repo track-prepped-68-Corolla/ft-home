@@ -114,7 +114,7 @@ in
         services.xserver.videoDrivers =
           lib.optional isNvidia "nvidia" ++ lib.optional isAmd "amdgpu" ++ lib.optional isIntel "intel";
 
-        users.users.${config.mainuser}.extraGroups = [
+        users.users.${config.ft.users.mainUser}.extraGroups = [
           "render"
           "video"
         ];
