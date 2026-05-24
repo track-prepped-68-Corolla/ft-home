@@ -1,3 +1,7 @@
+<<<<<<< HEAD
 disabled = [
     "repeated_keys"
 ]
+=======
+disabled = ["repeated_keys", "empty_pattern"]
+>>>>>>> refs/remotes/origin/testing

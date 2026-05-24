@@ -15,7 +15,7 @@
 #
 # Do not import ft-home home modules directly — the generator injects them.
 # =============================================================================
-{ pkgs, inputs, config, ... }:
+{ pkgs, inputs, config, lib, ... }:
 
 {
   imports = [
@@ -29,6 +29,7 @@
   ft.lazyvim.enable = true;
   ft.theme.enable = true;
   ft.theme.wallpaper = ./wallpapers/default.png;
+  ft.repoPath = lib.strings.trim (builtins.readFile ../../var/local/repoPath);
 
   # --- ENVIRONMENT ---
   home.sessionVariables = {

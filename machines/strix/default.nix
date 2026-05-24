@@ -15,7 +15,7 @@
 #   Do not import ft-home modules directly — the generator injects them.
 #   Per-user Home Manager config belongs in users/<username>/default.nix.
 # =============================================================================
-{ lib, ... }:
+{ ... }:
 
 {
   imports = [
@@ -35,7 +35,10 @@
   # --- FEATURE TOGGLES ---
   ft.boot.limine.enable = true;
   ft.desktop.cosmic.enable = true;
-  ft.mullet.enable = true;
+  ft.mullet = {
+    enable     = true;
+    sourcePath = ../../users/joe/var/mullet.txt;
+  };
   ft.hardware.gpu.enable = true;
   ft.hardware.yubikey.enable = true;
   ft.cli.enable = true;
@@ -70,15 +73,17 @@
   #
   ft.services.localAi = {
     enable = true;
-    llamafile.execPath = "/home/joe/Documents/llamafile-0.10.1-thin";
-    llamafile.modelPath = "/home/joe/Documents/Qwen3.5-27B.Q6_K.gguf";
-    # Optional: GPU offload and context size
-    llamafile.extraArgs = [
-      "--ctx-size"
-      "32768"
-      "--n-gpu-layers"
-      "--server"
-      "99"
-    ];
+    llamafile = {
+      execPath = "/home/joe/Documents/llamafile-0.10.1-thin";
+      modelPath = "/home/joe/Documents/Qwen3.5-27B.Q6_K.gguf";
+      # Optional: GPU offload and context size
+      extraArgs = [
+        "--ctx-size"
+        "32768"
+        "--n-gpu-layers"
+        "--server"
+        "99"
+      ];
+    };
   };
 }
