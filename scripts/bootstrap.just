@@ -64,7 +64,8 @@ add-machine name ip:
         lock = builtins.fromJSON (builtins.readFile ./flake.lock);
         npSrc = builtins.fetchTree lock.nodes.nixpkgs.locked;
       in (import "${npSrc}/lib").trivial.release
-    ' --raw 2>/dev/null | sed 's/pre.*//' || echo '25.05')"
+    ' --raw 2>/dev/null | sed 's/pre.*//')"
+    STATE_VERSION="${STATE_VERSION:-25.05}"
     mkdir -p var/local
     printf '%s' "$NAME"   > var/local/machineName
     printf '%s' "$SYSTEM" > var/local/system
