@@ -59,6 +59,12 @@ add-machine name ip:
       exit 0
     fi
     SYSTEM="$(nix eval --impure --expr 'builtins.currentSystem' --raw)"
+    STATE_VERSION="$(nix eval --impure --expr '
+      let
+        lock = builtins.fromJSON (builtins.readFile ./flake.lock);
+        npSrc = builtins.fetchTree lock.nodes.nixpkgs.locked;
+      in (import "${npSrc}/lib").trivial.release
+    ' --raw 2>/dev/null | sed 's/pre.*//' || echo '25.05')"
     mkdir -p var/local
     printf '%s' "$NAME"   > var/local/machineName
     printf '%s' "$SYSTEM" > var/local/system
@@ -78,6 +84,7 @@ add-machine name ip:
   users.users.joe.initialPassword = "nixos";
   users.mutableUsers = true;
 
+  ft.system.core.stateVersion = "${STATE_VERSION}";
   ft.boot.limine.enable    = true;
   ft.desktop.cosmic.enable = true;
   ft.cli.enable            = true;

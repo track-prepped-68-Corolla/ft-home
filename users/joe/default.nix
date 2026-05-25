@@ -24,6 +24,7 @@
 
   # --- IDENTITY ---
   home.username = "joe";
+  ft.home.core.stateVersion = "24.05";
 
   # --- FEATURE TOGGLES ---
   ft.lazyvim.enable = true;

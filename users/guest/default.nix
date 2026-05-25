@@ -7,6 +7,7 @@
 
   # --- IDENTITY ---
   home.username = "guest";
+  ft.home.core.stateVersion = "24.05";
 
   programs.git = {
     enable = true;

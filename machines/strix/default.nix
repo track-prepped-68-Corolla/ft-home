@@ -35,6 +35,7 @@
   users.mutableUsers = true;
 
   # --- FEATURE TOGGLES ---
+  ft.system.core.stateVersion = "24.05";
   ft.boot.limine.enable = true;
   ft.desktop.cosmic.enable = true;
   ft.mullet = {
