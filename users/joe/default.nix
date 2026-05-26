@@ -26,6 +26,7 @@
   home.username = "joe";
 
   # --- FEATURE TOGGLES ---
+  ft.home.core.stateVersion = "25.05";
   ft.lazyvim.enable = true;
   ft.theme.enable = true;
   ft.theme.wallpaper = ./wallpapers/default.png;
