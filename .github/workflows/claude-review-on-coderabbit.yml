@@ -1,24 +1,97 @@
-name: Tag Claude on CodeRabbit Review
+name: Tag Claude on CodeRabbit Review or CI Failure
 
 on:
   pull_request_review:
     types: [submitted]
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+env:
+  MAX_CYCLES: 5
 
 jobs:
-  tag-claude:
-    if: github.event.review.user.login == 'coderabbitai[bot]'
+  tag-claude-on-coderabbit-review:
+    if: |
+      github.event_name == 'pull_request_review' &&
+      github.event.review.user.login == 'coderabbitai[bot]'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
-
     steps:
-      - name: Tag Claude for review
+      - name: Tag Claude (respecting cycle limit)
         uses: actions/github-script@v7
         with:
           script: |
+            const MAX_CYCLES = parseInt(process.env.MAX_CYCLES);
+            const pr_number = context.payload.pull_request.number;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr_number,
+            });
+
+            const tagged = comments.filter(c =>
+              c.user.type === 'Bot' &&
+              c.body.includes('<!-- claude-auto-tag -->')
+            );
+
+            if (tagged.length >= MAX_CYCLES) {
+              core.notice(`Cycle limit of ${MAX_CYCLES} reached for PR #${pr_number}. Skipping.`);
+              return;
+            }
+
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              body: '@claude CodeRabbit has submitted a review. Please address the feedback.',
+              issue_number: pr_number,
+              body: `<!-- claude-auto-tag -->\n@claude CodeRabbit has submitted a review. Please address the feedback and push a fix.`,
+            });
+
+  tag-claude-on-ci-failure:
+    if: |
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Tag Claude (respecting cycle limit)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const MAX_CYCLES = parseInt(process.env.MAX_CYCLES);
+            const prs = context.payload.workflow_run.pull_requests;
+
+            if (!prs || prs.length === 0) {
+              core.notice('No PRs associated with this workflow run. Skipping.');
+              return;
+            }
+
+            const pr_number = prs[0].number;
+            const run_url = context.payload.workflow_run.html_url;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr_number,
+            });
+
+            const tagged = comments.filter(c =>
+              c.user.type === 'Bot' &&
+              c.body.includes('<!-- claude-auto-tag -->')
+            );
+
+            if (tagged.length >= MAX_CYCLES) {
+              core.notice(`Cycle limit of ${MAX_CYCLES} reached for PR #${pr_number}. Skipping.`);
+              return;
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr_number,
+              body: `<!-- claude-auto-tag -->\n@claude CI failed on this PR. Please investigate the [failed run](${run_url}), identify the root cause, and push a fix.`,
             });
