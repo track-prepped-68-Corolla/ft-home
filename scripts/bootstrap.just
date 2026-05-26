@@ -48,7 +48,7 @@ tailscale-init:
     echo ":: Tailscale configured for tailnet: $TS_TAILNET ::"
 
 # Scaffold a new machine in machines/<name>/.
-add-machine name ip:
+add-machine name ip='':
     #!/usr/bin/env bash
     set -e
     NAME="{{name}}"
@@ -139,39 +139,50 @@ secrets-init name:
     echo "Add to var/secrets/.sops.yaml:   - &${NAME}  ${AGE_KEY}"
     echo "Then run:  sops updatekeys var/secrets/shared/*.yaml"
 
-# SSH into target and collect hardware facts into machines/<name>/var/facter.json.
-generate-facts name ip:
+# Collect hardware facts into machines/<name>/var/facter.json.
+# With ip: SSHes into the target. Without ip: runs nixos-facter on the local machine.
+generate-facts name ip='':
     #!/usr/bin/env bash
     set -e
     NAME="{{name}}"
     IP="{{ip}}"
     mkdir -p "machines/${NAME}/var"
-    echo ":: Scanning hardware on ${IP} ::"
-    ssh "root@${IP}" \
-      "nix run github:numtide/nixos-facter -- -o /tmp/facter.json && cat /tmp/facter.json" \
-      > "machines/${NAME}/var/facter.json"
+    if [ -n "$IP" ]; then
+      echo ":: Scanning hardware on ${IP} ::"
+      ssh "root@${IP}" \
+        "nix run github:numtide/nixos-facter -- -o /tmp/facter.json && cat /tmp/facter.json" \
+        > "machines/${NAME}/var/facter.json"
+    else
+      echo ":: Scanning local hardware ::"
+      sudo nix run github:numtide/nixos-facter -- -o "machines/${NAME}/var/facter.json"
+    fi
     git add "machines/${NAME}/var/facter.json"
     git diff --cached --quiet || git commit -m "bootstrap: hardware facts for ${NAME}"
     echo ":: machines/${NAME}/var/facter.json written ::"
 
-# Install NixOS on target via nixos-anywhere.
-deploy name ip:
+# Deploy NixOS to target. With ip: fresh install via nixos-anywhere. Without ip: local switch.
+deploy name ip='':
     #!/usr/bin/env bash
     set -e
     NAME="{{name}}"
     IP="{{ip}}"
     TMPDIR="/tmp/bootstrap-${NAME}"
-    EXTRA_FILES=""
-    if [ -f "${TMPDIR}/ssh_host_ed25519_key" ]; then
-      mkdir -p "${TMPDIR}/etc/ssh"
-      cp "${TMPDIR}/ssh_host_ed25519_key"     "${TMPDIR}/etc/ssh/"
-      cp "${TMPDIR}/ssh_host_ed25519_key.pub" "${TMPDIR}/etc/ssh/"
-      EXTRA_FILES="--extra-files ${TMPDIR}"
+    if [ -n "$IP" ]; then
+      EXTRA_FILES=""
+      if [ -f "${TMPDIR}/ssh_host_ed25519_key" ]; then
+        mkdir -p "${TMPDIR}/etc/ssh"
+        cp "${TMPDIR}/ssh_host_ed25519_key"     "${TMPDIR}/etc/ssh/"
+        cp "${TMPDIR}/ssh_host_ed25519_key.pub" "${TMPDIR}/etc/ssh/"
+        EXTRA_FILES="--extra-files ${TMPDIR}"
+      fi
+      nixos-anywhere --flake ".#${NAME}" $EXTRA_FILES "root@${IP}"
+    else
+      echo ":: Switching local system to .#${NAME} ::"
+      sudo nixos-rebuild switch --flake ".#${NAME}"
     fi
-    nixos-anywhere --flake ".#${NAME}" $EXTRA_FILES "root@${IP}"
 
 # Full bootstrap: git-init → add-machine (includes generate-facts) → secrets-init → deploy.
-bootstrap name ip:
+bootstrap name ip='':
     #!/usr/bin/env bash
     set -e
     just --justfile "{{justfile()}}" git-init 2>/dev/null || true
