@@ -8,12 +8,12 @@ in
   vm-virt-load = pkgs.testers.runNixOSTest {
     name = "ft-virt-load";
     nodes.machine =
-      { lib, ... }:
+      { ... }:
       {
         imports = [ baseConfig ];
         ft.system.virt.enable = true;
         # No USB passthrough available in a nested QEMU environment.
-        ft.system.virt.enableSpiceUsbRedirection = lib.mkForce false;
+        ft.system.virt.enableSpiceUsbRedirection = false;
       };
     testScript = ''
       machine.wait_for_unit("multi-user.target")

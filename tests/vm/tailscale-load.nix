@@ -9,12 +9,12 @@ in
   vm-tailscale-load = pkgs.testers.runNixOSTest {
     name = "ft-tailscale-load";
     nodes.machine =
-      { lib, ... }:
+      { ... }:
       {
         imports = [ baseConfig ];
         ft.services.tailscale.enable = true;
         # Tray app is a desktop GUI; suppress it in a headless VM.
-        ft.services.tailscale.enableTrayApp = lib.mkForce false;
+        ft.services.tailscale.enableTrayApp = false;
       };
     testScript = ''
       machine.wait_for_unit("multi-user.target")

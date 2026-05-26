@@ -29,7 +29,7 @@ in
   # Use for tests targeting fast-track-nix modules.
   # ---------------------------------------------------------------------------
   baseConfig =
-    { lib, ... }:
+    { ... }:
     {
       imports = [ inputs.ft-home.nixosModules.default ];
       # Thread merged inputs through _module.args so framework modules that
@@ -37,8 +37,7 @@ in
       _module.args.inputs = mergedInputs;
       ft.system.core.stateVersion = "25.05";
       ft.users.initialPasswords.admin = "test";
-      # No Bluetooth hardware in QEMU; force-disable to keep systemd healthy.
-      hardware.bluetooth.enable = lib.mkForce false;
+      hardware.bluetooth.enable = false;
     };
 
   # ---------------------------------------------------------------------------
@@ -55,7 +54,7 @@ in
       _module.args.inputs = mergedInputs;
       ft.system.core.stateVersion = "25.05";
       ft.users.initialPasswords.admin = "test";
-      hardware.bluetooth.enable = lib.mkForce false;
+      hardware.bluetooth.enable = false;
       # ft.apps has default = true in the consumer module hub; disable in the
       # shared base so individual tests opt in explicitly and VMs stay lean.
       ft.apps.enable = lib.mkDefault false;

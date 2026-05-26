@@ -16,7 +16,7 @@ in
     testScript = ''
       machine.wait_for_unit("multi-user.target")
       machine.succeed("which rclone")
-      machine.succeed("grep -q user_allow_other /etc/fuse.conf")
+      machine.succeed("grep -Eq '^[[:space:]]*user_allow_other([[:space:]]|$)' /etc/fuse.conf")
     '';
   };
 }

@@ -25,7 +25,9 @@ in
       };
     testScript = ''
       machine.wait_for_unit("multi-user.target")
-      machine.succeed("test -d /run/current-system")
+      # hardware.enableRedistributableFirmware = true is set by ft.hardware.facter;
+      # verify its effect: linux-firmware is linked into the system profile.
+      machine.succeed("test -d /run/current-system/firmware")
     '';
   };
 }
