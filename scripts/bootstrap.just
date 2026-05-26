@@ -53,6 +53,10 @@ add-machine name ip='':
     set -e
     NAME="{{name}}"
     IP="{{ip}}"
+    if ! [[ "$NAME" =~ ^[a-zA-Z0-9][a-zA-Z0-9-]*$ ]]; then
+      echo ":: Invalid machine name '${NAME}': use only alphanumerics and hyphens ::"
+      exit 1
+    fi
     MACHINE_DIR="machines/${NAME}"
     if [ -d "$MACHINE_DIR" ]; then
       echo ":: Machine ${NAME} already exists at ${MACHINE_DIR} ::"
@@ -146,6 +150,10 @@ generate-facts name ip='':
     set -e
     NAME="{{name}}"
     IP="{{ip}}"
+    if ! [[ "$NAME" =~ ^[a-zA-Z0-9][a-zA-Z0-9-]*$ ]]; then
+      echo ":: Invalid machine name '${NAME}': use only alphanumerics and hyphens ::"
+      exit 1
+    fi
     mkdir -p "machines/${NAME}/var"
     if [ -n "$IP" ]; then
       echo ":: Scanning hardware on ${IP} ::"
