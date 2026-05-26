@@ -1,0 +1,24 @@
+name: Tag Claude on CodeRabbit Review
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  tag-claude:
+    if: github.event.review.user.login == 'coderabbitai[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Tag Claude for review
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: '@claude CodeRabbit has submitted a review. Please address the feedback.',
+            });
