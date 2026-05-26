@@ -231,5 +231,5 @@ All pull requests target `testing`, not `main`. Changes reach `main` only after 
 - Expand scope beyond what was asked.
 - Commit unencrypted secrets or credentials.
 - Open a pull request targeting `main` — all PRs target `testing`.
-- Merge a module PR (framework or consumer) without a corresponding VM smoke test, unless the module appears in the excluded list above.
+- Merge a module PR only after a corresponding VM smoke test in `ft-home/tests/vm/` passes, unless the module is explicitly exempt (hardware-dependent, binary cache-dependent, or secrets infrastructure).
 - Write a VM test that only checks evaluation — every test must assert at least one runtime effect (service active, binary on PATH, config file present).
