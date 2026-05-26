@@ -25,18 +25,53 @@ let
       { };
 
   gpuCards = facter.hardware.graphics_card or [ ];
+
+  # Per-card vendor predicates used for both single-GPU and Optimus detection.
+  isNvidiaCard =
+    c:
+    let
+      d = lib.toLower (c.driver or "");
+      v = lib.toLower ((c.vendor or { }).hex or "");
+    in
+    d == "nvidia" || d == "nouveau" || v == "10de";
+
+  isAmdCard =
+    c:
+    let
+      d = lib.toLower (c.driver or "");
+      v = lib.toLower ((c.vendor or { }).hex or "");
+    in
+    d == "amdgpu" || d == "radeon" || v == "1002";
+
+  isIntelCard =
+    c:
+    let
+      d = lib.toLower (c.driver or "");
+      v = lib.toLower ((c.vendor or { }).hex or "");
+    in
+    d == "i915" || d == "xe" || v == "8086";
+
+  nvidiaCards = builtins.filter isNvidiaCard gpuCards;
+  igpuCards = builtins.filter (c: isAmdCard c || isIntelCard c) gpuCards;
+
+  # Optimus: one NVIDIA dGPU alongside at least one AMD/Intel iGPU.
+  isOptimus = cfg.autodetect && nvidiaCards != [ ] && igpuCards != [ ];
+
+  optNvidiaCard = if nvidiaCards != [ ] then builtins.head nvidiaCards else { };
+  optIgpuCard = if igpuCards != [ ] then builtins.head igpuCards else { };
+
   primaryGpu = if gpuCards != [ ] then builtins.head gpuCards else { };
-  driverName = lib.toLower (primaryGpu.driver or "");
-  vendorHex = lib.toLower ((primaryGpu.vendor or { }).hex or "");
 
   detectedVendor =
     if !cfg.autodetect then
       null
-    else if driverName == "amdgpu" || driverName == "radeon" || vendorHex == "1002" then
-      "amd"
-    else if driverName == "nvidia" || vendorHex == "10de" then
+    else if isOptimus then
       "nvidia"
-    else if driverName == "i915" || driverName == "xe" || vendorHex == "8086" then
+    else if isNvidiaCard primaryGpu then
+      "nvidia"
+    else if isAmdCard primaryGpu then
+      "amd"
+    else if isIntelCard primaryGpu then
       "intel"
     else
       null;
@@ -47,6 +82,58 @@ let
   isAmd = effectiveVendor == "amd";
   isIntel = effectiveVendor == "intel";
 
+  # Convert a facter sysfs_bus_id ("0000:c4:00.0") to PRIME format ("PCI:196:0:0").
+  hexToInt =
+    let
+      digits = {
+        "0" = 0;
+        "1" = 1;
+        "2" = 2;
+        "3" = 3;
+        "4" = 4;
+        "5" = 5;
+        "6" = 6;
+        "7" = 7;
+        "8" = 8;
+        "9" = 9;
+        "a" = 10;
+        "b" = 11;
+        "c" = 12;
+        "d" = 13;
+        "e" = 14;
+        "f" = 15;
+      };
+    in
+    hex: lib.foldl (acc: c: acc * 16 + digits.${c}) 0 (lib.stringToCharacters (lib.toLower hex));
+
+  sysfsIdToPrime =
+    id:
+    let
+      parts = builtins.filter builtins.isString (builtins.split ":" id);
+      devFunc = builtins.filter builtins.isString (builtins.split "[.]" (builtins.elemAt parts 2));
+    in
+    "PCI:${toString (hexToInt (builtins.elemAt parts 1))}:${toString (hexToInt (builtins.elemAt devFunc 0))}:${toString (hexToInt (builtins.elemAt devFunc 1))}";
+
+  # Effective PRIME config: autodetected values fill in when bus IDs are not set manually.
+  effectivePrimeEnable = isOptimus || cfg.prime.enable;
+
+  effectivePrimePrimaryBusId =
+    if isOptimus && cfg.prime.primaryBusId == "" && optIgpuCard ? sysfs_bus_id then
+      sysfsIdToPrime optIgpuCard.sysfs_bus_id
+    else
+      cfg.prime.primaryBusId;
+
+  effectivePrimeSecondaryBusId =
+    if isOptimus && cfg.prime.secondaryBusId == "" && optNvidiaCard ? sysfs_bus_id then
+      sysfsIdToPrime optNvidiaCard.sysfs_bus_id
+    else
+      cfg.prime.secondaryBusId;
+
+  # In Optimus mode the iGPU type is taken from the detected card; in manual mode
+  # it falls back to the main vendor (which the user would set to "amd"/"intel").
+  effectivePrimeIsIgpuAmd = if isOptimus then isAmdCard optIgpuCard else isAmd;
+  effectivePrimeIsIgpuIntel = if isOptimus then isIntelCard optIgpuCard else isIntel;
+
 in
 {
   options.ft.hardware.gpu = {
@@ -55,7 +142,7 @@ in
     autodetect = lib.mkOption {
       type = lib.types.bool;
       default = true;
-      description = "Detect GPU vendor from ft.hardware.facter.reportPath. When true and a known GPU is found, overrides the vendor option default. Set to false to use the vendor option directly.";
+      description = "Detect GPU vendor and Optimus configuration from ft.hardware.facter.reportPath. When true, sets ft.hardware.gpu.vendor and configures PRIME offloading automatically for Optimus setups. Set to false to use the vendor and prime options directly.";
     };
 
     # Primary GPU vendor (e.g., "nvidia", "amd", "intel").
@@ -122,7 +209,7 @@ in
         type = lib.types.str;
         default = "";
         example = "PCI:35:0:0";
-        description = "Bus ID of the GPU connected to the display (e.g., iGPU). Run 'lspci -nnk' to find.";
+        description = "Bus ID of the GPU connected to the display (e.g., iGPU). Derived automatically from facter.json when autodetect = true and an Optimus setup is detected; set explicitly to override.";
       };
 
       # Bus ID of the discrete GPU (e.g., NVIDIA dGPU).
@@ -130,7 +217,7 @@ in
         type = lib.types.str;
         default = "";
         example = "PCI:45:0:0";
-        description = "Bus ID of the discrete GPU. Run 'lspci -nnk' to find.";
+        description = "Bus ID of the discrete GPU. Derived automatically from facter.json when autodetect = true and an Optimus setup is detected; set explicitly to override.";
       };
     };
   };
@@ -170,12 +257,12 @@ in
                 config.boot.kernelPackages.nvidiaPackages.stable;
           }
           # PRIME Offloading (for hybrid graphics)
-          (lib.mkIf cfg.prime.enable {
+          (lib.mkIf effectivePrimeEnable {
             prime.offload.enable = true;
             prime.offload.enableOffloadCmd = true;
-            prime.nvidiaBusId = cfg.prime.secondaryBusId;
-            prime.amdgpuBusId = lib.mkIf isAmd cfg.prime.primaryBusId;
-            prime.intelBusId = lib.mkIf isIntel cfg.prime.primaryBusId;
+            prime.nvidiaBusId = effectivePrimeSecondaryBusId;
+            prime.amdgpuBusId = lib.mkIf effectivePrimeIsIgpuAmd effectivePrimePrimaryBusId;
+            prime.intelBusId = lib.mkIf effectivePrimeIsIgpuIntel effectivePrimePrimaryBusId;
           })
         ];
       })
