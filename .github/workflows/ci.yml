@@ -62,22 +62,23 @@ jobs:
 
       - name: Tag Claude on failure
         if: failure() && github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7
         with:
           script: |
             const MAX_CYCLES = 5;
             const pr_number = context.payload.pull_request.number;
             const run_url = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
 
-            const { data: comments } = await github.rest.issues.listComments({
+            const allComments = await github.paginate(github.rest.issues.listComments, {
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: pr_number,
+              per_page: 100,
             });
 
-            const tagged = comments.filter(c =>
+            const tagged = allComments.filter(c =>
               c.user.type === 'Bot' &&
-              c.body.includes('<!-- claude-auto-tag -->')
+              c.body?.includes('<!-- claude-auto-tag -->')
             );
 
             if (tagged.length >= MAX_CYCLES) {
