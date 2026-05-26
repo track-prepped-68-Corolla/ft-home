@@ -14,14 +14,14 @@ nixos-config is the personal consumer of the ft-home framework. It serves three 
 2. Dogfood testbed for ft-home features in development.
 3. Reference implementation until a dedicated template consumer repo is created.
 
-The entire `flake.nix` is a single delegation: `ft-home.lib.mkFlake inputs`. Everything else is configuration values.
+The core of `flake.nix` delegates to `ft-home.lib.mkFlake inputs`. The only consumer-level addition is `packages.x86_64-linux = import ./tests/vm { … }`, which merges VM smoke test packages in via `nixpkgs.lib.recursiveUpdate` without affecting any other outputs.
 
 ---
 
 ## Structure
 
 ```
-flake.nix                           # pure delegation — ft-home.lib.mkFlake inputs only
+flake.nix                           # delegation — ft-home.lib.mkFlake inputs + test package merge
 flake.lock                          # intentional; tracks ft-home and all transitive inputs
 machines/
   <name>/
@@ -41,6 +41,12 @@ modules/
                                     # contains: apps/ (mullet), hardware/ (facter, gpu, disk, nfs, vm),
                                     #           services/ (local-ai)
   home/                             # consumer-local HM modules (currently sparse — single default.nix)
+tests/
+  vm/
+    lib.nix                         # shared baseConfig and consumerBaseConfig
+    default.nix                     # merges all test files into packages.x86_64-linux.vm-*
+    fixtures/                       # test data (mullet.txt, facter.json)
+    <feature>.nix                   # one file per module under test
 var/
   local/                            # local machine state (system string written by bootstrap)
   secrets/
@@ -100,6 +106,7 @@ Note: `ft.hardware.facter` and `ft.hardware.gpu` are currently consumer-local mo
 ## Known issues / pending fixes
 
 - **Broken wallpaper default path in `ft.theme` / `stylix.nix`:** The framework module (`fast-track-nix/modules/home/stylix.nix`) defaults the wallpaper to `../../homes/guest/wallpapers/default.png`. The actual directory is `users/`, not `homes/` — this path resolves to a nonexistent location. Tracked in `Todo.md`. Until fixed upstream, always set `ft.theme.wallpaper` explicitly in your user config.
+- **`ft.hardware.facter` does not import `nixos-facter.nixosModules.facter`:** The consumer module sets `config.facter.reportPath` (an option from `inputs.nixos-facter`) but relies on the generator to inject the upstream module. VM tests must import it explicitly. The module itself should be fixed to add the import.
 
 ---
 
@@ -122,6 +129,91 @@ nix flake check  # validates all outputs build and evaluate cleanly
 
 ---
 
+## VM Smoke Tests
+
+VM smoke tests are the integration tier for all ft-home and framework modules.
+They live in `tests/vm/` and are exposed as `packages.x86_64-linux.vm-*` from
+`flake.nix` (via `recursiveUpdate`, so they stay out of `nix flake check` and
+do not affect the existing CI pipeline).
+
+**Run a test locally:**
+```bash
+nix build -L --no-link \
+  --option system-features "nixos-test kvm benchmark big-parallel" \
+  .#vm-core-boot
+```
+
+**Trigger all tests:** `VM Smoke Tests` workflow → `workflow_dispatch` in GitHub Actions.
+
+### File layout
+
+```
+tests/vm/
+  lib.nix              # baseConfig (framework only) + consumerBaseConfig (+ modules/nixos/)
+  default.nix          # lib.foldl merge of all test files
+  fixtures/
+    mullet.txt         # hello / cowsay — for ft.mullet tests
+    facter.json        # minimal hardware stub — for ft.hardware.facter tests
+  core-boot.nix        # ft.system.core + ft.users
+  tailscale-load.nix   # ft.services.tailscale
+  podman-rootless.nix  # ft.services.podmanRootless
+  printing.nix         # ft.services.printing
+  keepass.nix          # ft.keepass
+  nix-index.nix        # ft.programs.nixIndex
+  virt.nix             # ft.system.virt
+  nfs-framework.nix    # ft.services.nfs
+  cli.nix              # ft.cli
+  apps.nix             # ft.apps (consumer)
+  mullet.nix           # ft.mullet (consumer)
+  facter.nix           # ft.hardware.facter (consumer)
+  nfs-consumer.nix     # ft.nfs (consumer)
+  rclone.nix           # ft.rclone (consumer)
+  local-ai.nix         # ft.services.localAi (consumer)
+```
+
+### Adding a test (required for every new module)
+
+Use `baseConfig` for framework modules, `consumerBaseConfig` for modules in `modules/nixos/`. Every test must assert at least one **runtime effect** — service active, binary on PATH, config file written. Checking only that the module evaluates is not sufficient.
+
+```nix
+{ inputs, nixpkgs }:
+let
+  pkgs = nixpkgs.legacyPackages.x86_64-linux;
+  inherit (import ./lib.nix { inherit inputs nixpkgs; }) baseConfig;
+in
+{
+  vm-my-feature-load = pkgs.testers.runNixOSTest {
+    name = "ft-my-feature-load";
+    nodes.machine = { ... }: {
+      imports = [ baseConfig ];
+      ft.my.feature.enable = true;
+    };
+    testScript = ''
+      machine.wait_for_unit("multi-user.target")
+      machine.wait_for_unit("my-feature.service")
+    '';
+  };
+}
+```
+
+After adding the file, register it in `tests/vm/default.nix` and add `.#vm-my-feature-load` to `.github/workflows/vm-tests.yml`.
+
+### Excluded modules (no VM test required)
+
+| Module | Reason |
+|---|---|
+| `ft.kernel.cachyos` | Requires nix-cachyos binary cache |
+| `ft.security.sops` | Requires SSH host key + encrypted secrets file |
+| `ft.boot.limine` | Bootloader testing conflicts with QEMU |
+| `ft.desktop.cosmic`, `ft.desktop.plasma` | Too heavyweight for CI |
+| `ft.profiles.gaming` | Too heavyweight (Steam, Jovian-NixOS) |
+| `ft.services.bulkPool` | Requires physical drives with specific labels |
+| `ft.hardware.yubikey` | Requires physical YubiKey |
+| `ft.services.komodo` | Depends on sops secrets |
+| `ft.hardware.gpu` | No GPU hardware in QEMU; module is a no-op |
+
+---
+
 ## Branch workflow
 
 `feature` → `testing` → `main`
@@ -139,3 +231,5 @@ All pull requests target `testing`, not `main`. Changes reach `main` only after 
 - Expand scope beyond what was asked.
 - Commit unencrypted secrets or credentials.
 - Open a pull request targeting `main` — all PRs target `testing`.
+- Merge a module PR (framework or consumer) without a corresponding VM smoke test, unless the module appears in the excluded list above.
+- Write a VM test that only checks evaluation — every test must assert at least one runtime effect (service active, binary on PATH, config file present).
