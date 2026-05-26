@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "system": "x86_64-linux",
+  "virtualisation": "qemu",
+  "hardware": { "cpu": [] }
+}

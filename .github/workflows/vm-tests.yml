@@ -25,14 +25,22 @@ jobs:
       - name: Update ft-home input
         run: nix flake update ft-home
 
-      - name: vm-core-boot
+      - name: Run VM smoke tests
         run: |
           nix build -L --no-link \
             --option system-features "nixos-test kvm benchmark big-parallel" \
-            .#vm-core-boot
-
-      - name: vm-tailscale-load
-        run: |
-          nix build -L --no-link \
-            --option system-features "nixos-test kvm benchmark big-parallel" \
-            .#vm-tailscale-load
+            .#vm-core-boot \
+            .#vm-tailscale-load \
+            .#vm-podman-rootless-load \
+            .#vm-printing-load \
+            .#vm-keepass-load \
+            .#vm-nix-index-load \
+            .#vm-virt-load \
+            .#vm-nfs-framework-load \
+            .#vm-cli-load \
+            .#vm-apps-load \
+            .#vm-mullet-load \
+            .#vm-facter-load \
+            .#vm-nfs-consumer-load \
+            .#vm-rclone-load \
+            .#vm-local-ai-load
