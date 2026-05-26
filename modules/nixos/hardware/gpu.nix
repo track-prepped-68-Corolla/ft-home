@@ -120,16 +120,19 @@ let
     "PCI:${toString (hexToInt (builtins.elemAt parts 1))}:${toString (hexToInt (builtins.elemAt devFunc 0))}:${toString (hexToInt (builtins.elemAt devFunc 1))}";
 
   # Effective PRIME config: autodetected values fill in when bus IDs are not set manually.
-  effectivePrimeEnable = isOptimus || cfg.prime.enable;
+  # Both sysfs_bus_id fields must be present before autodetect enables PRIME; otherwise
+  # PRIME would be activated with empty bus IDs which causes an evaluation error.
+  optimusHasBusIds = optIgpuCard ? sysfs_bus_id && optNvidiaCard ? sysfs_bus_id;
+  effectivePrimeEnable = (isOptimus && optimusHasBusIds) || cfg.prime.enable;
 
   effectivePrimePrimaryBusId =
-    if isOptimus && cfg.prime.primaryBusId == "" && optIgpuCard ? sysfs_bus_id then
+    if isOptimus && optimusHasBusIds && cfg.prime.primaryBusId == "" then
       sysfsIdToPrime optIgpuCard.sysfs_bus_id
     else
       cfg.prime.primaryBusId;
 
   effectivePrimeSecondaryBusId =
-    if isOptimus && cfg.prime.secondaryBusId == "" && optNvidiaCard ? sysfs_bus_id then
+    if isOptimus && optimusHasBusIds && cfg.prime.secondaryBusId == "" then
       sysfsIdToPrime optNvidiaCard.sysfs_bus_id
     else
       cfg.prime.secondaryBusId;
