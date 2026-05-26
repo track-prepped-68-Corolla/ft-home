@@ -124,7 +124,7 @@ let
   # PRIME; an absent, empty, or malformed value would cause sysfsIdToPrime to crash on
   # an out-of-bounds elemAt when splitting the string.
   validSysfsId =
-    id: builtins.match "[0-9a-fA-F]{4}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\\.[0-9a-fA-F]" id != null;
+    id: builtins.isString id && builtins.match "[0-9a-fA-F]{4}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\\.[0-9a-fA-F]" id != null;
   optimusHasBusIds =
     optIgpuCard ? sysfs_bus_id
     && validSysfsId optIgpuCard.sysfs_bus_id
