@@ -61,6 +61,7 @@
     reportPath = ./facter.json;
   };
 
+  ft.system.core.stateVersion = "25.05";
   nixpkgs.hostPlatform = "x86_64-linux";
 
   # --- LOCAL AI STACK ---
