@@ -1,0 +1,44 @@
+# CodeRabbit configuration for ft-home (NixOS/Home Manager)
+# Docs: https://docs.coderabbit.ai/guides/configure-coderabbit
+
+reviews:
+  profile: assertive  # deeper, more assertive review pass
+
+  path_instructions:
+    - path: "**/*.nix"
+      instructions: >
+        Review for correct Nix syntax and idiomatic style. Flag deprecated
+        options, impure expressions, or missing lib calls. Check that module
+        options have proper types and descriptions.
+
+    - path: "modules/**"
+      instructions: >
+        Verify NixOS module structure: options declarations, config assignments,
+        and imports are correctly scoped. Watch for infinite-recursion risks
+        and check mkIf/mkMerge usage is correct.
+
+    - path: "machines/**"
+      instructions: >
+        Ensure machine configs don't bleed shared state that belongs in
+        modules. Check hardware-configuration imports and boot options.
+
+    - path: "users/**"
+      instructions: >
+        Review Home Manager options for correctness and idiom. Verify that
+        secrets or sensitive paths are not hard-coded.
+
+    - path: "scripts/**"
+      instructions: >
+        Check shell scripts for correctness, quoting, and that they handle
+        errors with set -e / set -u or equivalent.
+
+    - path: "flake.nix"
+      instructions: >
+        Check that flake outputs are well-formed, inputs are pinned via
+        flake.lock, and no impure fetchers (builtins.fetchTarball, etc.) are
+        used without justification.
+
+tone_instructions: >
+  Be direct and specific. Explain the "why" behind each suggestion. Keep
+  comments short and actionable. Phrase improvements to correct-but-less-idiomatic
+  Nix as suggestions rather than blockers.
