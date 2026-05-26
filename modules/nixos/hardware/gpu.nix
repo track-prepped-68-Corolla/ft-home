@@ -106,6 +106,11 @@ let
     in
     hex: lib.foldl (acc: c: acc * 16 + digits.${c}) 0 (lib.stringToCharacters (lib.toLower hex));
 
+  # Turing (0x1E00+) is the first NVIDIA architecture with open kernel module support.
+  nvDeviceId = hexToInt (lib.toLower ((optNvidiaCard.device or { }).hex or "0"));
+  nvidiaTuringOrNewer = cfg.autodetect && isNvidia && nvDeviceId >= 7680;
+  effectiveOpenKernelModules = if nvidiaTuringOrNewer then true else cfg.nvidia.openKernelModules;
+
   sysfsIdToPrime =
     id:
     let
@@ -169,7 +174,7 @@ in
       openKernelModules = lib.mkOption {
         type = lib.types.bool;
         default = true;
-        description = "Use open-source NVIDIA kernel modules (Turing+). Set to false for older cards.";
+        description = "Use open-source NVIDIA kernel modules (Turing+). When autodetect = true this is set automatically based on the GPU device ID; set autodetect = false to override.";
       };
       # Choose NVIDIA driver package (e.g., "stable", "beta").
       driverPackage = lib.mkOption {
@@ -246,7 +251,7 @@ in
         hardware.nvidia = lib.mkMerge [
           {
             modesetting.enable = true;
-            open = cfg.nvidia.openKernelModules;
+            open = effectiveOpenKernelModules;
             nvidiaSettings = cfg.nvidia.enableSettings;
             powerManagement.enable = cfg.nvidia.enablePowerManagement;
             powerManagement.finegrained = cfg.nvidia.finegrainedPowerManagement;
