@@ -16,15 +16,47 @@
 let
   cfg = config.ft.hardware.gpu;
 
-  # Helper function to check if a specific GPU vendor is enabled.
-  isNvidia = cfg.vendor == "nvidia";
-  isAmd = cfg.vendor == "amd";
-  isIntel = cfg.vendor == "intel";
+  facterPath = config.ft.hardware.facter.reportPath;
+
+  facter =
+    if cfg.autodetect && facterPath != null && builtins.pathExists facterPath then
+      builtins.fromJSON (builtins.readFile facterPath)
+    else
+      { };
+
+  gpuCards = facter.hardware.graphics_card or [ ];
+  primaryGpu = if gpuCards != [ ] then builtins.head gpuCards else { };
+  driverName = lib.toLower (primaryGpu.driver or "");
+  vendorHex = lib.toLower ((primaryGpu.vendor or { }).hex or "");
+
+  detectedVendor =
+    if !cfg.autodetect then
+      null
+    else if driverName == "amdgpu" || driverName == "radeon" || vendorHex == "1002" then
+      "amd"
+    else if driverName == "nvidia" || vendorHex == "10de" then
+      "nvidia"
+    else if driverName == "i915" || driverName == "xe" || vendorHex == "8086" then
+      "intel"
+    else
+      null;
+
+  effectiveVendor = if detectedVendor != null then detectedVendor else cfg.vendor;
+
+  isNvidia = effectiveVendor == "nvidia";
+  isAmd = effectiveVendor == "amd";
+  isIntel = effectiveVendor == "intel";
 
 in
 {
   options.ft.hardware.gpu = {
     enable = lib.mkEnableOption "Universal GPU Configuration";
+
+    autodetect = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Detect GPU vendor from ft.hardware.facter.reportPath. When true and a known GPU is found, overrides the vendor option default. Set to false to use the vendor option directly.";
+    };
 
     # Primary GPU vendor (e.g., "nvidia", "amd", "intel").
     vendor = lib.mkOption {
@@ -34,7 +66,7 @@ in
         "intel"
       ];
       default = "amd";
-      description = "Primary GPU vendor (nvidia, amd, or intel).";
+      description = "Primary GPU vendor (nvidia, amd, or intel). Ignored when autodetect = true and a known GPU is found in facter.json.";
     };
 
     # Enable 32-bit support for compatibility with older games/applications.
