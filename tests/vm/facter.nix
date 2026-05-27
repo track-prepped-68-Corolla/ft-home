@@ -1,7 +1,7 @@
 { inputs, nixpkgs }:
 let
   pkgs = nixpkgs.legacyPackages.x86_64-linux;
-  inherit (import ./lib.nix { inherit inputs nixpkgs; }) consumerBaseConfig specialArgs;
+  inherit (import ./lib.nix { inherit inputs; }) consumerBaseConfig;
 in
 {
   # ft.hardware.facter (consumer): hardware report is loaded and system boots.
@@ -11,7 +11,6 @@ in
   # generator normally injects it. Tests must import it explicitly.
   vm-facter-load = pkgs.testers.runNixOSTest {
     name = "ft-facter-load";
-    inherit specialArgs;
     nodes.machine =
       { ... }:
       {

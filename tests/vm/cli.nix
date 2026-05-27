@@ -1,7 +1,7 @@
 { inputs, nixpkgs }:
 let
   pkgs = nixpkgs.legacyPackages.x86_64-linux;
-  inherit (import ./lib.nix { inherit inputs nixpkgs; }) baseConfig specialArgs;
+  inherit (import ./lib.nix { inherit inputs; }) baseConfig;
 in
 {
   # ft.cli: the `ft` wrapper script and `just` are both on PATH.
@@ -9,7 +9,6 @@ in
   # to exist at runtime for `ft` commands to work, not at evaluation time.
   vm-cli-load = pkgs.testers.runNixOSTest {
     name = "ft-cli-load";
-    inherit specialArgs;
     nodes.machine =
       { ... }:
       {

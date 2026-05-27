@@ -1,13 +1,12 @@
 { inputs, nixpkgs }:
 let
   pkgs = nixpkgs.legacyPackages.x86_64-linux;
-  inherit (import ./lib.nix { inherit inputs nixpkgs; }) baseConfig specialArgs;
+  inherit (import ./lib.nix { inherit inputs; }) baseConfig;
 in
 {
   # ft.system.virt: libvirtd reaches the active state and virt-manager is on PATH.
   vm-virt-load = pkgs.testers.runNixOSTest {
     name = "ft-virt-load";
-    inherit specialArgs;
     nodes.machine =
       { ... }:
       {
