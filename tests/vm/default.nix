@@ -15,7 +15,7 @@
 { inputs, nixpkgs }:
 
 let
-  lib = nixpkgs.lib;
+  inherit (nixpkgs) lib;
   args = { inherit inputs nixpkgs; };
 in
 lib.foldl lib.recursiveUpdate { } (
