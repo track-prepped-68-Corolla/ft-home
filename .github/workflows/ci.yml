@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v4
@@ -58,3 +59,36 @@ jobs:
         uses: trufflesecurity/trufflehog@main
         with:
           extra_args: --only-verified
+
+      - name: Tag Claude on failure
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7
+        with:
+          script: |
+            const MAX_CYCLES = 5;
+            const pr_number = context.payload.pull_request.number;
+            const run_url = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            const allComments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr_number,
+              per_page: 100,
+            });
+
+            const tagged = allComments.filter(c =>
+              c.user.type === 'Bot' &&
+              c.body?.includes('<!-- claude-auto-tag -->')
+            );
+
+            if (tagged.length >= MAX_CYCLES) {
+              core.notice(`Cycle limit of ${MAX_CYCLES} reached for PR #${pr_number}. Skipping.`);
+              return;
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr_number,
+              body: `<!-- claude-auto-tag -->\n@claude CI failed on this PR. Please investigate the [failed run](${run_url}), identify the root cause, and push a fix.`,
+            });
