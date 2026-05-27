@@ -1,12 +1,11 @@
 { inputs, nixpkgs }:
 let
-  pkgs = nixpkgs.legacyPackages.x86_64-linux;
-  inherit (import ./lib.nix { inherit inputs; }) baseConfig;
+  inherit (import ./lib.nix { inherit inputs nixpkgs; }) baseConfig mkTest;
 in
 {
   # ft.services.tailscale: tailscaled.service reaches the active state.
   # Network authentication is not tested.
-  vm-tailscale-load = pkgs.testers.runNixOSTest {
+  vm-tailscale-load = mkTest {
     name = "ft-tailscale-load";
     nodes.machine =
       { ... }:

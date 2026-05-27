@@ -1,12 +1,11 @@
 { inputs, nixpkgs }:
 let
-  pkgs = nixpkgs.legacyPackages.x86_64-linux;
-  inherit (import ./lib.nix { inherit inputs; }) consumerBaseConfig;
+  inherit (import ./lib.nix { inherit inputs nixpkgs; }) consumerBaseConfig mkTest;
 in
 {
   # ft.nfs (consumer): systemd automount unit is generated for the configured mount.
   # A real NFS server is not required — only the unit file is verified.
-  vm-nfs-consumer-load = pkgs.testers.runNixOSTest {
+  vm-nfs-consumer-load = mkTest {
     name = "ft-nfs-consumer-load";
     nodes.machine =
       { ... }:

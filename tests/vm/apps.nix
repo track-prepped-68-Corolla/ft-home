@@ -1,11 +1,10 @@
 { inputs, nixpkgs }:
 let
-  pkgs = nixpkgs.legacyPackages.x86_64-linux;
-  inherit (import ./lib.nix { inherit inputs; }) consumerBaseConfig;
+  inherit (import ./lib.nix { inherit inputs nixpkgs; }) consumerBaseConfig mkTest;
 in
 {
   # ft.apps (consumer): key CLI packages from the apps bundle are on PATH.
-  vm-apps-load = pkgs.testers.runNixOSTest {
+  vm-apps-load = mkTest {
     name = "ft-apps-load";
     nodes.machine =
       { ... }:

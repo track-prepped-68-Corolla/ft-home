@@ -1,12 +1,11 @@
 { inputs, nixpkgs }:
 let
-  pkgs = nixpkgs.legacyPackages.x86_64-linux;
-  inherit (import ./lib.nix { inherit inputs; }) consumerBaseConfig;
+  inherit (import ./lib.nix { inherit inputs nixpkgs; }) consumerBaseConfig mkTest;
 in
 {
   # ft.mullet (consumer): packages listed in the source text file are installed.
   # fixtures/mullet.txt contains "hello" and "cowsay".
-  vm-mullet-load = pkgs.testers.runNixOSTest {
+  vm-mullet-load = mkTest {
     name = "ft-mullet-load";
     nodes.machine =
       { ... }:

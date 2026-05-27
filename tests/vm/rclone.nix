@@ -1,11 +1,10 @@
 { inputs, nixpkgs }:
 let
-  pkgs = nixpkgs.legacyPackages.x86_64-linux;
-  inherit (import ./lib.nix { inherit inputs; }) consumerBaseConfig;
+  inherit (import ./lib.nix { inherit inputs nixpkgs; }) consumerBaseConfig mkTest;
 in
 {
   # ft.rclone (consumer): rclone is on PATH and FUSE user_allow_other is set.
-  vm-rclone-load = pkgs.testers.runNixOSTest {
+  vm-rclone-load = mkTest {
     name = "ft-rclone-load";
     nodes.machine =
       { ... }:

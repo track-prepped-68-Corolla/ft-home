@@ -1,7 +1,6 @@
 { inputs, nixpkgs }:
 let
-  pkgs = nixpkgs.legacyPackages.x86_64-linux;
-  inherit (import ./lib.nix { inherit inputs; }) consumerBaseConfig;
+  inherit (import ./lib.nix { inherit inputs nixpkgs; }) consumerBaseConfig mkTest;
 in
 {
   # ft.hardware.facter (consumer): hardware report is loaded and system boots.
@@ -9,7 +8,7 @@ in
   # The consumer module sets config.facter.reportPath (an option declared by
   # nixos-facter) but does not import that upstream module itself — the
   # generator normally injects it. Tests must import it explicitly.
-  vm-facter-load = pkgs.testers.runNixOSTest {
+  vm-facter-load = mkTest {
     name = "ft-facter-load";
     nodes.machine =
       { ... }:

@@ -1,12 +1,11 @@
 { inputs, nixpkgs }:
 let
-  pkgs = nixpkgs.legacyPackages.x86_64-linux;
-  inherit (import ./lib.nix { inherit inputs; }) baseConfig;
+  inherit (import ./lib.nix { inherit inputs nixpkgs; }) baseConfig mkTest;
 in
 {
   # ft.services.nfs: systemd automount unit is generated for the configured mount.
   # A real NFS server is not required — only the unit file is verified.
-  vm-nfs-framework-load = pkgs.testers.runNixOSTest {
+  vm-nfs-framework-load = mkTest {
     name = "ft-nfs-framework-load";
     nodes.machine =
       { ... }:

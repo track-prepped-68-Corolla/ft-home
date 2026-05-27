@@ -1,12 +1,11 @@
 { inputs, nixpkgs }:
 let
-  pkgs = nixpkgs.legacyPackages.x86_64-linux;
-  inherit (import ./lib.nix { inherit inputs; }) baseConfig;
+  inherit (import ./lib.nix { inherit inputs nixpkgs; }) baseConfig mkTest;
 in
 {
   # Minimal boot test: ft.system.core + ft.users.
   # Passes when multi-user.target is reached and the admin user exists.
-  vm-core-boot = pkgs.testers.runNixOSTest {
+  vm-core-boot = mkTest {
     name = "ft-core-boot";
     nodes.machine = baseConfig;
     testScript = ''
