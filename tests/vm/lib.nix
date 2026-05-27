@@ -83,6 +83,10 @@ in
       disabledModules = [
         "${inputs.ft-home}/modules/nixos/hardware/disko-btrfs.nix"
         "${inputs.ft-home}/modules/nixos/profiles/gaming.nix"
+        # stylix: unconditionally imports inputs.stylix.nixosModules.stylix,
+        #   which sets nixpkgs.overlays — same read-only.nix conflict as gaming.
+        #   Theming is not tested in VMs.
+        "${consumerModules}/system/stylix.nix"
       ];
       ft.system.core.stateVersion = "25.05";
       ft.users.initialPasswords.admin = "test";
