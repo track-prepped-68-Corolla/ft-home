@@ -15,8 +15,8 @@
 # reference inputs.* at import time (sops-nix, nix-index-database, etc.)
 # can evaluate correctly inside the test's NixOS module system.
 #
-# disko-btrfs is excluded via disabledModules: it needs a real block device
-# and has no VM smoke test.
+# disko-btrfs and gaming.nix are excluded via disabledModules — see inline
+# comments in baseConfig for the reason each is disabled.
 # =============================================================================
 { inputs, nixpkgs }:
 
@@ -56,7 +56,14 @@ in
     {
       imports = [ inputs.ft-home.nixosModules.default ];
       # disko-btrfs: hardware-dependent disk layout, no VM test.
-      disabledModules = [ "${inputs.ft-home}/modules/nixos/hardware/disko-btrfs.nix" ];
+      # gaming: unconditionally imports jovian-nixos, whose overlay.nix /
+      #   workarounds.nix set nixpkgs.overlays at normal priority — collides
+      #   with nixpkgs/read-only.nix (types.unique) activated by runNixOSTest.
+      #   Exempt from VM tests per CLAUDE.md (too heavyweight: Steam, Jovian).
+      disabledModules = [
+        "${inputs.ft-home}/modules/nixos/hardware/disko-btrfs.nix"
+        "${inputs.ft-home}/modules/nixos/profiles/gaming.nix"
+      ];
       ft.system.core.stateVersion = "25.05";
       ft.users.initialPasswords.admin = "test";
       hardware.bluetooth.enable = false;
@@ -73,7 +80,10 @@ in
         inputs.ft-home.nixosModules.default
         consumerModules
       ];
-      disabledModules = [ "${inputs.ft-home}/modules/nixos/hardware/disko-btrfs.nix" ];
+      disabledModules = [
+        "${inputs.ft-home}/modules/nixos/hardware/disko-btrfs.nix"
+        "${inputs.ft-home}/modules/nixos/profiles/gaming.nix"
+      ];
       ft.system.core.stateVersion = "25.05";
       ft.users.initialPasswords.admin = "test";
       hardware.bluetooth.enable = false;
