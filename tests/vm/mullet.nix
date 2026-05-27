@@ -1,7 +1,7 @@
 { inputs, nixpkgs }:
 let
   pkgs = nixpkgs.legacyPackages.x86_64-linux;
-  inherit (import ./lib.nix { inherit inputs nixpkgs; }) consumerBaseConfig;
+  inherit (import ./lib.nix { inherit inputs; }) consumerBaseConfig;
 in
 {
   # ft.mullet (consumer): packages listed in the source text file are installed.

@@ -1,7 +1,7 @@
 { inputs, nixpkgs }:
 let
   pkgs = nixpkgs.legacyPackages.x86_64-linux;
-  inherit (import ./lib.nix { inherit inputs nixpkgs; }) baseConfig;
+  inherit (import ./lib.nix { inherit inputs; }) baseConfig;
 in
 {
   # Minimal boot test: ft.system.core + ft.users.

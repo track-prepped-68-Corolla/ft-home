@@ -1,7 +1,7 @@
 { inputs, nixpkgs }:
 let
   pkgs = nixpkgs.legacyPackages.x86_64-linux;
-  inherit (import ./lib.nix { inherit inputs nixpkgs; }) baseConfig;
+  inherit (import ./lib.nix { inherit inputs; }) baseConfig;
 in
 {
   # ft.services.nfs: systemd automount unit is generated for the configured mount.
