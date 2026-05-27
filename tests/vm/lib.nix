@@ -9,21 +9,22 @@
 #
 # mergedInputs replicates what lib.mkFlake does so framework modules that
 # reference inputs.* at import time (sops-nix, nix-index-database, etc.)
-# can evaluate correctly inside the test’s NixOS module system.
+# can evaluate correctly inside the test's NixOS module system.
 #
-# disko-btrfs is excluded via disabledModules: it references inputs inside
-# its `imports` list, which causes infinite recursion when inputs is provided
-# through _module.args. Disk layout is hardware-dependent and has no VM test.
+# disko-btrfs and gaming are excluded via disabledModules: both are
+# hardware-dependent with no VM smoke test. gaming.nix also references
+# inputs inside its `imports` list, which causes infinite recursion when
+# inputs is provided through _module.args rather than specialArgs.
 # =============================================================================
 { inputs }:
 
 let
-  # fast-track-nix’s own inputs merged with the consumer’s inputs — mirrors
+  # fast-track-nix's own inputs merged with the consumer's inputs — mirrors
   # the merge that lib.mkFlake performs so all framework modules receive the
   # inputs they were authored against.
   mergedInputs = inputs.ft-home.inputs // inputs;
 
-  # Path to ft-home’s consumer NixOS module hub.
+  # Path to ft-home's consumer NixOS module hub.
   # Resolved relative to this file: tests/vm/../../modules/nixos.
   consumerModules = ../../modules/nixos;
 in
@@ -36,10 +37,13 @@ in
     { ... }:
     {
       imports = [ inputs.ft-home.nixosModules.default ];
-      # disko-btrfs uses inputs in its imports list; _module.args causes
-      # infinite recursion there. Disk layout is hardware-dependent and
-      # excluded from VM smoke tests.
-      disabledModules = [ "${inputs.ft-home}/modules/nixos/hardware/disko-btrfs.nix" ];
+      # disko-btrfs: hardware-dependent disk layout, no VM test.
+      # gaming: GPU/gaming hardware-dependent, no VM test; also uses inputs
+      # in its imports list which causes infinite recursion with _module.args.
+      disabledModules = [
+        "${inputs.ft-home}/modules/nixos/hardware/disko-btrfs.nix"
+        "${inputs.ft-home}/modules/nixos/profiles/gaming.nix"
+      ];
       _module.args.inputs = mergedInputs;
       ft.system.core.stateVersion = "25.05";
       ft.users.initialPasswords.admin = "test";
@@ -57,7 +61,10 @@ in
         inputs.ft-home.nixosModules.default
         consumerModules
       ];
-      disabledModules = [ "${inputs.ft-home}/modules/nixos/hardware/disko-btrfs.nix" ];
+      disabledModules = [
+        "${inputs.ft-home}/modules/nixos/hardware/disko-btrfs.nix"
+        "${inputs.ft-home}/modules/nixos/profiles/gaming.nix"
+      ];
       _module.args.inputs = mergedInputs;
       ft.system.core.stateVersion = "25.05";
       ft.users.initialPasswords.admin = "test";
