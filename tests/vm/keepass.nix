@@ -1,12 +1,13 @@
 { inputs, nixpkgs }:
 let
   pkgs = nixpkgs.legacyPackages.x86_64-linux;
-  inherit (import ./lib.nix { inherit inputs nixpkgs; }) baseConfig;
+  inherit (import ./lib.nix { inherit inputs nixpkgs; }) baseConfig specialArgs;
 in
 {
   # ft.keepass: KeePassXC is on PATH and GNOME Keyring is not active.
   vm-keepass-load = pkgs.testers.runNixOSTest {
     name = "ft-keepass-load";
+    inherit specialArgs;
     nodes.machine =
       { ... }:
       {

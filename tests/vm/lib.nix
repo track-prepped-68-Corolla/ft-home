@@ -7,6 +7,11 @@
 #   baseConfig         — framework modules only
 #   consumerBaseConfig — framework + ft-home consumer modules (modules/nixos/)
 #
+# specialArgs must be passed to every runNixOSTest call so modules that
+# reference inputs.* at import time (disko-btrfs, sops-nix, nix-index-database,
+# etc.) can evaluate without hitting infinite recursion.  Using _module.args
+# instead causes a cycle: imports → inputs → _module.args → config → imports.
+#
 # mergedInputs replicates what lib.mkFlake does so framework modules that
 # reference inputs.* at import time (sops-nix, nix-index-database, etc.)
 # can evaluate correctly inside the test's NixOS module system.
@@ -24,6 +29,11 @@ let
   consumerModules = ../../modules/nixos;
 in
 {
+  # specialArgs threads mergedInputs into every node's nixosSystem evaluation
+  # as a true special argument (not via _module.args), making inputs available
+  # before imports are resolved and avoiding the infinite-recursion trap.
+  specialArgs = { inputs = mergedInputs; };
+
   # ---------------------------------------------------------------------------
   # baseConfig: framework modules only.
   # Use for tests targeting fast-track-nix modules.
@@ -32,9 +42,6 @@ in
     { ... }:
     {
       imports = [ inputs.ft-home.nixosModules.default ];
-      # Thread merged inputs through _module.args so framework modules that
-      # destructure inputs in their function signature can evaluate.
-      _module.args.inputs = mergedInputs;
       ft.system.core.stateVersion = "25.05";
       ft.users.initialPasswords.admin = "test";
       hardware.bluetooth.enable = false;
@@ -51,7 +58,6 @@ in
         inputs.ft-home.nixosModules.default
         consumerModules
       ];
-      _module.args.inputs = mergedInputs;
       ft.system.core.stateVersion = "25.05";
       ft.users.initialPasswords.admin = "test";
       hardware.bluetooth.enable = false;

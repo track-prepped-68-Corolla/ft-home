@@ -1,12 +1,13 @@
 { inputs, nixpkgs }:
 let
   pkgs = nixpkgs.legacyPackages.x86_64-linux;
-  inherit (import ./lib.nix { inherit inputs nixpkgs; }) baseConfig;
+  inherit (import ./lib.nix { inherit inputs nixpkgs; }) baseConfig specialArgs;
 in
 {
   # ft.services.podmanRootless: dedicated podman service user and group are created.
   vm-podman-rootless-load = pkgs.testers.runNixOSTest {
     name = "ft-podman-rootless-load";
+    inherit specialArgs;
     nodes.machine =
       { ... }:
       {
