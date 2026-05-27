@@ -37,9 +37,15 @@ in
   # system receives `inputs` at specialArgs scope — available when `imports`
   # lists are evaluated, unlike _module.args which is part of the config
   # fixed-point and causes infinite recursion when referenced in `imports`.
-  mkTest = spec: pkgs.testers.runNixOSTest (spec // {
-    node.specialArgs = { inputs = mergedInputs; };
-  });
+  # recursiveUpdate preserves any other node.* or node.specialArgs.* fields
+  # the caller may have set.
+  mkTest =
+    spec:
+    pkgs.testers.runNixOSTest (
+      nixpkgs.lib.recursiveUpdate spec {
+        node.specialArgs.inputs = mergedInputs;
+      }
+    );
 
   # ---------------------------------------------------------------------------
   # baseConfig: framework modules only.
