@@ -2,23 +2,27 @@
 # VM Test Shared Library
 # =============================================================================
 #
-# Provides two base NixOS module configs for use in all VM smoke tests:
+# Provides two base NixOS module configs and a test runner for all VM smoke
+# tests:
 #
 #   baseConfig         — framework modules only
 #   consumerBaseConfig — framework + ft-home consumer modules (modules/nixos/)
+#   mkTest             — wraps pkgs.testers.runNixOSTest with node.specialArgs
+#                        so every node receives `inputs` via specialArgs rather
+#                        than _module.args, making it safe to use in `imports`
 #
 # mergedInputs replicates what lib.mkFlake does so framework modules that
 # reference inputs.* at import time (sops-nix, nix-index-database, etc.)
 # can evaluate correctly inside the test's NixOS module system.
 #
-# disko-btrfs and gaming are excluded via disabledModules: both are
-# hardware-dependent with no VM smoke test. gaming.nix also references
-# inputs inside its `imports` list, which causes infinite recursion when
-# inputs is provided through _module.args rather than specialArgs.
+# disko-btrfs is excluded via disabledModules: it needs a real block device
+# and has no VM smoke test.
 # =============================================================================
-{ inputs }:
+{ inputs, nixpkgs }:
 
 let
+  pkgs = nixpkgs.legacyPackages.x86_64-linux;
+
   # fast-track-nix's own inputs merged with the consumer's inputs — mirrors
   # the merge that lib.mkFlake performs so all framework modules receive the
   # inputs they were authored against.
@@ -29,6 +33,14 @@ let
   consumerModules = ../../modules/nixos;
 in
 {
+  # Wraps runNixOSTest with node.specialArgs so every node's NixOS module
+  # system receives `inputs` at specialArgs scope — available when `imports`
+  # lists are evaluated, unlike _module.args which is part of the config
+  # fixed-point and causes infinite recursion when referenced in `imports`.
+  mkTest = spec: pkgs.testers.runNixOSTest (spec // {
+    node.specialArgs = { inputs = mergedInputs; };
+  });
+
   # ---------------------------------------------------------------------------
   # baseConfig: framework modules only.
   # Use for tests targeting fast-track-nix modules.
@@ -38,13 +50,7 @@ in
     {
       imports = [ inputs.ft-home.nixosModules.default ];
       # disko-btrfs: hardware-dependent disk layout, no VM test.
-      # gaming: GPU/gaming hardware-dependent, no VM test; also uses inputs
-      # in its imports list which causes infinite recursion with _module.args.
-      disabledModules = [
-        "${inputs.ft-home}/modules/nixos/hardware/disko-btrfs.nix"
-        "${inputs.ft-home}/modules/nixos/profiles/gaming.nix"
-      ];
-      _module.args.inputs = mergedInputs;
+      disabledModules = [ "${inputs.ft-home}/modules/nixos/hardware/disko-btrfs.nix" ];
       ft.system.core.stateVersion = "25.05";
       ft.users.initialPasswords.admin = "test";
       hardware.bluetooth.enable = false;
@@ -61,11 +67,7 @@ in
         inputs.ft-home.nixosModules.default
         consumerModules
       ];
-      disabledModules = [
-        "${inputs.ft-home}/modules/nixos/hardware/disko-btrfs.nix"
-        "${inputs.ft-home}/modules/nixos/profiles/gaming.nix"
-      ];
-      _module.args.inputs = mergedInputs;
+      disabledModules = [ "${inputs.ft-home}/modules/nixos/hardware/disko-btrfs.nix" ];
       ft.system.core.stateVersion = "25.05";
       ft.users.initialPasswords.admin = "test";
       hardware.bluetooth.enable = false;

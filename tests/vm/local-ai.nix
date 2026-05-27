@@ -1,13 +1,13 @@
 { inputs, nixpkgs }:
 let
   pkgs = nixpkgs.legacyPackages.x86_64-linux;
-  inherit (import ./lib.nix { inherit inputs; }) consumerBaseConfig;
+  inherit (import ./lib.nix { inherit inputs nixpkgs; }) consumerBaseConfig mkTest;
 in
 {
   # ft.services.localAi (consumer): llamafile and AnythingLLM systemd unit files
   # are generated. A real LLM binary or model is not required — only unit
   # existence is verified.
-  vm-local-ai-load = pkgs.testers.runNixOSTest {
+  vm-local-ai-load = mkTest {
     name = "ft-local-ai-load";
     nodes.machine =
       { ... }:

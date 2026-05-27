@@ -1,11 +1,10 @@
 { inputs, nixpkgs }:
 let
-  pkgs = nixpkgs.legacyPackages.x86_64-linux;
-  inherit (import ./lib.nix { inherit inputs; }) baseConfig;
+  inherit (import ./lib.nix { inherit inputs nixpkgs; }) baseConfig mkTest;
 in
 {
   # ft.services.printing: CUPS and Avahi daemon both reach the active state.
-  vm-printing-load = pkgs.testers.runNixOSTest {
+  vm-printing-load = mkTest {
     name = "ft-printing-load";
     nodes.machine =
       { ... }:
