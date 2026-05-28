@@ -40,13 +40,11 @@ let
           raw;
       meta = moduleAttrs.meta or { };
     in
-    { config, ... }:
     {
       options.ft.${name}.enable = lib.mkEnableOption name // {
         description = meta.description or "Whether to enable ${name}.";
       } // lib.optionalAttrs (meta ? default) { inherit (meta) default; };
-      # The real module is imported (and its config block runs) only when the flag is true.
-      imports = lib.optionals config.ft.${name}.enable [ path ];
+      imports = [ path ];
     };
 in
 {

@@ -32,12 +32,11 @@ let
           raw;
       meta = moduleAttrs.meta or { };
     in
-    { config, ... }:
     {
       options.ft.${name}.enable = lib.mkEnableOption name // {
         description = meta.description or "Whether to enable ${name}.";
       } // lib.optionalAttrs (meta ? default) { inherit (meta) default; };
-      imports = lib.optionals config.ft.${name}.enable [ path ];
+      imports = [ path ];
     };
 in
 {

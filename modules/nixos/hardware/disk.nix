@@ -1,16 +1,14 @@
 {
   config,
   lib,
-  inputs,
   ...
 }:
 
+# Disko is injected by the framework generator and nixosModules.default closure.
 let
   cfg = config.ft.disk;
 in
 {
-  imports = [ inputs.Disko.nixosModules.disko ];
-
   meta.description = "Declarative disk partitioning via disko. Pass a disko device schema to ft.disk.devices and this module hands it straight to disko.devices.";
 
   options.ft.disk = {
