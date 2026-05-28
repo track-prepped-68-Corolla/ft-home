@@ -41,7 +41,7 @@
     enable     = true;
     sourcePath = ../../users/joe/var/mullet.txt;
   };
-  ft.hardware.gpu.enable = true;
+  ft.gpu.enable = true;
   ft.hardware.yubikey.enable = true;
   ft.cli.enable = true;
   ft.keepass.enable = true;
@@ -56,7 +56,7 @@
     variant = "latest-lto-x86_64-v4";
   };
 
-  ft.hardware.facter = {
+  ft.facter = {
     enable = true;
     reportPath = ./facter.json;
   };
@@ -70,12 +70,11 @@
   # After first boot, open http://localhost:3001 and configure LLM provider:
   #   Generic OpenAI → Base URL: http://localhost:9119/v1 → API key: local
   #
-  ft.services.localAi = {
+  ft."local-ai" = {
     enable = true;
     llamafile = {
       execPath = "/home/joe/Documents/llamafile-0.10.1-thin";
       modelPath = "/home/joe/Documents/Qwen3.5-27B.Q6_K.gguf";
-      # Optional: GPU offload and context size
       extraArgs = [
         "--ctx-size"
         "32768"
