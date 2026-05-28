@@ -6,34 +6,19 @@
 }:
 
 let
-  cfg = config.ft.services.localAi;
+  cfg = config.ft."local-ai";
   llamaPort = toString cfg.llamafile.port;
   hermesPort = toString cfg.hermes.port;
   hermesExec =
     if cfg.hermes.execPath != "" then cfg.hermes.execPath else "/home/${cfg.user}/.local/bin/hermes";
 in
 {
-  options.ft.services.localAi = {
-    enable = lib.mkEnableOption "local AI stack: llamafile + AnythingLLM" // {
-      description = ''
-        Runs a local AI stack:
+  meta.description = "Local AI stack: llamafile (OpenAI-compatible LLM server) + AnythingLLM (RAG/agent chat UI) + optional hermes-agent companion CLI, all wired together as systemd services.";
 
-          llamafile  — serves a GGUF model as an OpenAI-compatible API (port ${llamaPort})
-          AnythingLLM — RAG/agent chat UI backed by llamafile (port ${toString cfg.anythingllm.port})
-          hermes-agent — optional companion CLI agent also pointed at llamafile (port ${hermesPort})
-
-        After first boot, open AnythingLLM at http://localhost:${toString cfg.anythingllm.port},
-        configure LLM provider → Generic OpenAI → Base URL: http://localhost:${llamaPort}/v1.
-
-        hermes-agent (dashboard) is available at http://localhost:${hermesPort} for its
-        own management UI; it requires a manually built frontend to serve completions
-        and is not wired into AnythingLLM by default.
-      '';
-    };
-
+  options.ft."local-ai" = {
     user = lib.mkOption {
       type = lib.types.str;
-      default = config.ft.users.mainUser;
+      default = config.ft.user.mainUser;
       description = "User under which llamafile and hermes-agent run. Must own the model files.";
     };
 
@@ -56,14 +41,8 @@ in
       extraArgs = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [ ];
-        description = "Extra flags passed to llamafile, e.g. --server, --ctx-size, --n-gpu-layers.";
-        example = [
-          "--server"
-          "--ctx-size"
-          "32768"
-          "--n-gpu-layers"
-          "99"
-        ];
+        description = "Extra flags passed to llamafile.";
+        example = [ "--server" "--ctx-size" "32768" "--n-gpu-layers" "99" ];
       };
     };
 
@@ -71,22 +50,22 @@ in
       enable = lib.mkOption {
         type = lib.types.bool;
         default = true;
-        description = "Run hermes-agent dashboard as a companion service. Requires hermes installed via pipx.";
+        description = "Run hermes-agent dashboard as a companion service.";
       };
       execPath = lib.mkOption {
         type = lib.types.str;
         default = "";
-        description = "Absolute path to the hermes binary. Empty defaults to ~/.local/bin/hermes under the service user.";
+        description = "Absolute path to the hermes binary. Empty defaults to ~/.local/bin/hermes.";
       };
       port = lib.mkOption {
         type = lib.types.port;
         default = 8642;
-        description = "Port for the hermes API server (API_SERVER_PORT).";
+        description = "Port for the hermes API server.";
       };
       apiKey = lib.mkOption {
         type = lib.types.str;
         default = "local";
-        description = "API key for the Hermes API server (API_SERVER_KEY). Use this same value as the API key in AnythingLLM's Generic OpenAI provider config.";
+        description = "API key for the Hermes API server.";
       };
     };
 
@@ -100,7 +79,6 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    # Ensure Podman is available even if ft.containers is not enabled.
     virtualisation.podman.enable = lib.mkDefault true;
     virtualisation.oci-containers.backend = lib.mkDefault "podman";
 
@@ -111,10 +89,10 @@ in
       serviceConfig = {
         ExecStart = pkgs.writeShellScript "llamafile-start" ''
           export PATH="${pkgs.gzip}/bin:${pkgs.coreutils}/bin:$PATH"
-          exec ${lib.escapeShellArg cfg.llamafile.execPath} \
-            -m ${lib.escapeShellArg cfg.llamafile.modelPath} \
-            --port ${llamaPort} \
-            --host 127.0.0.1 \
+          exec ${lib.escapeShellArg cfg.llamafile.execPath} \\
+            -m ${lib.escapeShellArg cfg.llamafile.modelPath} \\
+            --port ${llamaPort} \\
+            --host 127.0.0.1 \\
             ${lib.escapeShellArgs cfg.llamafile.extraArgs}
         '';
         User = cfg.user;
@@ -126,10 +104,7 @@ in
     systemd.services.hermes-agent = lib.mkIf cfg.hermes.enable {
       description = "Hermes AI agent dashboard";
       wantedBy = [ "multi-user.target" ];
-      after = [
-        "network.target"
-        "llamafile.service"
-      ];
+      after = [ "network.target" "llamafile.service" ];
       environment = {
         OPENAI_BASE_URL = "http://127.0.0.1:${llamaPort}/v1";
         OPENAI_API_KEY = "local";
@@ -151,18 +126,14 @@ in
 
     virtualisation.oci-containers.containers.anythingllm = {
       image = "mintplexlabs/anythingllm:latest";
-      volumes = [
-        "/opt/containers/anythingllm/storage:/app/server/storage"
-      ];
+      volumes = [ "/opt/containers/anythingllm/storage:/app/server/storage" ];
       environment = {
         STORAGE_DIR = "/app/server/storage";
         SERVER_PORT = toString cfg.anythingllm.port;
       };
-      # host network so the container can reach llamafile on 127.0.0.1
       extraOptions = [ "--network=host" ];
     };
 
-    # Ensure storage dir exists before Podman tries to mount it.
     systemd.services.podman-anythingllm.serviceConfig.ExecStartPre =
       "+"
       + pkgs.writeShellScript "anythingllm-mkdir" ''

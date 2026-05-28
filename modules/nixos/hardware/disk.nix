@@ -11,8 +11,9 @@ in
 {
   imports = [ inputs.Disko.nixosModules.disko ];
 
+  meta.description = "Declarative disk partitioning via disko. Pass a disko device schema to ft.disk.devices and this module hands it straight to disko.devices.";
+
   options.ft.disk = {
-    enable = lib.mkEnableOption "disko declarative disk partitioning";
     devices = lib.mkOption {
       type = lib.types.attrsOf lib.types.anything;
       default = { };

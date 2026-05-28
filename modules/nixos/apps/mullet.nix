@@ -28,8 +28,9 @@ let
 
 in
 {
+  meta.description = "Imperative package management via a plain-text package list (The Mullet). Reads ft.mullet.sourcePath line-by-line and installs every named package, supporting dotted paths like vimPlugins.LazyVim.";
+
   options.ft.mullet = {
-    enable = lib.mkEnableOption "Imperative package management (The Mullet)";
     sourcePath = lib.mkOption {
       type = lib.types.path;
       default = ./mullet.txt;

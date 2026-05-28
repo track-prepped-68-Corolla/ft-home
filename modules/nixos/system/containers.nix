@@ -9,9 +9,7 @@ let
   cfg = config.ft.containers;
 in
 {
-  options.ft.containers = {
-    enable = lib.mkEnableOption "the FT container stack (Podman, Distrobox, Komodo)";
-  };
+  meta.description = "FT container stack: Podman with Docker compatibility and socket, Distrobox, docker-compose, and a pre-configured Komodo Core + Periphery + MongoDB deployment via OCI containers.";
 
   config = lib.mkIf cfg.enable {
     environment.systemPackages = with pkgs; [

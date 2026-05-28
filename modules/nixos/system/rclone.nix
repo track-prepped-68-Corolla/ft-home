@@ -7,11 +7,11 @@
 
 let
   cfg = config.ft.rclone;
-  # Use the username variable if you have one, or hardcode it to "joe"
 in
 {
+  meta.description = "Installs rclone and FUSE and enables userspace mounts (allow_other). The actual rclone mount systemd user service should be configured in the user's home module.";
+
   options.ft.rclone = {
-    enable = lib.mkEnableOption "Fast Track Google Drive Rclone Service";
     mountPoint = lib.mkOption {
       type = lib.types.str;
       default = "GoogleDrive";
@@ -28,10 +28,5 @@ in
       pkgs.fuse
     ];
     programs.fuse.userAllowOther = true;
-
-    # The rclone mount systemd user service belongs in the user's home config
-    # (users/<username>/default.nix or a home module), not here. The generator
-    # creates standalone homeConfigurations so home-manager.users.* is not
-    # a valid NixOS option in this setup.
   };
 }

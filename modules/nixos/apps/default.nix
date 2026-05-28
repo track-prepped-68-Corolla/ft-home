@@ -13,9 +13,9 @@ let
   cfg = config.ft.apps;
 in
 {
-  options.ft.apps.enable = lib.mkEnableOption "default system applications" // {
-    default = true;
+  meta = {
     description = "Installs the consumer's default system-wide application suite (ripgrep, fd, fzf, zoxide, eza, bat, lazygit, obsidian, brave, trufflehog, etc.) and enables the Tailscale daemon. Disable to strip all consumer-specific packages from the system closure.";
+    default = true;
   };
 
   config = lib.mkIf cfg.enable {

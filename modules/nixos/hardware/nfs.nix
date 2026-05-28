@@ -9,9 +9,9 @@ let
   cfg = config.ft.nfs;
 in
 {
-  options.ft.nfs = {
-    enable = lib.mkEnableOption "NFS mount management";
+  meta.description = "NFS mount management with systemd automount support. Declare mounts under ft.nfs.mounts; each entry needs a remotePath and a mountPoint and is auto-mounted on demand with a 10-minute idle timeout.";
 
+  options.ft.nfs = {
     mounts = lib.mkOption {
       type = lib.types.attrsOf (
         lib.types.submodule {
