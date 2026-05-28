@@ -13,12 +13,11 @@ let
   cfg = config.ft.apps;
 in
 {
-  meta = {
-    description = "Installs the consumer's default system-wide application suite (ripgrep, fd, fzf, zoxide, eza, bat, lazygit, obsidian, brave, trufflehog, etc.) and enables the Tailscale daemon. Disable to strip all consumer-specific packages from the system closure.";
-    default = true;
-  };
+  meta.description = "Installs the consumer's default system-wide application suite (ripgrep, fd, fzf, zoxide, eza, bat, lazygit, obsidian, brave, trufflehog, etc.) and enables the Tailscale daemon. Disable to strip all consumer-specific packages from the system closure.";
 
-  config = lib.mkIf cfg.enable {
+  config = lib.mkMerge [
+    { ft.apps.enable = lib.mkDefault true; }
+    (lib.mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
       nixos-generators
       direnv
@@ -53,5 +52,6 @@ in
     ];
 
     services.tailscale.enable = true;
-  };
+  })
+  ];
 }

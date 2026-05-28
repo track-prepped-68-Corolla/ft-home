@@ -72,6 +72,7 @@
   #
   ft."local-ai" = {
     enable = true;
+    user = "joe";
     llamafile = {
       execPath = "/home/joe/Documents/llamafile-0.10.1-thin";
       modelPath = "/home/joe/Documents/Qwen3.5-27B.Q6_K.gguf";
