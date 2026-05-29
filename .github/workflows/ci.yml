@@ -32,12 +32,16 @@ jobs:
       # statix fixes are available. Followers (nixpkgs, home-manager,
       # nixos-facter) update automatically via their follows constraints.
       - name: Update ft-home input
-        run: nix flake update ft-home
+        shell: bash
+        run: nix flake update ft-home 2>&1 | tee /tmp/ci-update.log; exit ${PIPESTATUS[0]}
 
       # Auto-format via treefmt (nixfmt + deadnix) and commit if anything changed.
       - name: Auto-format (treefmt)
+        shell: bash
         run: |
-          nix fmt
+          nix fmt 2>&1 | tee /tmp/ci-fmt.log
+          FMT_EXIT=${PIPESTATUS[0]}
+          if [ $FMT_EXIT -ne 0 ]; then exit $FMT_EXIT; fi
           if ! git diff --quiet; then
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git config user.name "github-actions[bot]"
@@ -46,14 +50,17 @@ jobs:
 
       # Runs checks.<system>.{format,lint} defined by the framework.
       - name: nix flake check
-        run: nix flake check
+        shell: bash
+        run: nix flake check 2>&1 | tee /tmp/ci-check.log; exit ${PIPESTATUS[0]}
 
       # Evaluate all NixOS configurations to their derivation path without
       # building. Fails immediately if any configuration cannot be evaluated.
       - name: Evaluate NixOS configurations
+        shell: bash
         run: |
           nix eval --json '.#nixosConfigurations' \
-            --apply 'builtins.mapAttrs (_: m: m.config.system.build.toplevel.drvPath)'
+            --apply 'builtins.mapAttrs (_: m: m.config.system.build.toplevel.drvPath)' \
+            2>&1 | tee /tmp/ci-eval.log; exit ${PIPESTATUS[0]}
 
       - name: Secret scan
         uses: trufflesecurity/trufflehog@main
@@ -65,6 +72,7 @@ jobs:
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7
         with:
           script: |
+            const fs = require('fs');
             const MAX_CYCLES = 5;
             const pr_number = context.payload.pull_request.number;
             const run_url = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
@@ -86,9 +94,35 @@ jobs:
               return;
             }
 
+            const logFiles = {
+              'Update ft-home input': '/tmp/ci-update.log',
+              'Auto-format (treefmt)': '/tmp/ci-fmt.log',
+              'nix flake check': '/tmp/ci-check.log',
+              'Evaluate NixOS configurations': '/tmp/ci-eval.log',
+            };
+
+            const MAX_LOG_CHARS = 6000;
+            let logSection = '';
+            for (const [stepName, logPath] of Object.entries(logFiles)) {
+              try {
+                let content = fs.readFileSync(logPath, 'utf8').trim();
+                if (content) {
+                  if (content.length > MAX_LOG_CHARS) {
+                    content = '...(truncated)\n' + content.slice(-MAX_LOG_CHARS);
+                  }
+                  const safeContent = content.replace(/```/g, '``\\`');
+                  logSection += `\n<details>\n<summary>${stepName}</summary>\n\n\`\`\`\n${safeContent}\n\`\`\`\n</details>\n`;
+                }
+              } catch (err) {
+                core.notice(`Unable to read ${logPath}: ${err.message}`);
+              }
+            }
+
+            const body = `<!-- claude-auto-tag -->\n@claude CI failed on this PR. Please investigate the [failed run](${run_url}), identify the root cause, and push a fix.${logSection ? '\n\n### Error Logs\n' + logSection : ''}`;
+
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: pr_number,
-              body: `<!-- claude-auto-tag -->\n@claude CI failed on this PR. Please investigate the [failed run](${run_url}), identify the root cause, and push a fix.`,
+              body,
             });
