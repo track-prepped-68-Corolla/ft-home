@@ -31,5 +31,5 @@
   security.pam.u2f.enable = lib.mkForce false;
 
   # llamafile / model paths don't exist inside the VM image.
-  ft.services.localAi.enable = lib.mkForce false;
+  ft."local-ai".enable = lib.mkForce false;
 }
