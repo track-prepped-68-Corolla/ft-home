@@ -4,7 +4,7 @@ let
   inherit (import ./lib.nix { inherit inputs nixpkgs; }) consumerBaseConfig mkTest;
 in
 {
-  # ft.services.localAi (consumer): llamafile and AnythingLLM systemd unit files
+  # ft."local-ai" (consumer): llamafile and AnythingLLM systemd unit files
   # are generated. A real LLM binary or model is not required — only unit
   # existence is verified.
   vm-local-ai-load = mkTest {
@@ -13,7 +13,7 @@ in
       { ... }:
       {
         imports = [ consumerBaseConfig ];
-        ft.services.localAi = {
+        ft."local-ai" = {
           enable = true;
           llamafile = {
             # Real store path so ExecStart resolves; exits immediately (no-op).

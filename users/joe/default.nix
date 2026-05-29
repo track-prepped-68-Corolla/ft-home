@@ -27,10 +27,10 @@
   home.username = "joe";
 
   # --- FEATURE TOGGLES ---
-  ft.home.core.stateVersion = "25.05";
+  ft."home-core".stateVersion = "25.05";
   ft.lazyvim.enable = true;
-  ft.theme.enable = true;
-  ft.theme.wallpaper = ./wallpapers/default.png;
+  ft.stylix.enable = true;
+  ft.stylix.wallpaper = ./wallpapers/default.png;
   ft.repoPath = lib.strings.trim (builtins.readFile ../../var/local/repoPath);
 
   # --- ENVIRONMENT ---

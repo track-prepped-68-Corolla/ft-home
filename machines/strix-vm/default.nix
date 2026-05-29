@@ -20,14 +20,14 @@
 
   # CachyOS kernel requires either the nix-cachyos binary cache or an hours-long
   # build from source. Use the default kernel for VM testing.
-  ft.kernel.cachyos.enable = lib.mkForce false;
+  ft.kernel.enable = lib.mkForce false;
 
   # No TPM or age key file available in QEMU — sops activation would stall.
-  ft.security.sops.enable = lib.mkForce false;
+  ft.sops.enable = lib.mkForce false;
 
   # No physical YubiKey in the VM. ft-home's user.nix also unconditionally
   # enables PAM U2F, so force it off to unblock login and sudo.
-  ft.hardware.yubikey.enable = lib.mkForce false;
+  ft.yubikey.enable = lib.mkForce false;
   security.pam.u2f.enable = lib.mkForce false;
 
   # llamafile / model paths don't exist inside the VM image.

@@ -8,7 +8,7 @@
 # WHAT GOES HERE
 #   hardware-configuration.nix   machine-specific kernel modules and filesystems
 #   modules/nixos                consumer NixOS modules (auto-gated by ft.*)
-#   Identity                     hostName, ft.users.mainUser, ft.users.superUsers
+#   Identity                     hostName, ft.user.mainUser, ft.user.superUsers
 #   ft.* feature toggles         enable framework and consumer modules
 #
 # WHAT DOES NOT GO HERE
@@ -28,7 +28,7 @@
   # --- IDENTITY ---
   networking.hostName = "strix";
 
-  ft.users = {
+  ft.user = {
     mainUser = "joe";
     superUsers = [ "joe" ];
     u2f.mappings.joe = "v+e+ZRyIL4d1FLrvbYhngm1tii+MlU2KAxoJd1b6OBNAe+bZ5h6l5ycVBhsOk+Dkm4Npok3XYT0PQtElOpr6hQ==,CRTxD7nPfvMv59eurT72PVdEKDjfx+a8jj8nzzkzd9lrvB/wpepu17QDRfOm5Du2PmR+Uas8glT+/rEStt+sEA==,es256,+presence%";
@@ -37,23 +37,23 @@
   users.mutableUsers = true;
 
   # --- FEATURE TOGGLES ---
-  ft.boot.limine.enable = true;
-  ft.desktop.cosmic.enable = true;
+  ft.limine.enable = true;
+  ft.cosmic.enable = true;
   ft.mullet = {
-    enable     = true;
+    enable = true;
     sourcePath = ../../users/joe/var/mullet.txt;
   };
   ft.gpu.enable = true;
-  ft.hardware.yubikey.enable = true;
-  ft.cli.enable = true;
+  ft.yubikey.enable = true;
+  ft.just.enable = true;
   ft.keepass.enable = true;
 
-  ft.security.sops = {
+  ft.sops = {
     enable = true;
     useTPM = true;
   };
 
-  ft.kernel.cachyos = {
+  ft.kernel = {
     enable = true;
     variant = "latest-lto-x86_64-v4";
   };
@@ -63,7 +63,7 @@
     reportPath = ./facter.json;
   };
 
-  ft.system.core.stateVersion = "25.05";
+  ft.core.stateVersion = "25.05";
   nixpkgs.hostPlatform = "x86_64-linux";
 
   # --- LOCAL AI STACK ---

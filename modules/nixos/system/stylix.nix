@@ -2,18 +2,20 @@
   config,
   lib,
   pkgs,
+  inputs,
   ...
 }:
 
 ################################################################################
 # STYLIX THEME MODULE (The Paintbrush)
-# Requires the host to import inputs.stylix.nixosModules.stylix.
 ################################################################################
 
 let
   cfg = config.ft.stylix;
 in
 {
+  imports = [ inputs.stylix.nixosModules.stylix ];
+
   meta.description = "Unified system theming via Stylix: Catppuccin Mocha palette, Hack Nerd Font mono, Roboto sans, Charter serif, Bibata-Modern-Ice cursor, 90% terminal opacity. Override wallpaper via ft.stylix.wallpaper.";
 
   options.ft.stylix = {

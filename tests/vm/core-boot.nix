@@ -3,7 +3,7 @@ let
   inherit (import ./lib.nix { inherit inputs nixpkgs; }) baseConfig mkTest;
 in
 {
-  # Minimal boot test: ft.system.core + ft.users.
+  # Minimal boot test: ft.core + ft.user.
   # Passes when multi-user.target is reached and the admin user exists.
   vm-core-boot = mkTest {
     name = "ft-core-boot";

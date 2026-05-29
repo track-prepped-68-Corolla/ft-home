@@ -64,8 +64,8 @@ in
         "${inputs.ft-home}/modules/nixos/hardware/disko-btrfs.nix"
         "${inputs.ft-home}/modules/nixos/profiles/gaming.nix"
       ];
-      ft.system.core.stateVersion = "25.05";
-      ft.users.initialPasswords.admin = "test";
+      ft.core.stateVersion = "25.05";
+      ft.user.initialPasswords.admin = "test";
       hardware.bluetooth.enable = false;
     };
 
@@ -83,13 +83,13 @@ in
       disabledModules = [
         "${inputs.ft-home}/modules/nixos/hardware/disko-btrfs.nix"
         "${inputs.ft-home}/modules/nixos/profiles/gaming.nix"
-        # stylix: unconditionally imports inputs.stylix.nixosModules.stylix,
-        #   which sets nixpkgs.overlays — same read-only.nix conflict as gaming.
-        #   Theming is not tested in VMs.
+        # stylix NixOS: unconditionally imports inputs.stylix.nixosModules.stylix
+        # which sets nixpkgs.overlays — same read-only.nix conflict as gaming.
+        # Theming is not tested in VMs.
         "${consumerModules}/system/stylix.nix"
       ];
-      ft.system.core.stateVersion = "25.05";
-      ft.users.initialPasswords.admin = "test";
+      ft.core.stateVersion = "25.05";
+      ft.user.initialPasswords.admin = "test";
       hardware.bluetooth.enable = false;
       # ft.apps has default = true in the consumer module hub; disable in the
       # shared base so individual tests opt in explicitly and VMs stay lean.
