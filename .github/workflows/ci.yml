@@ -32,10 +32,12 @@ jobs:
       # statix fixes are available. Followers (nixpkgs, home-manager,
       # nixos-facter) update automatically via their follows constraints.
       - name: Update ft-home input
+        shell: bash
         run: nix flake update ft-home 2>&1 | tee /tmp/ci-update.log; exit ${PIPESTATUS[0]}
 
       # Auto-format via treefmt (nixfmt + deadnix) and commit if anything changed.
       - name: Auto-format (treefmt)
+        shell: bash
         run: |
           nix fmt 2>&1 | tee /tmp/ci-fmt.log
           FMT_EXIT=${PIPESTATUS[0]}
@@ -48,11 +50,13 @@ jobs:
 
       # Runs checks.<system>.{format,lint} defined by the framework.
       - name: nix flake check
+        shell: bash
         run: nix flake check 2>&1 | tee /tmp/ci-check.log; exit ${PIPESTATUS[0]}
 
       # Evaluate all NixOS configurations to their derivation path without
       # building. Fails immediately if any configuration cannot be evaluated.
       - name: Evaluate NixOS configurations
+        shell: bash
         run: |
           nix eval --json '.#nixosConfigurations' \
             --apply 'builtins.mapAttrs (_: m: m.config.system.build.toplevel.drvPath)' \
@@ -106,9 +110,12 @@ jobs:
                   if (content.length > MAX_LOG_CHARS) {
                     content = '...(truncated)\n' + content.slice(-MAX_LOG_CHARS);
                   }
-                  logSection += `\n<details>\n<summary>${stepName}</summary>\n\n\`\`\`\n${content}\n\`\`\`\n</details>\n`;
+                  const safeContent = content.replace(/```/g, '``\\`');
+                  logSection += `\n<details>\n<summary>${stepName}</summary>\n\n\`\`\`\n${safeContent}\n\`\`\`\n</details>\n`;
                 }
-              } catch (_) {}
+              } catch (err) {
+                core.notice(`Unable to read ${logPath}: ${err.message}`);
+              }
             }
 
             const body = `<!-- claude-auto-tag -->\n@claude CI failed on this PR. Please investigate the [failed run](${run_url}), identify the root cause, and push a fix.${logSection ? '\n\n### Error Logs\n' + logSection : ''}`;
