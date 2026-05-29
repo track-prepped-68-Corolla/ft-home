@@ -48,5 +48,17 @@ let
     };
 in
 {
+  # NixOS treats unknown top-level module keys as config assignments.  Individual
+  # modules set `meta.description = "..."` so the hub can read it during partial
+  # evaluation; declaring the option here absorbs those assignments cleanly.
+  # lib.types.lines accepts multiple string definitions (one per module) and
+  # concatenates them — no conflict, and the runtime value is never queried.
+  options.meta.description = lib.mkOption {
+    type = lib.types.lines;
+    default = "";
+    internal = true;
+    description = "Documentation sink — individual modules set this for the hub to read at partial-evaluation time; the runtime value is unused.";
+  };
+
   imports = builtins.map mkWrapper validModules;
 }
