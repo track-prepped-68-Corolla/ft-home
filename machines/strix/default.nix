@@ -51,6 +51,9 @@
     useTPM = true;
   };
 
+  ft.gaming.enable = true;
+
+
   ft.kernel.cachyos = {
     enable = true;
     variant = "latest-lto-x86_64-v4";
