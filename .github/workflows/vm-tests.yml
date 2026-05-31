@@ -1,6 +1,12 @@
 name: VM Smoke Tests
 
 on:
+  push:
+    branches:
+      - testing
+  pull_request:
+    branches:
+      - testing
   workflow_dispatch:
 
 jobs:
@@ -45,4 +51,5 @@ jobs:
             .#vm-facter-load \
             .#vm-nfs-consumer-load \
             .#vm-rclone-load \
-            .#vm-local-ai-load
+            .#vm-local-ai-load \
+            .#vm-containers-load

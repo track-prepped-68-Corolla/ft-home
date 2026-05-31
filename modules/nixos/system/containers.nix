@@ -85,7 +85,7 @@ in
       9120
       27017
     ];
-    users.users.${config.mainuser}.extraGroups = [
+    users.users.${config.ft.users.mainUser}.extraGroups = [
       "podman"
       "docker"
     ];

@@ -143,7 +143,7 @@ nix build -L --no-link \
   .#vm-core-boot
 ```
 
-**Trigger all tests:** `VM Smoke Tests` workflow → `workflow_dispatch` in GitHub Actions.
+**Trigger all tests:** Runs automatically on push/PR to `testing`. Also available via `workflow_dispatch`.
 
 ### File layout
 
@@ -169,6 +169,7 @@ tests/vm/
   nfs-consumer.nix     # ft.nfs (consumer)
   rclone.nix           # ft.rclone (consumer)
   local-ai.nix         # ft.services.localAi (consumer)
+  containers.nix       # ft.containers (consumer)
 ```
 
 ### Adding a test (required for every new module)
