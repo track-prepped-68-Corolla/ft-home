@@ -50,8 +50,9 @@ in
           ];
           dependsOn = [ "komodo-db" ];
           environment = {
-            TZ = config.time.timeZone;
             KOMODO_CONFIG_PATH = "/config/config.toml";
+          } // lib.optionalAttrs (config.time.timeZone != null) {
+            TZ = config.time.timeZone;
           };
           extraOptions = [ "--network=host" ];
         };
