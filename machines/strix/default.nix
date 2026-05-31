@@ -15,7 +15,7 @@
 #   Do not import ft-home modules directly — the generator injects them.
 #   Per-user Home Manager config belongs in users/<username>/default.nix.
 # =============================================================================
-{ ... }:
+{ config, ... }:
 
 {
   imports = [
@@ -25,13 +25,14 @@
 
   # --- IDENTITY ---
   networking.hostName = "strix";
+  ft.repoPath = "/home/joe/git/ft-home";
 
   ft.users = {
     mainUser = "joe";
     superUsers = [ "joe" ];
     u2f.mappings.joe = "v+e+ZRyIL4d1FLrvbYhngm1tii+MlU2KAxoJd1b6OBNAe+bZ5h6l5ycVBhsOk+Dkm4Npok3XYT0PQtElOpr6hQ==,CRTxD7nPfvMv59eurT72PVdEKDjfx+a8jj8nzzkzd9lrvB/wpepu17QDRfOm5Du2PmR+Uas8glT+/rEStt+sEA==,es256,+presence%";
   };
-  users.users.joe.initialPassword = "nixos";
+  users.users.joe.hashedPasswordFile = config.sops.secrets.joe-password.path;
   users.mutableUsers = true;
 
   # --- FEATURE TOGGLES ---
@@ -48,8 +49,10 @@
 
   ft.security.sops = {
     enable = true;
-    useTPM = true;
+    useYubikey = true;
   };
+
+  sops.secrets.joe-password.neededForUsers = true;
 
   ft.kernel.cachyos = {
     enable = true;
