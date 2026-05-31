@@ -15,7 +15,7 @@
 #   Do not import ft-home modules directly — the generator injects them.
 #   Per-user Home Manager config belongs in users/<username>/default.nix.
 # =============================================================================
-{ config, ... }:
+{ config, lib, ... }:
 
 {
   imports = [
@@ -32,7 +32,16 @@
     superUsers = [ "joe" ];
     u2f.mappings.joe = "v+e+ZRyIL4d1FLrvbYhngm1tii+MlU2KAxoJd1b6OBNAe+bZ5h6l5ycVBhsOk+Dkm4Npok3XYT0PQtElOpr6hQ==,CRTxD7nPfvMv59eurT72PVdEKDjfx+a8jj8nzzkzd9lrvB/wpepu17QDRfOm5Du2PmR+Uas8glT+/rEStt+sEA==,es256,+presence%";
   };
-  users.users.joe.hashedPasswordFile = config.sops.secrets.joe-password.path;
+  # strix-vm imports this file and forces ft.security.sops.enable = false, so
+  # guard the secret declaration and password source to avoid a sops-nix
+  # assertion failure ("no key source") in the VM config.
+  sops.secrets = lib.mkIf config.ft.security.sops.enable {
+    joe-password.neededForUsers = true;
+  };
+  users.users.joe = {
+    hashedPasswordFile = lib.mkIf config.ft.security.sops.enable "/run/secrets/joe-password";
+    initialPassword = lib.mkIf (!config.ft.security.sops.enable) "nixos";
+  };
   users.mutableUsers = true;
 
   # --- FEATURE TOGGLES ---
@@ -51,8 +60,6 @@
     enable = true;
     useYubikey = true;
   };
-
-  sops.secrets.joe-password.neededForUsers = true;
 
   ft.kernel.cachyos = {
     enable = true;
