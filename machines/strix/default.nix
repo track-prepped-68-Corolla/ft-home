@@ -45,6 +45,7 @@
   ft.hardware.yubikey.enable = true;
   ft.cli.enable = true;
   ft.keepass.enable = true;
+  ft.dockervm.enable = true;
 
   ft.security.sops = {
     enable = true;
