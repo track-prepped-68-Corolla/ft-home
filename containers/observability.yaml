@@ -16,6 +16,36 @@ services:
       - "--web.console.libraries=/usr/share/prometheus/console_libraries"
       - "--web.console.templates=/usr/share/prometheus/consoles"
 
+  tempo:
+    image: grafana/tempo:latest
+    container_name: tempo
+    restart: unless-stopped
+    networks:
+      - monitoring-net
+    ports:
+      - "127.0.0.1:3200:3200"   # HTTP query (Grafana datasource)
+    volumes:
+      - /opt/containers/observability/tempo:/etc/tempo
+      - tempo-data:/var/tempo
+    command: -config.file=/etc/tempo/tempo.yml
+
+  otelcol:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otelcol
+    restart: unless-stopped
+    networks:
+      - monitoring-net
+    ports:
+      - "127.0.0.1:4317:4317"   # gRPC OTLP receiver
+      - "127.0.0.1:4318:4318"   # HTTP OTLP receiver
+      - "127.0.0.1:8889:8889"   # Prometheus exporter (scraped by Prometheus)
+    volumes:
+      - /opt/containers/observability/otelcol:/etc/otelcol
+    command: --config /etc/otelcol/config.yaml
+    depends_on:
+      - tempo
+      - loki
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -32,6 +62,7 @@ services:
     depends_on:
       - prometheus
       - loki
+      - tempo
 
   loki:
     image: grafana/loki:latest
@@ -107,3 +138,4 @@ volumes:
   prometheus-data:
   grafana-data:
   loki-data:
+  tempo-data:
