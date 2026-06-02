@@ -45,7 +45,10 @@
   ft.hardware.yubikey.enable = true;
   ft.cli.enable = true;
   ft.keepass.enable = true;
-  ft.dockervm.enable = true;
+  ft.dockervm = {
+    enable = true;
+    hostInterface = "wlp194s0";
+  };
 
   ft.security.sops = {
     enable = true;
