@@ -1,0 +1,48 @@
+services:
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    container_name: homeassistant
+    restart: unless-stopped
+    network_mode: host
+    privileged: true
+    volumes:
+      - /opt/containers/home-automation/config:/config
+    environment:
+      - TZ=${TZ:-UTC}
+
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto
+    restart: unless-stopped
+    networks:
+      - ha-net
+    ports:
+      - "127.0.0.1:1883:1883"
+      - "127.0.0.1:9001:9001"
+    volumes:
+      - /opt/containers/home-automation/mosquitto/config:/mosquitto/config
+      - /opt/containers/home-automation/mosquitto/data:/mosquitto/data
+      - /opt/containers/home-automation/mosquitto/log:/mosquitto/log
+    environment:
+      - TZ=${TZ:-UTC}
+
+  zigbee2mqtt:
+    image: koenkk/zigbee2mqtt:latest
+    container_name: zigbee2mqtt
+    restart: unless-stopped
+    networks:
+      - ha-net
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - /opt/containers/home-automation/zigbee2mqtt:/app/data
+    devices:
+      - ${ZIGBEE_DEVICE:-/dev/ttyUSB0}:${ZIGBEE_DEVICE:-/dev/ttyUSB0}
+    environment:
+      - TZ=${TZ:-UTC}
+    depends_on:
+      - mosquitto
+
+networks:
+  ha-net:
+    name: ha-net
