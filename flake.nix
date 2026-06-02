@@ -29,6 +29,11 @@
     nixpkgs.follows = "ft-home/nixpkgs";
     home-manager.follows = "ft-home/home-manager";
     nixos-facter.follows = "ft-home/nixos-facter";
+
+    # AMD NPU/GPU AI stack for strix halo. Intentionally does not follow
+    # nixpkgs — pinning it would bust the upstream binary cache for
+    # llama.cpp, whisper.cpp, and stable-diffusion.cpp.
+    nix-amd-ai.url = "github:noamsto/nix-amd-ai";
   };
 
   outputs =

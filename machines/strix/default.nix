@@ -68,25 +68,8 @@
   ft.system.core.stateVersion = "25.05";
   nixpkgs.hostPlatform = "x86_64-linux";
 
-  # --- LOCAL AI STACK ---
-  # Uncomment and fill in your actual paths to enable: llamafile → Hermes → AnythingLLM
-  # Requires: hermes-agent installed for joe (pip install --user hermes-agent)
-  # After first boot, open http://localhost:3001 and configure LLM provider:
-  #   Generic OpenAI → Base URL: http://localhost:9119/v1 → API key: local
-  #
-  ft.services.localAi = {
-    enable = true;
-    llamafile = {
-      execPath = "/home/joe/Documents/llamafile-0.10.1-thin";
-      modelPath = "/home/joe/Documents/Qwen3.5-27B.Q6_K.gguf";
-      # Optional: GPU offload and context size
-      extraArgs = [
-        "--ctx-size"
-        "32768"
-        "--n-gpu-layers"
-        "--server"
-        "99"
-      ];
-    };
-  };
+  ft.services.localAi.enable = false;
+
+  # --- AMD NPU/GPU AI STACK ---
+  ft.hardware.amdAi.enable = true;
 }
