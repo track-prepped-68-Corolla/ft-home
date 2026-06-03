@@ -20,6 +20,8 @@ in
         "video"
         "render"
       ];
+      home = lib.mkDefault "/var/lib/lemonade";
+      createHome = lib.mkDefault true;
     };
     users.groups.amd-ai = { };
 
