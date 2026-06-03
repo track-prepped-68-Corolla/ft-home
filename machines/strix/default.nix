@@ -45,18 +45,11 @@
   ft.hardware.yubikey.enable = true;
   ft.cli.enable = true;
   ft.keepass.enable = true;
-<<<<<<< HEAD
-  ft.dockervm = {
-    enable = true;
-    hostInterface = "wlp194s0";
-  };
-=======
   ft.dockervm.enable = true;
   ft.dockervm.hostInterface = "wlp194s0";
   ft.dockervm.sshAuthorizedKeys = [
   "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIDgZCe1UZA1E7bCpTWz5NUMHlGUq16nOobSJ2LyyZCP2AAAABHNzaDo= track-prepped-68-Corolla@protonmail.com"
 ];
->>>>>>> 3b53c62 (sync commit)
 
   ft.security.sops = {
     enable = true;
