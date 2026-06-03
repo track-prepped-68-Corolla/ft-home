@@ -28,6 +28,12 @@ services:
       - /opt/containers/observability/tempo:/etc/tempo
       - tempo-data:/var/tempo
     command: -config.file=/etc/tempo/tempo.yml
+    healthcheck:
+      test: ["CMD-SHELL", "tempo --health --health.url=http://127.0.0.1:3200/ready || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   otelcol:
     image: otel/opentelemetry-collector-contrib:latest
@@ -43,8 +49,10 @@ services:
       - /opt/containers/observability/otelcol:/etc/otelcol
     command: --config /etc/otelcol/config.yaml
     depends_on:
-      - tempo
-      - loki
+      tempo:
+        condition: service_healthy
+      loki:
+        condition: service_healthy
 
   grafana:
     image: grafana/grafana:latest
@@ -57,12 +65,14 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD:-changeme}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD:?GF_SECURITY_ADMIN_PASSWORD is required}
       - GF_USERS_ALLOW_SIGN_UP=false
     depends_on:
       - prometheus
-      - loki
-      - tempo
+      loki:
+        condition: service_healthy
+      tempo:
+        condition: service_healthy
 
   loki:
     image: grafana/loki:latest
@@ -76,6 +86,12 @@ services:
       - /opt/containers/observability/loki:/etc/loki
       - loki-data:/loki
     command: -config.file=/etc/loki/loki.yml
+    healthcheck:
+      test: ["CMD-SHELL", "loki -health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   alloy:
     image: grafana/alloy:latest
@@ -88,10 +104,11 @@ services:
     volumes:
       - /opt/containers/observability/alloy:/etc/alloy
       - /var/log:/var/log:ro
-      - /var/run/podman/podman.sock:/var/run/docker.sock:ro
+      - ${CONTAINER_SOCKET:-/var/run/podman/podman.sock}:/var/run/docker.sock:ro
     command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy
     depends_on:
-      - loki
+      loki:
+        condition: service_healthy
 
   node-exporter:
     image: prom/node-exporter:latest
@@ -126,9 +143,8 @@ services:
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
-      - /sys:/sys:ro
+      - /sys:/sys:ro   # provides unified cgroup v2 hierarchy under /sys/fs/cgroup
       - /var/lib/podman:/var/lib/docker:ro
-      - /cgroup:/cgroup:ro
 
 networks:
   monitoring-net:

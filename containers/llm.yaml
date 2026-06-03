@@ -24,6 +24,12 @@ services:
       # - GOOGLE_CHAT_SERVICE_ACCOUNT_JSON=${GOOGLE_CHAT_SERVICE_ACCOUNT_JSON}
       # - GOOGLE_CHAT_ALLOWED_USERS=${GOOGLE_CHAT_ALLOWED_USERS}
     command: ["gateway", "run"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8642/health || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 30s
 
   hermes-dashboard:
     image: nousresearch/hermes-agent:latest
@@ -36,7 +42,8 @@ services:
       - HERMES_UID=${HERMES_UID:-1000}
       - HERMES_GID=${HERMES_GID:-1000}
     depends_on:
-      - hermes
+      hermes:
+        condition: service_healthy
     # Dashboard binds to localhost only; for remote access use an SSH tunnel
     command: ["dashboard", "--host", "127.0.0.1", "--no-open"]
 

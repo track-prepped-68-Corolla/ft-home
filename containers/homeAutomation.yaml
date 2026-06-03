@@ -25,6 +25,12 @@ services:
       - /opt/containers/home-automation/mosquitto/log:/mosquitto/log
     environment:
       - TZ=${TZ:-UTC}
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_sub -t '$$SYS/#' -C 1 -i healthcheck -W 3"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   zigbee2mqtt:
     image: koenkk/zigbee2mqtt:latest
@@ -41,7 +47,8 @@ services:
     environment:
       - TZ=${TZ:-UTC}
     depends_on:
-      - mosquitto
+      mosquitto:
+        condition: service_healthy
 
 networks:
   ha-net:

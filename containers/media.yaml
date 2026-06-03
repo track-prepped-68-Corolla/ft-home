@@ -13,8 +13,7 @@ services:
       - "127.0.0.1:8080:8080"   # qbittorrent web UI
       - "127.0.0.1:6800:6800"   # aria2 RPC
       - "127.0.0.1:6880:80"     # ariang web UI
-      - "6888:6888"             # aria2 BT
-      - "6888:6888/udp"
+      # BT listen port (6888) is opened via VPN port forwarding, not a host binding
     environment:
       - VPN_SERVICE_PROVIDER=${VPN_SERVICE_PROVIDER}
       - VPN_TYPE=${VPN_TYPE:-wireguard}
@@ -36,7 +35,8 @@ services:
       - TZ=${TZ:-UTC}
       - WEBUI_PORT=8080
     depends_on:
-      - gluetun
+      gluetun:
+        condition: service_healthy
 
   aria2:
     image: p3terx/aria2-pro:latest
@@ -54,7 +54,8 @@ services:
       - RPC_PORT=6800
       - LISTEN_PORT=6888
     depends_on:
-      - gluetun
+      gluetun:
+        condition: service_healthy
 
   ariang:
     image: p3terx/ariang:latest
