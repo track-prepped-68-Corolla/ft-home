@@ -35,5 +35,6 @@ lib.foldl lib.recursiveUpdate { } (
     ./nfs-consumer.nix
     ./rclone.nix
     ./local-ai.nix
+    ./wine.nix
   ]
 )
