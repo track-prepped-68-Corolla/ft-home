@@ -45,4 +45,5 @@ jobs:
             .#vm-facter-load \
             .#vm-nfs-consumer-load \
             .#vm-rclone-load \
-            .#vm-local-ai-load
+            .#vm-local-ai-load \
+            .#vm-wine-load
