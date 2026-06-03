@@ -1,0 +1,35 @@
+version: '3.8'
+
+networks:
+  homelab-network:
+    name: homelab-network
+    driver: bridge
+
+services:
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy/data:/data
+      - ./caddy/config:/config
+    networks:
+      - homelab-network
+
+  homarr:
+    image: ghcr.io/homarr-labs/homarr:latest
+    container_name: homarr
+    restart: unless-stopped
+    # Ports are commented out because Caddy handles the public access via port 80/443
+    # ports:
+    #   - "7575:7575" 
+    volumes:
+      - ./homarr/configs:/app/data/configs
+      - ./homarr/icons:/app/public/icons
+      - ./homarr/data:/data
+    networks:
+      - homelab-network
