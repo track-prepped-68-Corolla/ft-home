@@ -1,0 +1,153 @@
+services:
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: gluetun
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    networks:
+      - media-net
+    ports:
+      - "127.0.0.1:8080:8080"   # qbittorrent web UI
+      - "127.0.0.1:6800:6800"   # aria2 RPC
+      - "127.0.0.1:6880:80"     # ariang web UI
+      # BT listen port (6888) is opened via VPN port forwarding, not a host binding
+    environment:
+      - VPN_SERVICE_PROVIDER=${VPN_SERVICE_PROVIDER}
+      - VPN_TYPE=${VPN_TYPE:-wireguard}
+      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
+      - WIREGUARD_ADDRESSES=${WIREGUARD_ADDRESSES}
+      - TZ=${TZ:-UTC}
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    restart: unless-stopped
+    network_mode: "service:gluetun"
+    volumes:
+      - /opt/containers/media/config/qbittorrent:/config
+      - /opt/containers/media/downloads:/downloads
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-UTC}
+      - WEBUI_PORT=8080
+    depends_on:
+      gluetun:
+        condition: service_healthy
+
+  aria2:
+    image: p3terx/aria2-pro:latest
+    container_name: aria2
+    restart: unless-stopped
+    network_mode: "service:gluetun"
+    volumes:
+      - /opt/containers/media/config/aria2:/config
+      - /opt/containers/media/downloads:/downloads
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-UTC}
+      - RPC_SECRET=${ARIA2_RPC_SECRET}
+      - RPC_PORT=6800
+      - LISTEN_PORT=6888
+    depends_on:
+      gluetun:
+        condition: service_healthy
+
+  ariang:
+    image: p3terx/ariang:latest
+    container_name: ariang
+    restart: unless-stopped
+    network_mode: "service:gluetun"
+    depends_on:
+      - aria2
+
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    restart: unless-stopped
+    networks:
+      - media-net
+    ports:
+      - "127.0.0.1:8096:8096"
+    volumes:
+      - /opt/containers/media/config/jellyfin:/config
+      - /opt/containers/media/tv:/data/tv
+      - /opt/containers/media/movies:/data/movies
+    devices:
+      - /dev/dri:/dev/dri
+    environment:
+      - TZ=${TZ:-UTC}
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    restart: unless-stopped
+    networks:
+      - media-net
+    ports:
+      - "127.0.0.1:8989:8989"
+    volumes:
+      - /opt/containers/media/config/sonarr:/config
+      - /opt/containers/media/tv:/tv
+      - /opt/containers/media/downloads:/downloads
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-UTC}
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    restart: unless-stopped
+    networks:
+      - media-net
+    ports:
+      - "127.0.0.1:7878:7878"
+    volumes:
+      - /opt/containers/media/config/radarr:/config
+      - /opt/containers/media/movies:/movies
+      - /opt/containers/media/downloads:/downloads
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-UTC}
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    restart: unless-stopped
+    networks:
+      - media-net
+    ports:
+      - "127.0.0.1:9696:9696"
+    volumes:
+      - /opt/containers/media/config/prowlarr:/config
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-UTC}
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    restart: unless-stopped
+    networks:
+      - media-net
+    ports:
+      - "127.0.0.1:6767:6767"
+    volumes:
+      - /opt/containers/media/config/bazarr:/config
+      - /opt/containers/media/tv:/tv
+      - /opt/containers/media/movies:/movies
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-UTC}
+
+networks:
+  media-net:
+    name: media-net
