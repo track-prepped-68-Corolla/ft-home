@@ -206,7 +206,7 @@ After adding the file, register it in `tests/vm/default.nix` and add `.#vm-my-fe
 | `ft.security.sops` | Requires SSH host key + encrypted secrets file |
 | `ft.boot.limine` | Bootloader testing conflicts with QEMU |
 | `ft.desktop.cosmic`, `ft.desktop.plasma` | Too heavyweight for CI |
-| `ft.profiles.gaming` | Too heavyweight (Steam, Jovian-NixOS) |
+| `ft.gaming` | Too heavyweight (Steam) |
 | `ft.services.bulkPool` | Requires physical drives with specific labels |
 | `ft.hardware.yubikey` | Requires physical YubiKey |
 | `ft.services.komodo` | Depends on sops secrets |

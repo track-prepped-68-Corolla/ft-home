@@ -56,10 +56,7 @@ in
     {
       imports = [ inputs.ft-home.nixosModules.default ];
       # disko-btrfs: hardware-dependent disk layout, no VM test.
-      # gaming: unconditionally imports jovian-nixos, whose overlay.nix /
-      #   workarounds.nix set nixpkgs.overlays at normal priority — collides
-      #   with nixpkgs/read-only.nix (types.unique) activated by runNixOSTest.
-      #   Exempt from VM tests per CLAUDE.md (too heavyweight: Steam, Jovian).
+      # gaming: Steam and its closure are too heavyweight for CI VM tests.
       disabledModules = [
         "${inputs.ft-home}/modules/nixos/hardware/disko-btrfs.nix"
         "${inputs.ft-home}/modules/nixos/profiles/gaming.nix"
