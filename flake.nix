@@ -27,6 +27,7 @@
 
     # Follow ft-home's pins to avoid duplicate fetches and version drift.
     nixpkgs.follows = "ft-home/nixpkgs";
+    nixpkgs-stable.follows = "ft-home/nixpkgs-stable";
     home-manager.follows = "ft-home/home-manager";
     nixos-facter.follows = "ft-home/nixos-facter";
 
