@@ -46,4 +46,5 @@ jobs:
             .#vm-nfs-consumer-load \
             .#vm-rclone-load \
             .#vm-local-ai-load \
-            .#vm-wine-load
+            .#vm-wine-load \
+            .#vm-ssh-load
