@@ -1,7 +1,7 @@
 { inputs, nixpkgs }:
 let
   pkgs = nixpkgs.legacyPackages.x86_64-linux;
-  inherit (import ./lib.nix { inherit inputs nixpkgs; }) baseConfig mkTest;
+  inherit (import ./lib.nix { inherit inputs nixpkgs; }) consumerBaseConfig mkTest;
 in
 {
   vm-ssh-load = mkTest {
@@ -9,7 +9,7 @@ in
     nodes.machine =
       { ... }:
       {
-        imports = [ baseConfig ];
+        imports = [ consumerBaseConfig ];
         ft.ssh = {
           enable = true;
           # Synthetic test key — not a real keypair.
