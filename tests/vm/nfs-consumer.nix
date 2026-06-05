@@ -1,16 +1,16 @@
 { inputs, nixpkgs }:
 let
-  inherit (import ./lib.nix { inherit inputs nixpkgs; }) consumerBaseConfig mkTest;
+  inherit (import ./lib.nix { inherit inputs nixpkgs; }) baseConfig mkTest;
 in
 {
-  # ft.nfs (consumer): systemd automount unit is generated for the configured mount.
+  # ft.nfs (framework): systemd automount unit is generated for the configured mount.
   # A real NFS server is not required — only the unit file is verified.
   vm-nfs-consumer-load = mkTest {
     name = "ft-nfs-consumer-load";
     nodes.machine =
       { ... }:
       {
-        imports = [ consumerBaseConfig ];
+        imports = [ baseConfig ];
         ft.nfs = {
           enable = true;
           mounts.media = {

@@ -166,7 +166,7 @@ tests/vm/
   apps.nix             # ft.apps (consumer)
   mullet.nix           # ft.mullet (consumer)
   facter.nix           # ft.facter (consumer)
-  nfs-consumer.nix     # ft.nfs (consumer)
+  nfs-consumer.nix     # ft.nfs (framework, consumer context)
   rclone.nix           # ft.rclone (consumer)
   local-ai.nix         # ft.localAi (consumer)
 ```
