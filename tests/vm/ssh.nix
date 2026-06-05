@@ -10,7 +10,7 @@ in
       { ... }:
       {
         imports = [ baseConfig ];
-        ft.security.ssh = {
+        ft.ssh = {
           enable = true;
           # Synthetic test key — not a real keypair.
           authorizedKeys = [
