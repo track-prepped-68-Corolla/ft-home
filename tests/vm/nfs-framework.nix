@@ -3,7 +3,7 @@ let
   inherit (import ./lib.nix { inherit inputs nixpkgs; }) baseConfig mkTest;
 in
 {
-  # ft.services.nfs: systemd automount unit is generated for the configured mount.
+  # ft.nfs: systemd automount unit is generated for the configured mount.
   # A real NFS server is not required — only the unit file is verified.
   vm-nfs-framework-load = mkTest {
     name = "ft-nfs-framework-load";
@@ -11,7 +11,7 @@ in
       { ... }:
       {
         imports = [ baseConfig ];
-        ft.services.nfs = {
+        ft.nfs = {
           enable = true;
           mounts.media = {
             remotePath = "fileserver:/share/media";
