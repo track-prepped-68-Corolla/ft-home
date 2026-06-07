@@ -70,8 +70,7 @@
     reportPath = ./var/facter.json;
   };
 
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  ft.boot.limine.enable = true;
 
   ft.system.core.stateVersion = "25.05";
   nixpkgs.hostPlatform = "x86_64-linux";
