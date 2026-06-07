@@ -1,0 +1,75 @@
+# =============================================================================
+# mimir — NAS Host Configuration
+# =============================================================================
+#
+# Discovered by lib/generator.nix at machines/mimir/default.nix
+# and becomes nixosConfigurations.mimir.
+#
+# PROVISIONING CHECKLIST
+#   1. Boot target into NixOS live environment
+#   2. Run nixos-facter; commit output to machines/mimir/var/facter.json
+#   3. Update ft.dockervm.hostInterface to the NAS NIC name (run `ip link`)
+#   4. Add SSH public key(s) to ft.dockervm.sshAuthorizedKeys for docker-vm access
+#   5. Update modules/disko.nix with actual OS disk device (run `lsblk`)
+#   6. Run ft drives-format for each data/parity/cache drive; commit var/bulk-drives.nix
+#   7. Run nixos-anywhere pointing at nixos-config#mimir
+# =============================================================================
+{ ... }:
+
+{
+  imports = [
+    ./modules
+    ../../modules/nixos
+  ];
+
+  # --- IDENTITY ---
+  networking.hostName = "mimir";
+
+  ft.users = {
+    mainUser = "admin";
+    superUsers = [ "admin" ];
+  };
+  users.users.admin.initialPassword = "nixos";
+  users.mutableUsers = true;
+
+  # SSH — remote administration; NAS is headless
+  services.openssh = {
+    enable = true;
+    settings = {
+      PasswordAuthentication = false;
+      PermitRootLogin = "no";
+    };
+  };
+  networking.firewall.allowedTCPPorts = [ 22 ];
+
+  # --- FEATURE TOGGLES ---
+
+  ft.services.tailscale = {
+    enable = true;
+    enableTrayApp = false;
+    useRoutingFeatures = "server";
+  };
+
+  # MicroVM with rootful Docker Compose + Komodo container management.
+  # hostInterface: update to the actual NIC name once hardware is known.
+  ft.dockervm = {
+    enable = true;
+    hostInterface = ""; # TODO: set after provisioning (e.g. "enp3s0")
+    sshAuthorizedKeys = [ ]; # TODO: add admin SSH public key(s) for docker-vm access
+  };
+
+  ft.services.bulkPool = {
+    enable = true;
+    drivesFile = ./var/bulk-drives.nix;
+  };
+
+  ft.security.sops.enable = true;
+
+  ft.hardware.facter = {
+    enable = true;
+    reportPath = ./var/facter.json;
+  };
+
+  ft.system.core.stateVersion = "25.05";
+  nixpkgs.hostPlatform = "x86_64-linux";
+}
