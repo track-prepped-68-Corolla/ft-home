@@ -36,5 +36,7 @@ lib.foldl lib.recursiveUpdate { } (
     ./rclone.nix
     ./local-ai.nix
     ./wine.nix
+    ./nixpkgs-failover.nix
+    ./ssh.nix
   ]
 )
