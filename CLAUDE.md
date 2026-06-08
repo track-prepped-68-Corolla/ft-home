@@ -96,23 +96,23 @@ New machines are provisioned with nixos-anywhere + disko + nixos-facter:
 1. Boot the target into a NixOS live environment.
 2. Run `nixos-facter` to generate `facter.json`; commit it to `machines/<name>/var/`.
 3. Define the disk layout in `machines/<name>/modules/disko.nix`.
-4. Enable `ft.hardware.facter` (consumer-local module in `modules/nixos/hardware/facter.nix`) and the GPU module if needed.
+4. Enable `ft.facter` (consumer-local module in `modules/nixos/hardware/facter.nix`) and the GPU module if needed.
 5. Run nixos-anywhere pointing at `nixos-config#<name>`. Disko handles partitioning declaratively as part of the install.
 
-Note: `ft.hardware.facter` and `ft.hardware.gpu` are currently consumer-local modules (not yet in the framework). They live in `modules/nixos/hardware/` here and must be imported explicitly in your machine config until they are upstreamed.
+Note: `ft.facter` and `ft.gpu` are currently consumer-local modules (not yet in the framework). They live in `modules/nixos/hardware/` here and must be imported explicitly in your machine config until they are upstreamed.
 
 ---
 
 ## Known issues / pending fixes
 
 - **Broken wallpaper default path in `ft.theme` / `stylix.nix`:** The framework module (`fast-track-nix/modules/home/stylix.nix`) defaults the wallpaper to `../../homes/guest/wallpapers/default.png`. The actual directory is `users/`, not `homes/` — this path resolves to a nonexistent location. Tracked in `Todo.md`. Until fixed upstream, always set `ft.theme.wallpaper` explicitly in your user config.
-- **`ft.hardware.facter` does not import `nixos-facter.nixosModules.facter`:** The consumer module sets `config.facter.reportPath` (an option from `inputs.nixos-facter`) but relies on the generator to inject the upstream module. VM tests must import it explicitly. The module itself should be fixed to add the import.
+- **`ft.facter` does not import `nixos-facter.nixosModules.facter`:** The consumer module sets `config.facter.reportPath` (an option from `inputs.nixos-facter`) but relies on the generator to inject the upstream module. VM tests must import it explicitly. The module itself should be fixed to add the import.
 
 ---
 
 ## Secrets
 
-Managed by sops-nix. Key configuration lives in `var/secrets/.sops.yaml`. Age recipients are SSH host keys. `ft.security.sops.useTPM` and `ft.security.sops.useYubikey` provide hardware-token alternatives. Never commit unencrypted secrets.
+Managed by sops-nix. Key configuration lives in `var/secrets/.sops.yaml`. Age recipients are SSH host keys. `ft.sops.useTPM` and `ft.sops.useYubikey` provide hardware-token alternatives. Never commit unencrypted secrets.
 
 ---
 
@@ -153,22 +153,22 @@ tests/vm/
   default.nix          # lib.foldl merge of all test files
   fixtures/
     mullet.txt         # hello / cowsay — for ft.mullet tests
-    facter.json        # minimal hardware stub — for ft.hardware.facter tests
-  core-boot.nix        # ft.system.core + ft.users
-  tailscale-load.nix   # ft.services.tailscale
-  podman-rootless.nix  # ft.services.podmanRootless
-  printing.nix         # ft.services.printing
+    facter.json        # minimal hardware stub — for ft.facter tests
+  core-boot.nix        # ft.core + ft.users
+  tailscale-load.nix   # ft.tailscale
+  podman-rootless.nix  # ft.podmanRootless
+  printing.nix         # ft.printing
   keepass.nix          # ft.keepass
-  nix-index.nix        # ft.programs.nixIndex
-  virt.nix             # ft.system.virt
-  nfs-framework.nix    # ft.services.nfs
+  nix-index.nix        # ft.nixIndex
+  virt.nix             # ft.virt
+  nfs-framework.nix    # ft.nfs
   cli.nix              # ft.cli
   apps.nix             # ft.apps (consumer)
   mullet.nix           # ft.mullet (consumer)
-  facter.nix           # ft.hardware.facter (consumer)
-  nfs-consumer.nix     # ft.nfs (consumer)
+  facter.nix           # ft.facter (consumer)
+  nfs-consumer.nix     # ft.nfs (framework, consumer context)
   rclone.nix           # ft.rclone (consumer)
-  local-ai.nix         # ft.services.localAi (consumer)
+  local-ai.nix         # ft.localAi (consumer)
 ```
 
 ### Adding a test (required for every new module)
@@ -202,15 +202,15 @@ After adding the file, register it in `tests/vm/default.nix` and add `.#vm-my-fe
 
 | Module | Reason |
 |---|---|
-| `ft.kernel.cachyos` | Requires nix-cachyos binary cache |
-| `ft.security.sops` | Requires SSH host key + encrypted secrets file |
-| `ft.boot.limine` | Bootloader testing conflicts with QEMU |
-| `ft.desktop.cosmic`, `ft.desktop.plasma` | Too heavyweight for CI |
+| `ft.cachyos` | Requires nix-cachyos binary cache |
+| `ft.sops` | Requires SSH host key + encrypted secrets file |
+| `ft.limine` | Bootloader testing conflicts with QEMU |
+| `ft.cosmic`, `ft.plasma` | Too heavyweight for CI |
 | `ft.gaming` | Too heavyweight (Steam) |
-| `ft.services.bulkPool` | Requires physical drives with specific labels |
-| `ft.hardware.yubikey` | Requires physical YubiKey |
-| `ft.services.komodo` | Depends on sops secrets |
-| `ft.hardware.gpu` | No GPU hardware in QEMU; module is a no-op |
+| `ft.bulkPool` | Requires physical drives with specific labels |
+| `ft.yubikey` | Requires physical YubiKey |
+| `ft.komodo` | Depends on sops secrets |
+| `ft.gpu` | No GPU hardware in QEMU; module is a no-op |
 
 ---
 

@@ -61,7 +61,7 @@ in
         "${inputs.ft-home}/modules/nixos/hardware/disko-btrfs.nix"
         "${inputs.ft-home}/modules/nixos/profiles/gaming.nix"
       ];
-      ft.system.core.stateVersion = "25.05";
+      ft.core.stateVersion = "25.05";
       ft.users.initialPasswords.admin = "test";
       hardware.bluetooth.enable = false;
     };
@@ -85,7 +85,7 @@ in
         #   Theming is not tested in VMs.
         "${consumerModules}/system/stylix.nix"
       ];
-      ft.system.core.stateVersion = "25.05";
+      ft.core.stateVersion = "25.05";
       ft.users.initialPasswords.admin = "test";
       hardware.bluetooth.enable = false;
       # ft.apps has default = true in the consumer module hub; disable in the

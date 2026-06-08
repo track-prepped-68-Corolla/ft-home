@@ -9,12 +9,12 @@
 ################################################################################
 
 let
-  cfg = config.ft.hardware.facter;
+  cfg = config.ft.facter;
 in
 {
-  options.ft.hardware.facter = {
+  options.ft.facter = {
     enable = lib.mkEnableOption "nixos-facter hardware detection" // {
-      description = "Points the nixos-facter NixOS module at a facter.json report committed to the host directory. Replaces hardware-configuration.nix for kernel-module detection. Generate the report by running 'just facter' on the target machine and saving the output as hosts/<arch>/<hostname>/facter.json, then set ft.hardware.facter.reportPath = ./facter.json in the host's default.nix.";
+      description = "Points the nixos-facter NixOS module at a facter.json report committed to the host directory. Replaces hardware-configuration.nix for kernel-module detection. Generate the report by running 'just facter' on the target machine and saving the output as hosts/<arch>/<hostname>/facter.json, then set ft.facter.reportPath = ./facter.json in the host's default.nix.";
     };
 
     reportPath = lib.mkOption {
