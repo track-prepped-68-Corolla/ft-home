@@ -1,0 +1,19 @@
+{
+  "name": "ft-home",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers/features/nix:1": {
+      "multiUser": true,
+      "extraNixConfig": "experimental-features = nix-command flakes"
+    },
+    "ghcr.io/devcontainers-contrib/features/lazygit:1": {}
+  },
+  "postCreateCommand": "nix develop --command echo 'dev shell ready'",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "jnoortheen.nix-ide"
+      ]
+    }
+  }
+}
