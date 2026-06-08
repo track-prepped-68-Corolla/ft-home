@@ -69,10 +69,8 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
     depends_on:
       - prometheus
-      loki:
-        condition: service_healthy
-      tempo:
-        condition: service_healthy
+      - loki
+      - tempo
 
   loki:
     image: grafana/loki:latest
