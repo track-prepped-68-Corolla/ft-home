@@ -12,8 +12,17 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "jnoortheen.nix-ide"
-      ]
+        "jnoortheen.nix-ide",
+        "mkhl.direnv",
+        "eamodio.gitlens",
+        "mhutchie.git-graph"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "nix.enableLanguageServer": true,
+        "nix.serverPath": "nil",
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
     }
   }
 }
