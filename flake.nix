@@ -23,7 +23,7 @@
   description = "NixOS configuration consuming the ft-home framework";
 
   inputs = {
-    ft-home.url = "github:track-prepped-68-corolla/fast-track-nix/claude/remove-key-depth-rule-twKNo";
+    ft-home.url = "github:track-prepped-68-corolla/fast-track-nix/testing";
 
     # Follow ft-home's pins to avoid duplicate fetches and version drift.
     nixpkgs.follows = "ft-home/nixpkgs";
