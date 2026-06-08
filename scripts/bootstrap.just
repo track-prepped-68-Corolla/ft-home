@@ -78,8 +78,8 @@ add-machine name ip:
   users.users.joe.initialPassword = "nixos";
   users.mutableUsers = true;
 
-  ft.boot.limine.enable    = true;
-  ft.desktop.cosmic.enable = true;
+  ft.limine.enable = true;
+  ft.cosmic.enable = true;
   ft.cli.enable            = true;
 
   ft.mullet = {
@@ -87,12 +87,12 @@ add-machine name ip:
     sourcePath = ../../users/joe/var/mullet.txt;
   };
 
-  ft.security.sops = {
+  ft.sops = {
     enable = true;
     useTPM = true;
   };
 
-  ft.hardware.facter = {
+  ft.facter = {
     enable     = true;
     reportPath = ./var/facter.json;
   };

@@ -14,9 +14,9 @@
 ################################################################################
 
 let
-  cfg = config.ft.hardware.gpu;
+  cfg = config.ft.gpu;
 
-  facterPath = config.ft.hardware.facter.reportPath;
+  facterPath = config.ft.facter.reportPath;
 
   facter =
     if cfg.autodetect && facterPath != null && builtins.pathExists facterPath then
@@ -151,13 +151,13 @@ let
 
 in
 {
-  options.ft.hardware.gpu = {
+  options.ft.gpu = {
     enable = lib.mkEnableOption "Universal GPU Configuration";
 
     autodetect = lib.mkOption {
       type = lib.types.bool;
       default = true;
-      description = "Detect GPU vendor and Optimus configuration from ft.hardware.facter.reportPath. When true, sets ft.hardware.gpu.vendor and configures PRIME offloading automatically for Optimus setups. Set to false to use the vendor and prime options directly.";
+      description = "Detect GPU vendor and Optimus configuration from ft.facter.reportPath. When true, sets ft.gpu.vendor and configures PRIME offloading automatically for Optimus setups. Set to false to use the vendor and prime options directly.";
     };
 
     # Primary GPU vendor (e.g., "nvidia", "amd", "intel").

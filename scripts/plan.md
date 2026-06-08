@@ -89,9 +89,9 @@ imports = [
 
 ```nix
 {
-  ft.desktop.cosmic.enable = true;
-  ft.services.printing.enable = true;
-  ft.kernel.cachyos.enable = false;
+  ft.cosmic.enable = true;
+  ft.printing.enable = true;
+  ft.cachyos.enable = false;
 }
 ```
 

@@ -136,7 +136,7 @@ Two modules in this repo are not part of the upstream framework — they live in
 **`ft.mullet`** — `modules/nixos/apps/mullet.nix`
 Nothing to port. If you want to drop the `ft.*` wrapper entirely, convert the alias sourcing to `programs.zsh.initExtra` or `home.file` entries in your user config.
 
-**`ft.services.localAi`** — `modules/nixos/services/local-ai.nix`
+**`ft.localAi`** — `modules/nixos/services/local-ai.nix`
 Same situation. To remove the wrapper, translate the llamafile and AnythingLLM setup to explicit `systemd.services.*` declarations.
 
 ---
@@ -147,22 +147,22 @@ Quick reference for what each framework toggle enables, useful when reading modu
 
 | ft option | What it enables | Default |
 |-----------|----------------|---------|
-| `ft.system.core.enable` | NetworkManager, Bluetooth, CUPS/Avahi, nix flakes, timezone, locale, core CLI packages | on |
+| `ft.core.enable` | NetworkManager, Bluetooth, CUPS/Avahi, nix flakes, timezone, locale, core CLI packages | on |
 | `ft.users.enable` | User creation via `mainuser`/`superUsers`/`normalUsers`, PAM U2F | on |
 | `ft.terminal.enable` | kitty, ghostty, zsh, starship, zoxide, fzf, ~20 CLI packages, dotfile symlinks | on |
-| `ft.desktop.cosmic.enable` | `services.desktopManager.cosmic`, `services.displayManager.cosmic-greeter`, `services.system76-scheduler`, `hardware.graphics` | off |
-| `ft.desktop.plasma.enable` | KDE Plasma — see `modules/nixos/desktops/plasma.nix` | off |
-| `ft.boot.limine.enable` | Limine bootloader — see `modules/nixos/system/limine.nix` | off |
-| `ft.kernel.cachyos.*` | CachyOS substituter + kernel package overlay — see `modules/nixos/system/kernel.nix` | off |
-| `ft.hardware.gpu.enable` | `hardware.graphics` + vendor acceleration — see `modules/nixos/hardware/gpu.nix` | off |
-| `ft.hardware.yubikey.enable` | `security.pam.u2f`, YubiKey udev rules | off |
-| `ft.hardware.facter.*` | nixos-facter hardware-report module | off |
-| `ft.security.sops.*` | sops-nix + age key derivation from SSH host keys | off |
+| `ft.cosmic.enable` | `services.desktopManager.cosmic`, `services.displayManager.cosmic-greeter`, `services.system76-scheduler`, `hardware.graphics` | off |
+| `ft.plasma.enable` | KDE Plasma — see `modules/nixos/desktops/plasma.nix` | off |
+| `ft.limine.enable` | Limine bootloader — see `modules/nixos/system/limine.nix` | off |
+| `ft.cachyos.*` | CachyOS substituter + kernel package overlay — see `modules/nixos/system/kernel.nix` | off |
+| `ft.gpu.enable` | `hardware.graphics` + vendor acceleration — see `modules/nixos/hardware/gpu.nix` | off |
+| `ft.yubikey.enable` | `security.pam.u2f`, YubiKey udev rules | off |
+| `ft.facter.*` | nixos-facter hardware-report module | off |
+| `ft.sops.*` | sops-nix + age key derivation from SSH host keys | off |
 | `ft.cli.enable` | Extended CLI profile — see `modules/nixos/profiles/` | off |
 | `ft.keepass.enable` | `programs.keepassxc.enable` | off |
 | `ft.lazyvim.enable` | `programs.neovim.enable` + LazyVim bootstrap | off |
 | `ft.theme.enable` | stylix module + wallpaper and Base16 color scheme | off |
 | `ft.mullet.*` | Shell alias ingestion from `mullet.txt` (consumer module) | off |
-| `ft.services.localAi.*` | llamafile + AnythingLLM stack (consumer module) | off |
+| `ft.localAi.*` | llamafile + AnythingLLM stack (consumer module) | off |
 
 The three modules marked **on** activate without an explicit `enable = true` in your config. Setting `ft.<module>.enable = false` in your machine or user file disables them.

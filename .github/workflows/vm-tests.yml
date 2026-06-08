@@ -10,7 +10,7 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
 
@@ -46,4 +46,5 @@ jobs:
             .#vm-nfs-consumer-load \
             .#vm-rclone-load \
             .#vm-local-ai-load \
-            .#vm-wine-load
+            .#vm-wine-load \
+            .#vm-ssh-load
