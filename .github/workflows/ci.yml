@@ -26,7 +26,7 @@ jobs:
 
       - uses: DeterminateSystems/nix-installer-action@v14
 
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
+      - uses: DeterminateSystems/magic-nix-cache-action@v14
 
       # Update ft-home to the latest testing commit so the formatter and
       # statix fixes are available. Followers (nixpkgs, home-manager,
