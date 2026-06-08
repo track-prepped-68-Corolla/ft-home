@@ -6,14 +6,14 @@
 }:
 
 let
-  cfg = config.ft.services.localAi;
+  cfg = config.ft.localAi;
   llamaPort = toString cfg.llamafile.port;
   hermesPort = toString cfg.hermes.port;
   hermesExec =
     if cfg.hermes.execPath != "" then cfg.hermes.execPath else "/home/${cfg.user}/.local/bin/hermes";
 in
 {
-  options.ft.services.localAi = {
+  options.ft.localAi = {
     enable = lib.mkEnableOption "local AI stack: llamafile + AnythingLLM" // {
       description = ''
         Runs a local AI stack:
