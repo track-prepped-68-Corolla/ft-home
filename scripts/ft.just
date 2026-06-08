@@ -5,6 +5,7 @@ import "./bootstrap.just"
 import "./mullet.just"
 import "./store.just"
 import "./drives.just"
+import "./failover.just"
 
 default:
     just --list

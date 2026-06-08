@@ -43,7 +43,7 @@ switch: check
     if [[ "$choice" =~ ^[yY]$ ]]; then
       OLD_GEN=$(just --justfile "{{justfile()}}" _current-gen)
 
-      nh os switch .
+      just --justfile "{{justfile()}}" failover-switch
 
       GEN=$(just --justfile "{{justfile()}}" _current-gen)
       NVD_DIFF=$(nvd --color never diff $(just --justfile "{{justfile()}}" _last-two-gens))

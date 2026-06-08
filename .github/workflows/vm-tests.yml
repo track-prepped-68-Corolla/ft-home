@@ -47,4 +47,5 @@ jobs:
             .#vm-rclone-load \
             .#vm-local-ai-load \
             .#vm-wine-load \
+            .#vm-nixpkgs-failover
             .#vm-ssh-load
