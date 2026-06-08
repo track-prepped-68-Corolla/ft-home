@@ -1,0 +1,48 @@
+name: Tag Claude on CodeRabbit Review
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+concurrency:
+  group: code-rabbit-${{ github.event.pull_request.id }}
+  cancel-in-progress: false
+
+jobs:
+  tag-claude-on-coderabbit-review:
+    if: github.event.review.user.login == 'coderabbitai[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Tag Claude (respecting cycle limit)
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const MAX_CYCLES = 5;
+            const pr_number = context.payload.pull_request.number;
+
+            const allComments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr_number,
+              per_page: 100,
+            });
+
+            const tagged = allComments.filter(c =>
+              c.user.type === 'Bot' &&
+              c.body?.includes('<!-- claude-auto-tag -->')
+            );
+
+            if (tagged.length >= MAX_CYCLES) {
+              core.notice(`Cycle limit of ${MAX_CYCLES} reached for PR #${pr_number}. Skipping.`);
+              return;
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr_number,
+              body: `<!-- claude-auto-tag -->\n@claude CodeRabbit has submitted a review. Please address the feedback and push a fix.`,
+            });

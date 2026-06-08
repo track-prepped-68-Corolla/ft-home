@@ -23,13 +23,27 @@
   description = "NixOS configuration consuming the ft-home framework";
 
   inputs = {
-    ft-home.url = "github:track-prepped-68-corolla/fast-track-nix/testing";
+    ft-home.url = "github:track-prepped-68-corolla/fast-track-nix/claude/remove-key-depth-rule-twKNo";
 
     # Follow ft-home's pins to avoid duplicate fetches and version drift.
     nixpkgs.follows = "ft-home/nixpkgs";
+    nixpkgs-stable.follows = "ft-home/nixpkgs-stable";
     home-manager.follows = "ft-home/home-manager";
     nixos-facter.follows = "ft-home/nixos-facter";
+
+    # AMD NPU/GPU AI stack for strix halo. Intentionally does not follow
+    # nixpkgs — pinning it would bust the upstream binary cache for
+    # llama.cpp, whisper.cpp, and stable-diffusion.cpp.
+    nix-amd-ai.url = "github:noamsto/nix-amd-ai";
   };
 
-  outputs = inputs@{ ft-home, ... }: ft-home.lib.mkFlake inputs;
+  outputs =
+    inputs@{ ft-home, nixpkgs, ... }:
+    nixpkgs.lib.recursiveUpdate (ft-home.lib.mkFlake inputs) {
+      # VM smoke tests — exposed as packages so they stay out of nix flake check.
+      # Run manually via the vm-tests workflow or:
+      #   nix build -L --option system-features "nixos-test kvm benchmark big-parallel" \
+      #     .#vm-core-boot .#vm-tailscale-load
+      packages.x86_64-linux = import ./tests/vm { inherit inputs nixpkgs; };
+    };
 }

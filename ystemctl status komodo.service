@@ -1,0 +1,28 @@
+[0;1;32m●[0m microvm@docker-vm.service - MicroVM 'docker-vm'
+     Loaded: loaded (]8;;file://strix/etc/systemd/system/microvm@.service\/etc/systemd/system/microvm@.service]8;;\; static)
+    Drop-In: /nix/store/w1m284p1jhdn0f72lvmfamc89mx8yp5h-system-units/microvm@docker-vm.service.d
+             └─]8;;file://strix/nix/store/w1m284p1jhdn0f72lvmfamc89mx8yp5h-system-units/microvm@docker-vm.service.d/overrides.conf\overrides.conf]8;;\
+     Active: [0;1;32mactive (running)[0m since Mon 2026-06-01 22:01:37 UTC; 29s ago
+ Invocation: 2bb811dcf8994102b5a5e0ea9af09e25
+    Process: 70639 ExecStartPost=/nix/store/gik3rh1vz2jlgnifb9dh6vc6sxwwz9jj-bash-5.3p9/bin/bash -c if [ -x /var/lib/microvms/docker-vm/current/bin/microvm-register ]; then /var/lib/microvms/docker-vm/current/bin/microvm-register $MAINPID; fi (code=exited, status=0/SUCCESS)
+   Main PID: 70566 (cloud-hyperviso)
+     Status: "[0;1;36mReady.[0m"
+         IP: 0B in, 0B out
+         IO: 0B read, 312K written
+      Tasks: 21[0;38:5:245m (limit: 149253)[0m
+     Memory: 639.7M (peak: 643M)
+        CPU: 6.163s
+     CGroup: /system.slice/system-microvm.slice/microvm@docker-vm.service
+             ├─[0;38:5:245m70566 microvm@docker-vm --cpus boot=2 --watchdog --kernel /nix/store/zg7swx5ihrjn5zgig4vsyy0hhffr4iya-linux-6.18.33-dev/vmlinux --initramfs /nix/store/6c5lymvf1a521ak1aq7kn4j5gp1ci6x5-initrd-linux-6.18.33/initrd --cmdline "earlyprintk=ttyS0 console=ttyS0 reboot=t panic=-1 8250.nr_uarts=1 root=fstab loglevel=4 lsm=landlock,yama,bpf init=/nix/store/rj6x1g2hzdvzck1kf412i3cs9fb7dh6z-nixos-system-docker-vm-26.05pre-git/init regInfo=/nix/store/jvbz1qwk9lkhkhi19q5p95dqxvpljd22-closure-info/registration" --seccomp true --memory shared=on,size=2048M --platform "oem_strings=[io.systemd.credential:vmm.notify_socket=vsock-stream:2:8888]" --console null --serial tty --vsock cid=3,socket=notify.vsock --disk num_queues=2,path=/nix/store/31sybskkz343q7c1ryqlv98nx0fg3y74-microvm-store-disk.erofs,readonly=on direct=off,image_type=raw,num_queues=2,path=/var/lib/microvm/docker-vm/docker.img,readonly=off --fs socket=docker-vm-virtiofs-komodo.sock,tag=komodo --api-socket docker-vm.sock --net mac=02:00:00:00:00:01,num_queues=4,tap=tap-docker-vm[0m
+             └─[0;38:5:245m70569 /nix/store/n50qh3qh69k1lqbd9ygkd5jar429ax82-socat-1.8.1.1/bin/socat -T2 UNIX-LISTEN:notify.vsock_8888,fork UNIX-SENDTO:/run/systemd/notify[0m
+
+Jun 01 22:01:37 strix microvm@docker-vm[70566]: [FAILED] Failed to start Komodo docker-compose stack.
+Jun 01 22:01:37 strix microvm@docker-vm[70566]: See 'systemctl status komodo.service' for details.
+Jun 01 22:01:37 strix microvm@docker-vm[70566]: [  OK  ] Reached target Multi-User System.
+Jun 01 22:01:37 strix systemd[1]: Started MicroVM 'docker-vm'.
+Jun 01 22:01:42 strix microvm@docker-vm[70566]: [92B blob data]
+Jun 01 22:01:42 strix microvm@docker-vm[70566]: 
+Jun 01 22:01:42 strix microvm@docker-vm[70566]: <<< Welcome to NixOS 26.05pre-git (x86_64) - ttyS0 >>>
+Jun 01 22:01:42 strix microvm@docker-vm[70566]: 
+Jun 01 22:01:42 strix microvm@docker-vm[70566]: Run 'nixos-help' for the NixOS manual.
+Jun 01 22:01:42 strix microvm@docker-vm[70566]: 

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "nix": {
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      "matchManagers": ["nix"],
+      "matchPackageNames": ["fast-track-nix"],
+      "automerge": false,
+      "labels": ["dependencies", "nix"]
+    }
+  ]
+}
