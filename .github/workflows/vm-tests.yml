@@ -16,7 +16,7 @@ jobs:
 
       - uses: DeterminateSystems/nix-installer-action@v22
 
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
+      - uses: DeterminateSystems/magic-nix-cache-action@v14
 
       # GitHub's ubuntu-latest runners have /dev/kvm but it needs 0666
       # permissions so the Nix build sandbox can access it.
