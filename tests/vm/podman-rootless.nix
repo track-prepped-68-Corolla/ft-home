@@ -3,14 +3,14 @@ let
   inherit (import ./lib.nix { inherit inputs nixpkgs; }) baseConfig mkTest;
 in
 {
-  # ft.services.podmanRootless: dedicated podman service user and group are created.
+  # ft.podmanRootless: dedicated podman service user and group are created.
   vm-podman-rootless-load = mkTest {
     name = "ft-podman-rootless-load";
     nodes.machine =
       { ... }:
       {
         imports = [ baseConfig ];
-        ft.services.podmanRootless.enable = true;
+        ft.podmanRootless.enable = true;
       };
     testScript = ''
       machine.wait_for_unit("multi-user.target")

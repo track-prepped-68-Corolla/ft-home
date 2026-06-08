@@ -1,12 +1,12 @@
 { lib, config, inputs, ... }:
 let
-  cfg = config.ft.hardware.amdAi;
+  cfg = config.ft.amdAi;
 in
 {
   # Upstream hardware module — permitted import per style rules.
   imports = [ inputs.nix-amd-ai.nixosModules.default ];
 
-  options.ft.hardware.amdAi = {
+  options.ft.amdAi = {
     enable = lib.mkEnableOption "AMD NPU/GPU AI stack" // {
       description = "Enables the nix-amd-ai stack on strix halo: XDNA 2 NPU, Vulkan inference, stable-diffusion.cpp image generation, and the Lemonade OpenAI-compatible server.";
     };

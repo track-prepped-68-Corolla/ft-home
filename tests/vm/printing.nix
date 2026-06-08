@@ -3,14 +3,14 @@ let
   inherit (import ./lib.nix { inherit inputs nixpkgs; }) baseConfig mkTest;
 in
 {
-  # ft.services.printing: CUPS and Avahi daemon both reach the active state.
+  # ft.printing: CUPS and Avahi daemon both reach the active state.
   vm-printing-load = mkTest {
     name = "ft-printing-load";
     nodes.machine =
       { ... }:
       {
         imports = [ baseConfig ];
-        ft.services.printing.enable = true;
+        ft.printing.enable = true;
       };
     testScript = ''
       machine.wait_for_unit("multi-user.target")

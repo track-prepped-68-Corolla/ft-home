@@ -3,7 +3,7 @@ let
   inherit (import ./lib.nix { inherit inputs nixpkgs; }) baseConfig mkTest;
 in
 {
-  # ft.services.tailscale: tailscaled.service reaches the active state.
+  # ft.tailscale: tailscaled.service reaches the active state.
   # Network authentication is not tested.
   vm-tailscale-load = mkTest {
     name = "ft-tailscale-load";
@@ -11,9 +11,9 @@ in
       { ... }:
       {
         imports = [ baseConfig ];
-        ft.services.tailscale.enable = true;
+        ft.tailscale.enable = true;
         # Tray app is a desktop GUI; suppress it in a headless VM.
-        ft.services.tailscale.enableTrayApp = false;
+        ft.tailscale.enableTrayApp = false;
       };
     testScript = ''
       machine.wait_for_unit("multi-user.target")

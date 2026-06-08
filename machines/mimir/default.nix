@@ -44,7 +44,7 @@
 
   # --- FEATURE TOGGLES ---
 
-  ft.services.tailscale = {
+  ft.tailscale = {
     enable = true;
     enableTrayApp = false;
     useRoutingFeatures = "server";
@@ -58,20 +58,20 @@
     sshAuthorizedKeys = [ ]; # TODO: add admin SSH public key(s) for docker-vm access
   };
 
-  ft.services.bulkPool = {
+  ft.bulkPool = {
     enable = true;
     drivesFile = ./var/bulk-drives.nix;
   };
 
-  ft.security.sops.enable = true;
+  ft.sops.enable = true;
 
-  ft.hardware.facter = {
+  ft.facter = {
     enable = true;
     reportPath = ./var/facter.json;
   };
 
-  ft.boot.limine.enable = true;
+  ft.limine.enable = true;
 
-  ft.system.core.stateVersion = "25.05";
+  ft.core.stateVersion = "25.05";
   nixpkgs.hostPlatform = "x86_64-linux";
 }
