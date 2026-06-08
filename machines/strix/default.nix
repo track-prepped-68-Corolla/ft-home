@@ -64,7 +64,7 @@
     useTPM = true;
   };
 
-  #ft.gaming.enable = true;
+  ft.gaming.enable = true;
 
 
   ft.cachyos = {
@@ -79,8 +79,6 @@
 
   ft.core.stateVersion = "25.05";
   nixpkgs.hostPlatform = "x86_64-linux";
-
-  ft.localAi.enable = false;
 
   # --- AMD NPU/GPU AI STACK ---
   ft.amdAi.enable = true;
