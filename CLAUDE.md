@@ -8,20 +8,20 @@ This repo is named **`ft-home`** on GitHub but is called **`nixos-config`** thro
 
 ## What this is
 
-nixos-config is the personal consumer of the ft-home framework. It serves three purposes:
+nixos-config is the personal consumer of the ft-home framework. It serves two purposes:
 
 1. Daily-driver configuration for real machines.
 2. Dogfood testbed for ft-home features in development.
-3. Reference implementation until a dedicated template consumer repo is created.
 
-The core of `flake.nix` delegates to `ft-home.lib.mkFlake inputs`. The only consumer-level addition is `packages.x86_64-linux = import ./tests/vm { … }`, which merges VM smoke test packages in via `nixpkgs.lib.recursiveUpdate` without affecting any other outputs.
+`flake.nix` delegates entirely to `ft-home.lib.mkFlake inputs` — no extra outputs, no VM test packages. The VM smoke test suite lives in the separate `ft-testing` repo:
+`https://github.com/track-prepped-68-Corolla/ft-testing`
 
 ---
 
 ## Structure
 
 ```
-flake.nix                           # delegation — ft-home.lib.mkFlake inputs + test package merge
+flake.nix                           # pure delegation — ft-home.lib.mkFlake inputs
 flake.lock                          # intentional; tracks ft-home and all transitive inputs
 machines/
   <name>/
@@ -38,15 +38,7 @@ users/
     default.nix
 modules/
   nixos/                            # consumer-local NixOS modules (staging area for framework candidates)
-                                    # contains: apps/ (mullet), hardware/ (facter, gpu, disk, nfs, vm),
-                                    #           services/ (local-ai)
-  home/                             # consumer-local HM modules (currently sparse — single default.nix)
-tests/
-  vm/
-    lib.nix                         # shared baseConfig and consumerBaseConfig
-    default.nix                     # merges all test files into packages.x86_64-linux.vm-*
-    fixtures/                       # test data (mullet.txt, facter.json)
-    <feature>.nix                   # one file per module under test
+  home/                             # consumer-local HM modules
 var/
   local/                            # local machine state (system string written by bootstrap)
   secrets/
@@ -96,17 +88,13 @@ New machines are provisioned with nixos-anywhere + disko + nixos-facter:
 1. Boot the target into a NixOS live environment.
 2. Run `nixos-facter` to generate `facter.json`; commit it to `machines/<name>/var/`.
 3. Define the disk layout in `machines/<name>/modules/disko.nix`.
-4. Enable `ft.facter` (consumer-local module in `modules/nixos/hardware/facter.nix`) and the GPU module if needed.
-5. Run nixos-anywhere pointing at `nixos-config#<name>`. Disko handles partitioning declaratively as part of the install.
-
-Note: `ft.facter` and `ft.gpu` are currently consumer-local modules (not yet in the framework). They live in `modules/nixos/hardware/` here and must be imported explicitly in your machine config until they are upstreamed.
+4. Run nixos-anywhere pointing at `nixos-config#<name>`. Disko handles partitioning declaratively as part of the install.
 
 ---
 
 ## Known issues / pending fixes
 
 - **Broken wallpaper default path in `ft.theme` / `stylix.nix`:** The framework module (`fast-track-nix/modules/home/stylix.nix`) defaults the wallpaper to `../../homes/guest/wallpapers/default.png`. The actual directory is `users/`, not `homes/` — this path resolves to a nonexistent location. Tracked in `Todo.md`. Until fixed upstream, always set `ft.theme.wallpaper` explicitly in your user config.
-- **`ft.facter` does not import `nixos-facter.nixosModules.facter`:** The consumer module sets `config.facter.reportPath` (an option from `inputs.nixos-facter`) but relies on the generator to inject the upstream module. VM tests must import it explicitly. The module itself should be fixed to add the import.
 
 ---
 
@@ -131,86 +119,10 @@ nix flake check  # validates all outputs build and evaluate cleanly
 
 ## VM Smoke Tests
 
-VM smoke tests are the integration tier for all ft-home and framework modules.
-They live in `tests/vm/` and are exposed as `packages.x86_64-linux.vm-*` from
-`flake.nix` (via `recursiveUpdate`, so they stay out of `nix flake check` and
-do not affect the existing CI pipeline).
+VM smoke tests for all framework modules now live in the `ft-testing` repo:
+`https://github.com/track-prepped-68-Corolla/ft-testing`
 
-**Run a test locally:**
-```bash
-nix build -L --no-link \
-  --option system-features "nixos-test kvm benchmark big-parallel" \
-  .#vm-core-boot
-```
-
-**Trigger all tests:** `VM Smoke Tests` workflow → `workflow_dispatch` in GitHub Actions.
-
-### File layout
-
-```
-tests/vm/
-  lib.nix              # baseConfig (framework only) + consumerBaseConfig (+ modules/nixos/)
-  default.nix          # lib.foldl merge of all test files
-  fixtures/
-    mullet.txt         # hello / cowsay — for ft.mullet tests
-    facter.json        # minimal hardware stub — for ft.facter tests
-  core-boot.nix        # ft.core + ft.users
-  tailscale-load.nix   # ft.tailscale
-  podman-rootless.nix  # ft.podmanRootless
-  printing.nix         # ft.printing
-  keepass.nix          # ft.keepass
-  nix-index.nix        # ft.nixIndex
-  virt.nix             # ft.virt
-  nfs-framework.nix    # ft.nfs
-  cli.nix              # ft.cli
-  apps.nix             # ft.apps (consumer)
-  mullet.nix           # ft.mullet (consumer)
-  facter.nix           # ft.facter (consumer)
-  nfs-consumer.nix     # ft.nfs (framework, consumer context)
-  rclone.nix           # ft.rclone (consumer)
-  local-ai.nix         # ft.localAi (consumer)
-```
-
-### Adding a test (required for every new module)
-
-Use `baseConfig` for framework modules, `consumerBaseConfig` for modules in `modules/nixos/`. Every test must assert at least one **runtime effect** — service active, binary on PATH, config file written. Checking only that the module evaluates is not sufficient.
-
-```nix
-{ inputs, nixpkgs }:
-let
-  pkgs = nixpkgs.legacyPackages.x86_64-linux;
-  inherit (import ./lib.nix { inherit inputs nixpkgs; }) baseConfig;
-in
-{
-  vm-my-feature-load = pkgs.testers.runNixOSTest {
-    name = "ft-my-feature-load";
-    nodes.machine = { ... }: {
-      imports = [ baseConfig ];
-      ft.my.feature.enable = true;
-    };
-    testScript = ''
-      machine.wait_for_unit("multi-user.target")
-      machine.wait_for_unit("my-feature.service")
-    '';
-  };
-}
-```
-
-After adding the file, register it in `tests/vm/default.nix` and add `.#vm-my-feature-load` to `.github/workflows/vm-tests.yml`.
-
-### Excluded modules (no VM test required)
-
-| Module | Reason |
-|---|---|
-| `ft.cachyos` | Requires nix-cachyos binary cache |
-| `ft.sops` | Requires SSH host key + encrypted secrets file |
-| `ft.limine` | Bootloader testing conflicts with QEMU |
-| `ft.cosmic`, `ft.plasma` | Too heavyweight for CI |
-| `ft.gaming` | Too heavyweight (Steam) |
-| `ft.bulkPool` | Requires physical drives with specific labels |
-| `ft.yubikey` | Requires physical YubiKey |
-| `ft.komodo` | Depends on sops secrets |
-| `ft.gpu` | No GPU hardware in QEMU; module is a no-op |
+The `VM Smoke Tests` `workflow_dispatch` workflow in ft-testing runs the full suite against the framework's `testing` branch.
 
 ---
 
@@ -231,5 +143,4 @@ All pull requests target `testing`, not `main`. Changes reach `main` only after 
 - Expand scope beyond what was asked.
 - Commit unencrypted secrets or credentials.
 - Open a pull request targeting `main` — all PRs target `testing`.
-- Merge a module PR only after a corresponding VM smoke test in `ft-home/tests/vm/` passes, unless the module is explicitly exempt (hardware-dependent, binary cache-dependent, or secrets infrastructure).
-- Write a VM test that only checks evaluation — every test must assert at least one runtime effect (service active, binary on PATH, config file present).
+- Add VM tests here — they belong in ft-testing.

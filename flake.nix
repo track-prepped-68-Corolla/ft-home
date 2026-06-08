@@ -16,6 +16,9 @@
 # To add a consumer module:    drop a .nix file under modules/nixos/ or modules/home/
 # To pull framework updates:   nix flake update ft-home
 #
+# VM smoke tests now live in the ft-testing repo:
+#   https://github.com/track-prepped-68-Corolla/ft-testing
+#
 # Do NOT run `nix flake update nixpkgs` — nixpkgs follows ft-home's pin
 # and has no standalone input node in this flake.
 # =============================================================================
@@ -38,12 +41,6 @@
   };
 
   outputs =
-    inputs@{ ft-home, nixpkgs, ... }:
-    nixpkgs.lib.recursiveUpdate (ft-home.lib.mkFlake inputs) {
-      # VM smoke tests — exposed as packages so they stay out of nix flake check.
-      # Run manually via the vm-tests workflow or:
-      #   nix build -L --option system-features "nixos-test kvm benchmark big-parallel" \
-      #     .#vm-core-boot .#vm-tailscale-load
-      packages.x86_64-linux = import ./tests/vm { inherit inputs nixpkgs; };
-    };
+    inputs@{ ft-home, ... }:
+    ft-home.lib.mkFlake inputs;
 }
