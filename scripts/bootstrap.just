@@ -66,7 +66,7 @@ add-machine name ip:
     mkdir -p "${MACHINE_DIR}/modules"
     mkdir -p "${MACHINE_DIR}/var"
     cat > "${MACHINE_DIR}/default.nix" <<EOF
-{ ... }:
+{ lib, ... }:
 {
   imports = [
     ./modules
@@ -74,14 +74,18 @@ add-machine name ip:
   ];
 
   networking.hostName = "${NAME}";
-  mainuser = "joe";
-  superUsers = [ "joe" ];
+
+  ft.users = {
+    mainUser = "joe";
+    superUsers = [ "joe" ];
+  };
   users.users.joe.initialPassword = "nixos";
   users.mutableUsers = true;
 
+  ft.repoPath = lib.strings.trim (builtins.readFile ../../var/local/repoPath);
   ft.limine.enable = true;
   ft.cosmic.enable = true;
-  ft.cli.enable            = true;
+  ft.cli.enable = true;
 
   ft.mullet = {
     enable     = true;
@@ -98,6 +102,7 @@ add-machine name ip:
     reportPath = ./var/facter.json;
   };
 
+  ft.core.stateVersion = "25.05";
   nixpkgs.hostPlatform = "${SYSTEM}";
 }
 EOF
