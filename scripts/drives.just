@@ -108,14 +108,14 @@ drives-format:
     D=$(echo "$NEW" | jq -r '[.data[]]   | map("\"" + . + "\"") | join(" ")')
     C=$(echo "$NEW" | jq -r '[.cache[]]  | map("\"" + . + "\"") | join(" ")')
 
-    cat > "$DRIVES_FILE" <<NIXEOF
-# Managed by ft drives-format and ft drives-scan. Clear with ft drives-clear.
-{
-  parity = [ $P ];
-  data   = [ $D ];
-  cache  = [ $C ];
-}
-NIXEOF
+    {
+      echo "# Managed by ft drives-format and ft drives-scan. Clear with ft drives-clear."
+      echo "{"
+      echo "  parity = [ $P ];"
+      echo "  data   = [ $D ];"
+      echo "  cache  = [ $C ];"
+      echo "}"
+    } > "$DRIVES_FILE"
 
     echo ":: $DRIVES_FILE updated. ::"
     echo ":: Review changes, commit, and run 'ft switch' to activate. ::"
@@ -163,14 +163,14 @@ drives-scan:
       D=$(echo "$NEW" | jq -r '[.data[]]   | map("\"" + . + "\"") | join(" ")')
       C=$(echo "$NEW" | jq -r '[.cache[]]  | map("\"" + . + "\"") | join(" ")')
 
-      cat > "$DRIVES_FILE" <<NIXEOF
-# Managed by ft drives-format and ft drives-scan. Clear with ft drives-clear.
-{
-  parity = [ $P ];
-  data   = [ $D ];
-  cache  = [ $C ];
-}
-NIXEOF
+      {
+        echo "# Managed by ft drives-format and ft drives-scan. Clear with ft drives-clear."
+        echo "{"
+        echo "  parity = [ $P ];"
+        echo "  data   = [ $D ];"
+        echo "  cache  = [ $C ];"
+        echo "}"
+      } > "$DRIVES_FILE"
       echo ":: $ADDED new drive(s) registered. Commit and run 'ft switch' to activate. ::"
     else
       echo ":: No new drives found. ::"
@@ -215,14 +215,14 @@ drives-clear:
     echo ":: SnapRAID parity will no longer be able to reference these drives. ::"
     read -rp "Clear all records? [y/N]: " confirm
     if [[ "$confirm" =~ ^[yY]$ ]]; then
-      cat > "$DRIVES_FILE" <<'NIXEOF'
-# Managed by ft drives-format and ft drives-scan. Clear with ft drives-clear.
-{
-  parity = [ ];
-  data   = [ ];
-  cache  = [ ];
-}
-NIXEOF
+      {
+        echo "# Managed by ft drives-format and ft drives-scan. Clear with ft drives-clear."
+        echo "{"
+        echo "  parity = [ ];"
+        echo "  data   = [ ];"
+        echo "  cache  = [ ];"
+        echo "}"
+      } > "$DRIVES_FILE"
       echo ":: $DRIVES_FILE cleared. Commit and run 'ft switch' to apply. ::"
     else
       echo "Cancelled."

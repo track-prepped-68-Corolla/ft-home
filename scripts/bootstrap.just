@@ -21,8 +21,9 @@ git-init:
     git remote add origin "$GIT_REMOTE" 2>/dev/null || git remote set-url origin "$GIT_REMOTE"
     mkdir -p var/local
     printf '%s' "$(nix eval --impure --expr 'builtins.currentSystem' --raw)" > var/local/system
-    git add var/git/ var/local/
-    git diff --cached --quiet || git commit -m "chore: store git config and local system in var"
+    printf '%s' "$PWD" > var/local/repoPath
+    git add var/git/ -f var/local/
+    git diff --cached --quiet || git commit -m "chore: store git config and local state in var"
     echo ":: Git initialised. Remote: $GIT_REMOTE ::"
 
 # Initialize tailscale config.
@@ -64,54 +65,59 @@ add-machine name ip:
     printf '%s' "$SYSTEM" > var/local/system
     mkdir -p "${MACHINE_DIR}/modules"
     mkdir -p "${MACHINE_DIR}/var"
-    cat > "${MACHINE_DIR}/default.nix" <<EOF
-{ ... }:
-{
-  imports = [
-    ./modules
-    ../../modules/nixos
-  ];
-
-  networking.hostName = "${NAME}";
-  mainuser = "joe";
-  superUsers = [ "joe" ];
-  users.users.joe.initialPassword = "nixos";
-  users.mutableUsers = true;
-
-  ft.boot.limine.enable    = true;
-  ft.desktop.cosmic.enable = true;
-  ft.cli.enable            = true;
-
-  ft.mullet = {
-    enable     = true;
-    sourcePath = ../../users/joe/var/mullet.txt;
-  };
-
-  ft.security.sops = {
-    enable = true;
-    useTPM = true;
-  };
-
-  ft.hardware.facter = {
-    enable     = true;
-    reportPath = ./var/facter.json;
-  };
-
-  nixpkgs.hostPlatform = "${SYSTEM}";
-}
-EOF
-    cat > "${MACHINE_DIR}/modules/default.nix" <<'EOF'
-{ lib, ... }:
-let
-  allFiles = lib.filesystem.listFilesRecursive ./.;
-  validModules = builtins.filter (
-    path: lib.hasSuffix ".nix" (builtins.toString path) && path != ./default.nix
-  ) allFiles;
-in
-{
-  imports = validModules;
-}
-EOF
+    printf '%s\n' \
+      '{ lib, ... }:' \
+      '{' \
+      '  imports = [' \
+      '    ./modules' \
+      '    ../../modules/nixos' \
+      '  ];' \
+      '' \
+      "  networking.hostName = \"${NAME}\";" \
+      '' \
+      '  ft.users = {' \
+      '    mainUser = "joe";' \
+      '    superUsers = [ "joe" ];' \
+      '  };' \
+      '  users.users.joe.initialPassword = "nixos";' \
+      '  users.mutableUsers = true;' \
+      '' \
+      '  ft.repoPath = lib.strings.trim (builtins.readFile ../../var/local/repoPath);' \
+      '  ft.limine.enable = true;' \
+      '  ft.cosmic.enable = true;' \
+      '  ft.cli.enable = true;' \
+      '' \
+      '  ft.mullet = {' \
+      '    enable     = true;' \
+      '    sourcePath = ../../users/joe/var/mullet.txt;' \
+      '  };' \
+      '' \
+      '  ft.sops = {' \
+      '    enable = true;' \
+      '    useTPM = true;' \
+      '  };' \
+      '' \
+      '  ft.facter = {' \
+      '    enable     = true;' \
+      '    reportPath = ./var/facter.json;' \
+      '  };' \
+      '' \
+      '  ft.core.stateVersion = "25.05";' \
+      "  nixpkgs.hostPlatform = \"${SYSTEM}\";" \
+      '}' \
+      > "${MACHINE_DIR}/default.nix"
+    printf '%s\n' \
+      '{ lib, ... }:' \
+      'let' \
+      '  allFiles = lib.filesystem.listFilesRecursive ./.;' \
+      '  validModules = builtins.filter (' \
+      '    path: lib.hasSuffix ".nix" (builtins.toString path) && path != ./default.nix' \
+      '  ) allFiles;' \
+      'in' \
+      '{' \
+      '  imports = validModules;' \
+      '}' \
+      > "${MACHINE_DIR}/modules/default.nix"
     git add "var/local/" "${MACHINE_DIR}/"
     git diff --cached --quiet || git commit -m "bootstrap: scaffold machine ${NAME}"
     echo ":: Machine ${NAME} scaffolded at ${MACHINE_DIR} ::"

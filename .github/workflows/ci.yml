@@ -18,15 +18,21 @@ jobs:
       pull-requests: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.head_ref || github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: DeterminateSystems/nix-installer-action@v14
+      - name: Inject repoPath for Nix evaluation
+        run: |
+          mkdir -p var/local
+          printf '%s' "$GITHUB_WORKSPACE" > var/local/repoPath
+          git add -f var/local/repoPath
 
-      - uses: DeterminateSystems/magic-nix-cache-action@v8
+      - uses: DeterminateSystems/nix-installer-action@v22
+
+      - uses: DeterminateSystems/magic-nix-cache-action@v14
 
       # Update ft-home to the latest testing commit so the formatter and
       # statix fixes are available. Followers (nixpkgs, home-manager,
@@ -69,7 +75,7 @@ jobs:
 
       - name: Tag Claude on failure
         if: failure() && github.event_name == 'pull_request'
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
             const fs = require('fs');
