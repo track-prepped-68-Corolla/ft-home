@@ -25,7 +25,7 @@
 
   # --- IDENTITY ---
   networking.hostName = "strix";
-  ft.repoPath = lib.strings.trim (builtins.readFile ./var/repoPath);
+  ft.repoPath = lib.strings.trim (builtins.readFile ../../var/local/repoPath);
 
   ft.users = {
     mainUser = "joe";

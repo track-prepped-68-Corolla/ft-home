@@ -21,8 +21,9 @@ git-init:
     git remote add origin "$GIT_REMOTE" 2>/dev/null || git remote set-url origin "$GIT_REMOTE"
     mkdir -p var/local
     printf '%s' "$(nix eval --impure --expr 'builtins.currentSystem' --raw)" > var/local/system
-    git add var/git/ var/local/
-    git diff --cached --quiet || git commit -m "chore: store git config and local system in var"
+    printf '%s' "$PWD" > var/local/repoPath
+    git add var/git/ -f var/local/
+    git diff --cached --quiet || git commit -m "chore: store git config and local state in var"
     echo ":: Git initialised. Remote: $GIT_REMOTE ::"
 
 # Initialize tailscale config.
