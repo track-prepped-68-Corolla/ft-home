@@ -8,7 +8,7 @@ services:
     ports:
       - "127.0.0.1:9090:9090"
     volumes:
-      - /opt/containers/observability/prometheus:/etc/prometheus
+      - ${REPO_ROOT:?REPO_ROOT must be set to the Komodo repo checkout path}/containers/config/observability/prometheus:/etc/prometheus:ro
       - prometheus-data:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
@@ -25,7 +25,7 @@ services:
     ports:
       - "127.0.0.1:3200:3200"   # HTTP query (Grafana datasource)
     volumes:
-      - /opt/containers/observability/tempo:/etc/tempo
+      - ${REPO_ROOT}/containers/config/observability/tempo:/etc/tempo:ro
       - tempo-data:/var/tempo
     command: -config.file=/etc/tempo/tempo.yml
     healthcheck:
@@ -46,7 +46,7 @@ services:
       - "127.0.0.1:4318:4318"   # HTTP OTLP receiver
       - "127.0.0.1:8889:8889"   # Prometheus exporter (scraped by Prometheus)
     volumes:
-      - /opt/containers/observability/otelcol:/etc/otelcol
+      - ${REPO_ROOT}/containers/config/observability/otelcol:/etc/otelcol:ro
     command: --config /etc/otelcol/config.yaml
     depends_on:
       tempo:
@@ -69,8 +69,10 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
     depends_on:
       - prometheus
-      - loki
-      - tempo
+      loki:
+        condition: service_healthy
+      tempo:
+        condition: service_healthy
 
   loki:
     image: grafana/loki:latest
@@ -81,7 +83,7 @@ services:
     ports:
       - "127.0.0.1:3100:3100"
     volumes:
-      - /opt/containers/observability/loki:/etc/loki
+      - ${REPO_ROOT}/containers/config/observability/loki:/etc/loki:ro
       - loki-data:/loki
     command: -config.file=/etc/loki/loki.yml
     healthcheck:
@@ -100,7 +102,7 @@ services:
     ports:
       - "127.0.0.1:12345:12345"
     volumes:
-      - /opt/containers/observability/alloy:/etc/alloy
+      - ${REPO_ROOT}/containers/config/observability/alloy:/etc/alloy:ro
       - /var/log:/var/log:ro
       - ${CONTAINER_SOCKET:-/var/run/podman/podman.sock}:/var/run/docker.sock:ro
     command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy

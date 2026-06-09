@@ -1,0 +1,33 @@
+// Alloy configuration — ships container and host logs to Loki.
+// Copy to /opt/containers/observability/alloy/config.alloy before first run,
+// OR set REPO_ROOT in the Komodo stack environment and use the volume mount
+// ${REPO_ROOT}/containers/config/observability/alloy:/etc/alloy:ro
+
+// Discover running containers via the Podman/Docker socket
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+}
+
+// Collect stdout/stderr from every container
+loki.source.docker "containers" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.docker.containers.targets
+  forward_to = [loki.write.local.receiver]
+}
+
+// Collect host log files from the /var/log bind-mount
+loki.source.file "host_logs" {
+  targets = [
+    {__path__ = "/var/log/syslog",   job = "host", source = "syslog"},
+    {__path__ = "/var/log/messages", job = "host", source = "messages"},
+    {__path__ = "/var/log/auth.log", job = "host", source = "auth"},
+  ]
+  forward_to = [loki.write.local.receiver]
+}
+
+// Push all collected logs to Loki
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
