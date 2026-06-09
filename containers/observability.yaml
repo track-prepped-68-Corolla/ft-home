@@ -8,7 +8,7 @@ services:
     ports:
       - "127.0.0.1:9090:9090"
     volumes:
-      - ./config/observability/prometheus:/etc/prometheus:ro
+      - ./config/observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus-data:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
@@ -25,7 +25,7 @@ services:
     ports:
       - "127.0.0.1:3200:3200"   # HTTP query (Grafana datasource)
     volumes:
-      - ./config/observability/tempo:/etc/tempo:ro
+      - ./config/observability/tempo.yml:/etc/tempo/tempo.yml:ro
       - tempo-data:/var/tempo
     command: -config.file=/etc/tempo/tempo.yml
     healthcheck:
@@ -84,7 +84,7 @@ services:
     ports:
       - "127.0.0.1:3100:3100"
     volumes:
-      - ./config/observability/loki:/etc/loki:ro
+      - ./config/observability/loki.yml:/etc/loki/loki.yml:ro
       - loki-data:/loki
     command: -config.file=/etc/loki/loki.yml
     healthcheck:
