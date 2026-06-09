@@ -1,7 +1,3 @@
-# Copy to /opt/containers/observability/loki/loki.yml before first run.
-# Alloy ships logs to Loki on port 3100.
-# Grafana queries Loki on port 3100.
-
 auth_enabled: false
 
 server:
