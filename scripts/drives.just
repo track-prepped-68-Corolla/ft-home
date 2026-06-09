@@ -215,14 +215,14 @@ drives-clear:
     echo ":: SnapRAID parity will no longer be able to reference these drives. ::"
     read -rp "Clear all records? [y/N]: " confirm
     if [[ "$confirm" =~ ^[yY]$ ]]; then
-      cat > "$DRIVES_FILE" <<'NIXEOF'
-# Managed by ft drives-format and ft drives-scan. Clear with ft drives-clear.
-{
-  parity = [ ];
-  data   = [ ];
-  cache  = [ ];
-}
-NIXEOF
+      {
+        echo "# Managed by ft drives-format and ft drives-scan. Clear with ft drives-clear."
+        echo "{"
+        echo "  parity = [ ];"
+        echo "  data   = [ ];"
+        echo "  cache  = [ ];"
+        echo "}"
+      } > "$DRIVES_FILE"
       echo ":: $DRIVES_FILE cleared. Commit and run 'ft switch' to apply. ::"
     else
       echo "Cancelled."
