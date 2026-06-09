@@ -6,13 +6,13 @@
 # and becomes nixosConfigurations.mimir.
 #
 # PROVISIONING CHECKLIST
-#   1. Boot target into NixOS live environment
+#   1. Boot target into the ft-home live ISO; git clone nixos-config
 #   2. Run nixos-facter; commit output to machines/mimir/var/facter.json
 #   3. Update ft.dockervm.hostInterface to the NAS NIC name (run `ip link`)
 #   4. Add SSH public key(s) to ft.dockervm.sshAuthorizedKeys for docker-vm access
-#   5. Update modules/disko.nix with actual OS disk device (run `lsblk`)
+#   5. Verify ft.diskBtrfs.device below (just deploy will prompt with lsblk output)
 #   6. Run ft drives-format for each data/parity/cache drive; commit var/bulk-drives.nix
-#   7. Run nixos-anywhere pointing at nixos-config#mimir
+#   7. Run: just bootstrap mimir <ip>   OR   just bootstrap-local mimir
 # =============================================================================
 { ... }:
 
@@ -68,6 +68,11 @@
   ft.facter = {
     enable = true;
     reportPath = ./var/facter.json;
+  };
+
+  ft.diskBtrfs = {
+    enable = true;
+    device = "/dev/sda"; # TODO: verify with lsblk on target; just deploy will prompt
   };
 
   ft.limine.enable = true;
