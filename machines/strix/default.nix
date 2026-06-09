@@ -15,7 +15,7 @@
 #   Do not import ft-home modules directly — the generator injects them.
 #   Per-user Home Manager config belongs in users/<username>/default.nix.
 # =============================================================================
-{ ... }:
+{ lib, ... }:
 
 {
   imports = [
@@ -25,6 +25,7 @@
 
   # --- IDENTITY ---
   networking.hostName = "strix";
+  ft.repoPath = lib.strings.trim (builtins.readFile ../../var/local/repoPath);
 
   ft.users = {
     mainUser = "joe";
