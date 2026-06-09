@@ -17,6 +17,9 @@
 # =============================================================================
 { pkgs, inputs, config, lib, ... }:
 
+let
+  hostname = lib.strings.trim (builtins.readFile /etc/hostname);
+in
 {
   imports = [
     ../../modules/home
@@ -30,7 +33,7 @@
   ft.lazyvim.enable = true;
   ft.theme.enable = true;
   ft.theme.wallpaper = ./wallpapers/default.png;
-  ft.repoPath = lib.strings.trim (builtins.readFile ../../var/local/repoPath);
+  ft.repoPath = lib.strings.trim (builtins.readFile (../../machines + "/${hostname}/var/repoPath"));
 
   # --- ENVIRONMENT ---
   home.sessionVariables = {

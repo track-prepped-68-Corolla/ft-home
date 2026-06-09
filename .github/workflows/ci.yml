@@ -24,6 +24,9 @@ jobs:
           ref: ${{ github.head_ref || github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set hostname for Nix evaluation
+        run: sudo hostname ci
+
       - uses: DeterminateSystems/nix-installer-action@v22
 
       - uses: DeterminateSystems/magic-nix-cache-action@v14
