@@ -24,6 +24,12 @@ jobs:
           ref: ${{ github.head_ref || github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Inject repoPath for Nix evaluation
+        run: |
+          mkdir -p var/local
+          printf '%s' "$GITHUB_WORKSPACE" > var/local/repoPath
+          git add -f var/local/repoPath
+
       - uses: DeterminateSystems/nix-installer-action@v22
 
       - uses: DeterminateSystems/magic-nix-cache-action@v14
