@@ -70,8 +70,8 @@ switch: check
 
 home-switch user="" arch="":
     #!/usr/bin/env bash
-    USER="${{user:-$USER}}"
-    ARCH="${{arch:-$(uname -m)-linux}}"
+    USER="${user:-$USER}"
+    ARCH="${arch:-$(uname -m)-linux}"
     home-manager switch --flake ".#${USER}@${ARCH}"
 
 # --- 4. Remote Syncing ---
