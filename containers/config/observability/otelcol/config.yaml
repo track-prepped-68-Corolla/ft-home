@@ -1,0 +1,47 @@
+# Copy to /opt/containers/observability/otelcol/config.yaml before first run,
+# OR set REPO_ROOT in the Komodo stack environment and use the volume mount
+# ${REPO_ROOT}/containers/config/observability/otelcol:/etc/otelcol:ro
+#
+# Pipeline: apps → otelcol → Tempo (traces) / Loki (logs) / Prometheus (metrics)
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 5s
+
+exporters:
+  # Traces → Tempo (OTLP gRPC, internal network)
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+
+  # Logs → Loki
+  loki:
+    endpoint: http://loki:3100/loki/api/v1/push
+
+  # Metrics → Prometheus scrape endpoint (scraped by Prometheus on :8889)
+  prometheus:
+    endpoint: 0.0.0.0:8889
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/tempo]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [prometheus]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [loki]

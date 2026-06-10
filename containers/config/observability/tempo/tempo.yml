@@ -1,7 +1,3 @@
-# Copy to /opt/containers/observability/tempo/tempo.yml before first run.
-# OTel Collector forwards traces to Tempo via OTLP (internal ports 4317/4318).
-# Grafana queries Tempo on port 3200.
-
 server:
   http_listen_port: 3200
 
@@ -13,13 +9,6 @@ distributor:
           endpoint: 0.0.0.0:4317
         http:
           endpoint: 0.0.0.0:4318
-
-ingester:
-  max_block_duration: 5m
-
-compactor:
-  compaction:
-    block_retention: 48h
 
 storage:
   trace:
