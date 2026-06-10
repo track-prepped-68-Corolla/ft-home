@@ -39,7 +39,7 @@
   ft.limine.enable = true;
   ft.cosmic.enable = true;
   ft.mullet = {
-    enable     = true;
+    enable = true;
     sourcePath = ../../users/joe/var/mullet.txt;
   };
   ft.gpu.enable = true;
@@ -49,8 +49,8 @@
   ft.dockervm.enable = true;
   ft.dockervm.hostInterface = "wlp194s0";
   ft.dockervm.sshAuthorizedKeys = [
-  "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIDgZCe1UZA1E7bCpTWz5NUMHlGUq16nOobSJ2LyyZCP2AAAABHNzaDo= track-prepped-68-Corolla@protonmail.com"
-];
+    "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIDgZCe1UZA1E7bCpTWz5NUMHlGUq16nOobSJ2LyyZCP2AAAABHNzaDo= track-prepped-68-Corolla@protonmail.com"
+  ];
 
   ft.ssh = {
     enable = true;
@@ -66,7 +66,6 @@
   };
 
   ft.gaming.enable = true;
-
 
   ft.cachyos = {
     enable = true;

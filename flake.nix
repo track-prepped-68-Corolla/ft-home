@@ -40,7 +40,5 @@
     nix-amd-ai.url = "github:noamsto/nix-amd-ai";
   };
 
-  outputs =
-    inputs@{ ft-home, ... }:
-    ft-home.lib.mkFlake inputs;
+  outputs = inputs@{ ft-home, ... }: ft-home.lib.mkFlake inputs;
 }

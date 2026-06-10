@@ -15,7 +15,13 @@
 #
 # Do not import ft-home home modules directly — the generator injects them.
 # =============================================================================
-{ pkgs, inputs, config, lib, ... }:
+{
+  pkgs,
+  inputs,
+  config,
+  lib,
+  ...
+}:
 
 {
   imports = [

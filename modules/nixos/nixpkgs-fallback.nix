@@ -1,4 +1,9 @@
-{ lib, config, inputs, ... }:
+{
+  lib,
+  config,
+  inputs,
+  ...
+}:
 let
   cfg = config.ft.system.nixpkgsFailover;
 in
@@ -31,8 +36,7 @@ in
               [ ];
           overrideList = lib.filter (s: s != "" && !(lib.hasPrefix "#" s)) rawLines;
           overridePkg =
-            name:
-            if lib.elem name overrideList then stablePkgs.${name} or prev.${name} else prev.${name};
+            name: if lib.elem name overrideList then stablePkgs.${name} or prev.${name} else prev.${name};
         in
         lib.genAttrs overrideList overridePkg
       )
