@@ -9,7 +9,9 @@
 # DEFAULT APPLICATIONS MODULE
 ################################################################################
 {
-    environment.systemPackages = with pkgs; [
-      asusctl
-    ];
+      services = {
+        asusd = {
+          enable = mkDefault true;
+        };
+      };
 }
