@@ -11,7 +11,7 @@
 {
       services = {
         asusd = {
-          enable = mkDefault true;
+          enable = true;
         };
       };
 }
