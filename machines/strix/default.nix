@@ -47,7 +47,6 @@
   ft.cli.enable = true;
   ft.keepass.enable = true;
   ft.dockervm.enable = true;
-  ft.asus.enable = true;
   ft.cardwire.enable = true;
   ft.dockervm.hostInterface = "wlp194s0";
   ft.dockervm.sshAuthorizedKeys = [
