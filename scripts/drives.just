@@ -162,14 +162,14 @@ drives-format:
     D=$(echo "$CURRENT" | jq -r '[.data[]]   | map("\"" + . + "\"") | join(" ")')
     C=$(echo "$CURRENT" | jq -r '[.cache[]]  | map("\"" + . + "\"") | join(" ")')
 
-    cat > "$DRIVES_FILE" <<NIXEOF
-# Managed by ft drives-format and ft drives-sync. Clear with ft drives-clear.
-{
-  parity = [ $P ];
-  data   = [ $D ];
-  cache  = [ $C ];
-}
-NIXEOF
+    {
+        printf '# Managed by ft drives-format and ft drives-sync. Clear with ft drives-clear.\n'
+        printf '{\n'
+        printf '  parity = [ %s ];\n' "$P"
+        printf '  data   = [ %s ];\n' "$D"
+        printf '  cache  = [ %s ];\n' "$C"
+        printf '}\n'
+    } > "$DRIVES_FILE"
 
     echo ":: $DRIVES_FILE updated. ::"
     echo ":: Review changes, commit, and run 'ft switch' to activate. ::"
@@ -239,14 +239,14 @@ drives-sync:
         D=$(echo "$NEW" | jq -r '[.data[]]   | map("\"" + . + "\"") | join(" ")')
         C=$(echo "$NEW" | jq -r '[.cache[]]  | map("\"" + . + "\"") | join(" ")')
 
-        cat > "$DRIVES_FILE" <<NIXEOF
-# Managed by ft drives-format and ft drives-sync. Clear with ft drives-clear.
-{
-  parity = [ $P ];
-  data   = [ $D ];
-  cache  = [ $C ];
-}
-NIXEOF
+        {
+            printf '# Managed by ft drives-format and ft drives-sync. Clear with ft drives-clear.\n'
+            printf '{\n'
+            printf '  parity = [ %s ];\n' "$P"
+            printf '  data   = [ %s ];\n' "$D"
+            printf '  cache  = [ %s ];\n' "$C"
+            printf '}\n'
+        } > "$DRIVES_FILE"
         echo ":: $DRIVES_FILE updated. Commit and run 'ft switch' to apply. ::"
     else
         echo ":: No changes needed. ::"
