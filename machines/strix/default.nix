@@ -40,17 +40,30 @@
   ft.cosmic.enable = true;
   ft.mullet = {
     enable = true;
-    sourcePath = ../../users/joe/var/mullet.txt;
+    sourcePath = ../../users/joe/var/mullet;
   };
   ft.gpu.enable = true;
   ft.yubikey.enable = true;
   ft.cli.enable = true;
   ft.keepass.enable = true;
   ft.dockervm.enable = true;
+  ft.asus.enable = true;
+  ft.cardwire.enable = true;
   ft.dockervm.hostInterface = "wlp194s0";
   ft.dockervm.sshAuthorizedKeys = [
     "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIDgZCe1UZA1E7bCpTWz5NUMHlGUq16nOobSJ2LyyZCP2AAAABHNzaDo= track-prepped-68-Corolla@protonmail.com"
   ];
+  
+  ft.hermesVm = {
+    enable = true;
+    vmName = "hermes";
+    ollamaUrl = 13305;
+    sshAuthorizedKeys = [
+      "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIDgZCe1UZA1E7bCpTWz5NUMHlGUq16nOobSJ2LyyZCP2AAAABHNzaDo= track-prepped-68-Corolla@protonmail.com"
+    ];
+  };
+
+
 
   ft.ssh = {
     enable = true;
