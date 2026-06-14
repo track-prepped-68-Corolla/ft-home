@@ -5,175 +5,251 @@
 #   bulk-parity-N  → snapraid parity (not in pool)
 #   bulk-cache-N   → mergerfs pool only (not in snapraid)
 #
-# After adding or scanning drives, commit the updated var/bulk-drives.nix
+# After formatting or syncing drives, commit the updated var/bulk-drives.nix
 # and run `ft switch` to activate the new configuration.
 
 DRIVES_FILE := "machines/" + `hostname` + "/var/bulk-drives.nix"
 
-# Format a drive, create btrfs subvolumes, and register it. Interactive — no arguments needed.
+# Scan uninitialized drives, select role, format, and register. Interactive — no arguments needed.
 drives-format:
     #!/usr/bin/env bash
     set -euo pipefail
 
     DRIVES_FILE="machines/$(hostname)/var/bulk-drives.nix"
 
-    echo ":: Available block devices ::"
+    # Identify the system disk (contains the root filesystem)
+    ROOT_DEV=$(findmnt -n -o SOURCE / | sed 's|\[.*\]||')
+    ROOT_DISK=$(lsblk -n -o PKNAME "$ROOT_DEV" 2>/dev/null | head -1 || true)
+    [[ -z "$ROOT_DISK" ]] && ROOT_DISK=$(basename "$ROOT_DEV" | sed 's/p\?[0-9]*$//')
+
+    echo ":: Scanning for uninitialized drives (system disk: $ROOT_DISK) ::"
     echo ""
-    mapfile -t DEVICES < <(lsblk -d -n -o NAME,SIZE,MODEL --sort SIZE 2>/dev/null | grep -v "^loop")
-    if [[ ${#DEVICES[@]} -eq 0 ]]; then
-      echo "No block devices found."
-      exit 1
+
+    # Build candidate list: non-loop, non-USB, non-system, no bulk-* label
+    CANDIDATES=()
+    while IFS= read -r line; do
+        DEV_NAME=$(echo "$line" | awk '{print $1}')
+        [[ "$DEV_NAME" == "$ROOT_DISK" ]] && continue
+
+        TRAN=$(lsblk -d -n -o TRAN "/dev/$DEV_NAME" 2>/dev/null | head -1 | tr -d ' ')
+        [[ "$TRAN" == "usb" ]] && continue
+
+        if lsblk -n -o LABEL "/dev/$DEV_NAME" 2>/dev/null | grep -q "^bulk-"; then
+            continue
+        fi
+
+        CANDIDATES+=("$line")
+    done < <(lsblk -d -n -o NAME,SIZE,MODEL --sort SIZE 2>/dev/null | grep -v "^loop")
+
+    if [[ ${#CANDIDATES[@]} -eq 0 ]]; then
+        echo "No uninitialized drives found."
+        exit 0
     fi
-    for i in "${!DEVICES[@]}"; do
-      printf "  %2d)  %s\n" "$((i+1))" "${DEVICES[$i]}"
+
+    for i in "${!CANDIDATES[@]}"; do
+        printf "  %2d)  %s\n" "$((i+1))" "${CANDIDATES[$i]}"
     done
     echo ""
 
-    read -rp "Select device number: " sel
-    if ! [[ "$sel" =~ ^[0-9]+$ ]] || [[ "$sel" -lt 1 ]] || [[ "$sel" -gt "${#DEVICES[@]}" ]]; then
-      echo ":: Invalid selection. ::"
-      exit 1
-    fi
-    DEV_NAME=$(echo "${DEVICES[$((sel-1))]}" | awk '{print $1}')
-    DEVICE="/dev/$DEV_NAME"
+    read -rp "Select drives to format (e.g. 1 2 3 or 1,2,3): " RAW_SEL
+    IFS=', ' read -ra SELECTIONS <<< "$RAW_SEL"
 
-    echo ""
-    echo ":: Selected: $DEVICE ::"
-    lsblk "$DEVICE" 2>/dev/null || true
-    echo ""
-    read -rp "WIPE AND FORMAT $DEVICE? This is IRREVERSIBLE. [y/N]: " confirm
-    [[ "$confirm" =~ ^[yY]$ ]] || { echo "Cancelled."; exit 0; }
+    SELECTED_DEVS=()
+    for sel in "${SELECTIONS[@]}"; do
+        [[ -z "$sel" ]] && continue
+        if ! [[ "$sel" =~ ^[0-9]+$ ]] || [[ "$sel" -lt 1 ]] || [[ "$sel" -gt "${#CANDIDATES[@]}" ]]; then
+            echo ":: Invalid selection: $sel. Aborting. ::"
+            exit 1
+        fi
+        SELECTED_DEVS+=("${CANDIDATES[$((sel-1))]}")
+    done
 
-    echo ""
-    echo ":: Label convention: bulk-data-N, bulk-parity-N, bulk-cache-N ::"
-    read -rp "Enter btrfs label (must start with 'bulk-'): " LABEL
-    if [[ "$LABEL" != bulk-* ]]; then
-      echo ":: Error: label must start with 'bulk-'. ::"
-      exit 1
+    if [[ ${#SELECTED_DEVS[@]} -eq 0 ]]; then
+        echo "No drives selected."
+        exit 0
     fi
 
     echo ""
-    echo ":: Wiping $DEVICE ::"
-    sudo wipefs -a "$DEVICE"
-
-    echo ":: Partitioning $DEVICE ::"
-    sudo parted -s "$DEVICE" mklabel gpt mkpart primary btrfs 0% 100%
-    sleep 1
-    sudo partprobe "$DEVICE" 2>/dev/null || true
-    sleep 1
-
-    PART=$(lsblk -n -o NAME "$DEVICE" | grep -v "^$DEV_NAME$" | head -1)
-    if [[ -z "$PART" ]]; then
-      echo ":: Error: could not detect partition on $DEVICE. ::"
-      exit 1
-    fi
-    PARTITION="/dev/$PART"
-
-    echo ":: Formatting $PARTITION as btrfs (label: $LABEL) ::"
-    sudo mkfs.btrfs -L "$LABEL" -f "$PARTITION"
-
-    echo ":: Creating @data and @snapshots subvolumes ::"
-    TMPDIR=$(mktemp -d)
-    sudo mount "$PARTITION" "$TMPDIR"
-    sudo btrfs subvolume create "$TMPDIR/@data"
-    sudo btrfs subvolume create "$TMPDIR/@snapshots"
-    sudo umount "$TMPDIR"
-    rmdir "$TMPDIR"
-
-    echo ":: Drive $LABEL ready ::"
+    echo ":: Selected ::"
+    for dev in "${SELECTED_DEVS[@]}"; do
+        echo "  $dev"
+    done
     echo ""
 
-    # Determine role from label substring
-    if [[ "$LABEL" == *parity* ]]; then
-      ROLE="parity"
-    elif [[ "$LABEL" == *cache* ]]; then
-      ROLE="cache"
-    else
-      ROLE="data"
-    fi
-
-    echo ":: Registering $LABEL as $ROLE drive in $DRIVES_FILE ::"
-    mkdir -p "$(dirname "$DRIVES_FILE")"
-
+    # Load current drives file
     CURRENT=$(nix eval --json -f "$DRIVES_FILE" 2>/dev/null \
-      || echo '{"parity":[],"data":[],"cache":[]}')
+        || echo '{"parity":[],"data":[],"cache":[]}')
 
-    case "$ROLE" in
-      parity) NEW=$(echo "$CURRENT" | jq --arg l "$LABEL" '.parity += [$l] | .parity |= unique') ;;
-      cache)  NEW=$(echo "$CURRENT" | jq --arg l "$LABEL" '.cache  += [$l] | .cache  |= unique') ;;
-      *)      NEW=$(echo "$CURRENT" | jq --arg l "$LABEL" '.data   += [$l] | .data   |= unique') ;;
-    esac
+    for dev in "${SELECTED_DEVS[@]}"; do
+        DEV_NAME=$(echo "$dev" | awk '{print $1}')
+        DEVICE="/dev/$DEV_NAME"
 
-    P=$(echo "$NEW" | jq -r '[.parity[]] | map("\"" + . + "\"") | join(" ")')
-    D=$(echo "$NEW" | jq -r '[.data[]]   | map("\"" + . + "\"") | join(" ")')
-    C=$(echo "$NEW" | jq -r '[.cache[]]  | map("\"" + . + "\"") | join(" ")')
+        echo ":: Role for $DEVICE ::"
+        echo "   1) data    — mergerfs pool + snapraid"
+        echo "   2) parity  — snapraid parity only"
+        echo "   3) cache   — mergerfs pool only"
+        while true; do
+            read -rp "   Select [1-3]: " role_sel
+            case "$role_sel" in
+                1) ROLE="data";   break ;;
+                2) ROLE="parity"; break ;;
+                3) ROLE="cache";  break ;;
+                *) echo "   Please enter 1, 2, or 3." ;;
+            esac
+        done
 
-    {
-      echo "# Managed by ft drives-format and ft drives-scan. Clear with ft drives-clear."
-      echo "{"
-      echo "  parity = [ $P ];"
-      echo "  data   = [ $D ];"
-      echo "  cache  = [ $C ];"
-      echo "}"
-    } > "$DRIVES_FILE"
+        # Auto-assign number: max existing number for this role + 1
+        MAX_N=0
+        while IFS= read -r label; do
+            [[ -z "$label" ]] && continue
+            N=$(echo "$label" | grep -oE '[0-9]+$' || echo "0")
+            [[ "$N" -gt "$MAX_N" ]] && MAX_N="$N"
+        done < <(echo "$CURRENT" | jq -r --arg r "$ROLE" '.[$r][]' 2>/dev/null || true)
+        NEXT_N=$((MAX_N + 1))
+        LABEL="bulk-${ROLE}-${NEXT_N}"
+
+        echo ""
+        echo "  $DEVICE  →  $LABEL"
+        lsblk "$DEVICE" 2>/dev/null || true
+        echo ""
+        read -rp "  WIPE AND FORMAT $DEVICE as $LABEL? This is IRREVERSIBLE. [y/N]: " confirm
+        if ! [[ "$confirm" =~ ^[yY]$ ]]; then
+            echo "  Skipping $DEVICE."
+            echo ""
+            continue
+        fi
+
+        echo ":: Wiping $DEVICE ::"
+        sudo wipefs -a "$DEVICE"
+
+        echo ":: Partitioning $DEVICE ::"
+        sudo parted -s "$DEVICE" mklabel gpt mkpart primary btrfs 0% 100%
+        sleep 1
+        sudo partprobe "$DEVICE" 2>/dev/null || true
+        sleep 1
+
+        PART=$(lsblk -n -o NAME "$DEVICE" | grep -v "^$DEV_NAME$" | head -1)
+        if [[ -z "$PART" ]]; then
+            echo ":: Error: could not detect partition on $DEVICE. ::"
+            exit 1
+        fi
+        PARTITION="/dev/$PART"
+
+        echo ":: Formatting $PARTITION as btrfs (label: $LABEL) ::"
+        sudo mkfs.btrfs -L "$LABEL" -f "$PARTITION"
+
+        echo ":: Creating @data and @snapshots subvolumes ::"
+        TMPDIR=$(mktemp -d)
+        sudo mount "$PARTITION" "$TMPDIR"
+        sudo btrfs subvolume create "$TMPDIR/@data"
+        sudo btrfs subvolume create "$TMPDIR/@snapshots"
+        sudo umount "$TMPDIR"
+        rmdir "$TMPDIR"
+
+        case "$ROLE" in
+            parity) CURRENT=$(echo "$CURRENT" | jq --arg l "$LABEL" '.parity += [$l]') ;;
+            cache)  CURRENT=$(echo "$CURRENT" | jq --arg l "$LABEL" '.cache  += [$l]') ;;
+            *)      CURRENT=$(echo "$CURRENT" | jq --arg l "$LABEL" '.data   += [$l]') ;;
+        esac
+
+        echo ":: $DEVICE formatted and registered as $LABEL ::"
+        echo ""
+    done
+
+    # Write updated drives file
+    mkdir -p "$(dirname "$DRIVES_FILE")"
+    P=$(echo "$CURRENT" | jq -r '[.parity[]] | map("\"" + . + "\"") | join(" ")')
+    D=$(echo "$CURRENT" | jq -r '[.data[]]   | map("\"" + . + "\"") | join(" ")')
+    C=$(echo "$CURRENT" | jq -r '[.cache[]]  | map("\"" + . + "\"") | join(" ")')
+
+    cat > "$DRIVES_FILE" <<NIXEOF
+# Managed by ft drives-format and ft drives-sync. Clear with ft drives-clear.
+{
+  parity = [ $P ];
+  data   = [ $D ];
+  cache  = [ $C ];
+}
+NIXEOF
 
     echo ":: $DRIVES_FILE updated. ::"
     echo ":: Review changes, commit, and run 'ft switch' to activate. ::"
 
-# Scan /dev/disk/by-label/ for unlisted bulk* drives and register them.
-drives-scan:
+# Reconcile bulk-drives.nix with /dev/disk/by-label/ — removes missing entries, registers untracked ones.
+drives-sync:
     #!/usr/bin/env bash
     set -euo pipefail
 
     DRIVES_FILE="machines/$(hostname)/var/bulk-drives.nix"
     mkdir -p "$(dirname "$DRIVES_FILE")"
 
-    echo ":: Scanning /dev/disk/by-label/ for bulk* drives ::"
+    echo ":: Syncing $DRIVES_FILE with /dev/disk/by-label/ ::"
+    echo ""
 
     CURRENT=$(nix eval --json -f "$DRIVES_FILE" 2>/dev/null \
-      || echo '{"parity":[],"data":[],"cache":[]}')
+        || echo '{"parity":[],"data":[],"cache":[]}')
     NEW="$CURRENT"
-    ADDED=0
+    CHANGED=0
 
+    mapfile -t REGISTERED < <(echo "$CURRENT" | jq -r '(.parity + .data + .cache)[]' 2>/dev/null || true)
+
+    declare -A VISIBLE
     shopt -s nullglob
     for label_path in /dev/disk/by-label/bulk*; do
-      LABEL=$(basename "$label_path")
-
-      already=$(echo "$NEW" | jq -r --arg l "$LABEL" \
-        '(.parity + .data + .cache) | map(. == $l) | any | tostring')
-      if [[ "$already" == "true" ]]; then
-        echo "  Already registered: $LABEL"
-        continue
-      fi
-
-      if [[ "$LABEL" == *parity* ]]; then
-        NEW=$(echo "$NEW" | jq --arg l "$LABEL" '.parity += [$l]')
-      elif [[ "$LABEL" == *cache* ]]; then
-        NEW=$(echo "$NEW" | jq --arg l "$LABEL" '.cache  += [$l]')
-      else
-        NEW=$(echo "$NEW" | jq --arg l "$LABEL" '.data   += [$l]')
-      fi
-
-      echo "  Found and registered: $LABEL"
-      ADDED=$((ADDED + 1))
+        VISIBLE["$(basename "$label_path")"]=1
     done
 
-    if [[ "$ADDED" -gt 0 ]]; then
-      P=$(echo "$NEW" | jq -r '[.parity[]] | map("\"" + . + "\"") | join(" ")')
-      D=$(echo "$NEW" | jq -r '[.data[]]   | map("\"" + . + "\"") | join(" ")')
-      C=$(echo "$NEW" | jq -r '[.cache[]]  | map("\"" + . + "\"") | join(" ")')
+    # Remove registered drives that are no longer visible
+    for label in "${REGISTERED[@]}"; do
+        [[ -z "$label" ]] && continue
+        if [[ -z "${VISIBLE[$label]+x}" ]]; then
+            echo "  MISSING: $label (in $DRIVES_FILE but not found in /dev/disk/by-label/)"
+            read -rp "  Remove $label from $DRIVES_FILE? [y/N]: " confirm
+            if [[ "$confirm" =~ ^[yY]$ ]]; then
+                NEW=$(echo "$NEW" | jq --arg l "$label" \
+                    '.parity -= [$l] | .data -= [$l] | .cache -= [$l]')
+                echo "  Removed: $label"
+                CHANGED=1
+            fi
+        fi
+    done
 
-      {
-        echo "# Managed by ft drives-format and ft drives-scan. Clear with ft drives-clear."
-        echo "{"
-        echo "  parity = [ $P ];"
-        echo "  data   = [ $D ];"
-        echo "  cache  = [ $C ];"
-        echo "}"
-      } > "$DRIVES_FILE"
-      echo ":: $ADDED new drive(s) registered. Commit and run 'ft switch' to activate. ::"
+    # Register visible drives not yet in the file (e.g. after a manual label)
+    for label in "${!VISIBLE[@]}"; do
+        already=$(echo "$NEW" | jq -r --arg l "$label" \
+            '(.parity + .data + .cache) | any(. == $l) | tostring')
+        if [[ "$already" == "false" ]]; then
+            echo "  UNREGISTERED: $label (visible but not in $DRIVES_FILE)"
+            read -rp "  Register $label? [y/N]: " confirm
+            if [[ "$confirm" =~ ^[yY]$ ]]; then
+                if [[ "$label" == *parity* ]]; then
+                    NEW=$(echo "$NEW" | jq --arg l "$label" '.parity += [$l]')
+                elif [[ "$label" == *cache* ]]; then
+                    NEW=$(echo "$NEW" | jq --arg l "$label" '.cache  += [$l]')
+                else
+                    NEW=$(echo "$NEW" | jq --arg l "$label" '.data   += [$l]')
+                fi
+                echo "  Registered: $label"
+                CHANGED=1
+            fi
+        fi
+    done
+
+    if [[ $CHANGED -gt 0 ]]; then
+        P=$(echo "$NEW" | jq -r '[.parity[]] | map("\"" + . + "\"") | join(" ")')
+        D=$(echo "$NEW" | jq -r '[.data[]]   | map("\"" + . + "\"") | join(" ")')
+        C=$(echo "$NEW" | jq -r '[.cache[]]  | map("\"" + . + "\"") | join(" ")')
+
+        cat > "$DRIVES_FILE" <<NIXEOF
+# Managed by ft drives-format and ft drives-sync. Clear with ft drives-clear.
+{
+  parity = [ $P ];
+  data   = [ $D ];
+  cache  = [ $C ];
+}
+NIXEOF
+        echo ":: $DRIVES_FILE updated. Commit and run 'ft switch' to apply. ::"
     else
-      echo ":: No new drives found. ::"
+        echo ":: No changes needed. ::"
     fi
 
 # Show registered drives and drives currently visible in /dev/disk/by-label/.
@@ -185,9 +261,9 @@ drives-list:
 
     echo ":: Registered drives ($DRIVES_FILE) ::"
     if [[ -f "$DRIVES_FILE" ]]; then
-      cat "$DRIVES_FILE"
+        cat "$DRIVES_FILE"
     else
-      echo "  (file not found — run 'ft drives-scan' or 'ft drives-format')"
+        echo "  (file not found — run 'ft drives-format' or 'ft drives-sync')"
     fi
 
     echo ""
@@ -195,13 +271,13 @@ drives-list:
     shopt -s nullglob
     found=(/dev/disk/by-label/bulk*)
     if [[ ${#found[@]} -gt 0 ]]; then
-      for f in "${found[@]}"; do
-        label=$(basename "$f")
-        dev=$(readlink -f "$f")
-        echo "  $label  →  $dev"
-      done
+        for f in "${found[@]}"; do
+            label=$(basename "$f")
+            dev=$(readlink -f "$f")
+            echo "  $label  →  $dev"
+        done
     else
-      echo "  (none)"
+        echo "  (none)"
     fi
 
 # Clear all drive records (with confirmation). Commit and run 'ft switch' after.
@@ -215,15 +291,15 @@ drives-clear:
     echo ":: SnapRAID parity will no longer be able to reference these drives. ::"
     read -rp "Clear all records? [y/N]: " confirm
     if [[ "$confirm" =~ ^[yY]$ ]]; then
-      {
-        echo "# Managed by ft drives-format and ft drives-scan. Clear with ft drives-clear."
-        echo "{"
-        echo "  parity = [ ];"
-        echo "  data   = [ ];"
-        echo "  cache  = [ ];"
-        echo "}"
-      } > "$DRIVES_FILE"
-      echo ":: $DRIVES_FILE cleared. Commit and run 'ft switch' to apply. ::"
+        cat > "$DRIVES_FILE" <<'NIXEOF'
+# Managed by ft drives-format and ft drives-sync. Clear with ft drives-clear.
+{
+  parity = [ ];
+  data   = [ ];
+  cache  = [ ];
+}
+NIXEOF
+        echo ":: $DRIVES_FILE cleared. Commit and run 'ft switch' to apply. ::"
     else
-      echo "Cancelled."
+        echo "Cancelled."
     fi
