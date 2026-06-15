@@ -50,7 +50,7 @@ in
       micro
 
       brave
-      chrome
+      chromium
     ];
 
     services.tailscale.enable = true;
