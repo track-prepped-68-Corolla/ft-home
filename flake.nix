@@ -1,5 +1,5 @@
 # =============================================================================
-# nixos-config — Consumer Flake
+# ft-home — Consumer Flake
 # =============================================================================
 #
 # This flake is intentionally minimal. All output generation is delegated to

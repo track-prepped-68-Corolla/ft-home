@@ -1,14 +1,14 @@
-# nixos-config — Developer Reference
+# ft-home — Developer Reference
 
 ## Repository naming
 
-This repo is named **`ft-home`** on GitHub but is called **`nixos-config`** throughout this file — that name reflects what any private consumer repo using this framework would typically be called. The framework that this repo consumes is in the separate **`fast-track-nix`** GitHub repo, aliased as `ft-home` in flake inputs. The naming is an inversion: the *framework* is called `ft-home` in inputs; the *consumer* is the `ft-home` repo. Keep this in mind when reading across repos.
+This repo is named **`ft-home`** on GitHub and is the personal consumer of the framework. The framework itself lives in the separate **`fast-track-nix`** GitHub repo, but is aliased as `ft-home` in this repo's flake inputs for historical reasons. Outside of explicit "this repo" references, "ft-home" in this file means the framework input (`fast-track-nix`), not the consumer repo you are reading this in. Keep this collision in mind when reading across repos.
 
 ---
 
 ## What this is
 
-nixos-config is the personal consumer of the ft-home framework. It serves two purposes:
+ft-home (this repo) is the personal consumer of the framework. It serves two purposes:
 
 1. Daily-driver configuration for real machines.
 2. Dogfood testbed for ft-home features in development.
@@ -73,11 +73,11 @@ nixpkgs has no standalone input node — it follows ft-home's pin via `follows`.
 
 ### Logic belongs in ft-home
 
-nixos-config is configuration values, not code. If a change requires a reusable function, a module with options, or anything another consumer could use, that work goes into ft-home first. `modules/` here is a staging area for consumer-specific overrides pending upstreaming — not a permanent home for framework logic.
+This repo is configuration values, not code. If a change requires a reusable function, a module with options, or anything another consumer could use, that work goes into the framework first. `modules/` here is a staging area for consumer-specific overrides pending upstreaming — not a permanent home for framework logic.
 
 ### Dependency direction is one-way
 
-nixos-config depends on ft-home. ft-home must never reference or depend on nixos-config.
+This repo depends on the framework (ft-home). The framework must never reference or depend on this repo.
 
 ---
 
@@ -88,7 +88,7 @@ New machines are provisioned with nixos-anywhere + disko + nixos-facter:
 1. Boot the target into a NixOS live environment.
 2. Run `nixos-facter` to generate `facter.json`; commit it to `machines/<name>/var/`.
 3. Define the disk layout in `machines/<name>/modules/disko.nix`.
-4. Run nixos-anywhere pointing at `nixos-config#<name>`. Disko handles partitioning declaratively as part of the install.
+4. Run nixos-anywhere pointing at `ft-home#<name>`. Disko handles partitioning declaratively as part of the install.
 
 ---
 
