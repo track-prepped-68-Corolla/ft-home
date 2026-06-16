@@ -6,7 +6,7 @@
 # and becomes nixosConfigurations.mimir.
 #
 # PROVISIONING CHECKLIST
-#   1. Boot target into the ft-home live ISO; git clone nixos-config
+#   1. Boot target into the ft-home live ISO; git clone the ft-home consumer repo
 #   2. Run nixos-facter; commit output to machines/mimir/var/facter.json
 #   3. Update ft.dockervm.hostInterface to the NAS NIC name (run `ip link`)
 #   4. Add SSH public key(s) to ft.dockervm.sshAuthorizedKeys for docker-vm access
