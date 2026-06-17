@@ -43,14 +43,13 @@ var/
   local/                            # local machine state (system string written by bootstrap)
   secrets/
     .sops.yaml                      # sops key configuration
-scripts/
-  ft.just                           # entry point: imports all sub-modules
-  sys.just                          # daily driver: switch, pull, rollback, clean, fmt, check
-  bootstrap.just                    # provisioning: git-init, add-machine, secrets-init, deploy
-  mullet.just                       # package escape hatch: add/remove/list packages
-  store.just                        # dotfile store management (experimental)
-  drives.just                       # drive/disk utilities (mount, format, SMART checks)
 ```
+
+There is no `scripts/` directory in this repo — the `ft` CLI just-recipes
+(`ft.just`, `sys.just`, `bootstrap.just`, `mullet.just`, `store.just`,
+`drives.just`, `failover.just`) are bundled inside `fast-track-nix` and
+invoked via the `ft.cli` wrapper, with `ft.repoPath` passed as the
+`--working-directory` target.
 
 ---
 
