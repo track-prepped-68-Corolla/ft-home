@@ -11,8 +11,12 @@
 #   3. Run nixos-facter; commit output to machines/lyra/var/facter.json
 #   4. Add ft.facter block once facter.json is committed
 #   5. Populate ft.ssh.authorizedKeys with your public key(s)
-#   6. Run nixos-anywhere pointing at ft-home#lyra
-#   7. Run `sudo tailscale up` to authenticate on first boot
+#   6. Derive this host's age recipient (ssh-to-age) and replace the &lyra
+#      placeholder in var/secrets/.sops.yaml
+#   7. Run nixos-anywhere pointing at ft-home#lyra
+#      tailscale auto-joins on first boot via ft.tailscale.autoJoin — no
+#      manual `tailscale up` needed once var/secrets/secrets.yaml carries a
+#      valid tailscale/authkey
 # =============================================================================
 { lib, pkgs, ... }:
 
@@ -53,6 +57,7 @@
   ft.gaming.enable = true;
   ft.gpu.enable = true;
   ft.tailscale.enable = true;
+  ft.sops.enable = true;
 
   ft.diskBtrfs = {
     enable = true;

@@ -73,9 +73,12 @@
     ];
   };
 
+  ft.tailscale.enable = true;
+
   ft.sops = {
     enable = true;
     useTPM = true;
+    useYubikey = true;
   };
 
   ft.gaming.enable = true;
