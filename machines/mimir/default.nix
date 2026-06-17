@@ -48,7 +48,6 @@
     enable = true;
     enableTrayApp = false;
     useRoutingFeatures = "server";
-    autoJoin = true;
   };
 
   # MicroVM with rootful Docker Compose + Komodo container management.

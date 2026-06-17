@@ -56,10 +56,7 @@
   ft.plasma.enable = true;
   ft.gaming.enable = true;
   ft.gpu.enable = true;
-  ft.tailscale = {
-    enable = true;
-    autoJoin = true;
-  };
+  ft.tailscale.enable = true;
   ft.sops.enable = true;
 
   ft.diskBtrfs = {
