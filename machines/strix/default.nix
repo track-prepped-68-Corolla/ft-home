@@ -73,6 +73,11 @@
     ];
   };
 
+  ft.tailscale = {
+    enable = true;
+    autoJoin = true;
+  };
+
   ft.sops = {
     enable = true;
     useTPM = true;
