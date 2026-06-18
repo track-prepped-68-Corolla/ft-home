@@ -37,7 +37,7 @@
 
   # --- FEATURE TOGGLES ---
   ft.limine.enable = true;
-  ft.cosmic.enable = true;
+  ft.plasma.enable = true;
   ft.mullet = {
     enable = true;
     sourcePath = ../../users/joe/var/mullet;

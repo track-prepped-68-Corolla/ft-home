@@ -36,6 +36,8 @@
   ft.lazyvim.enable = true;
   ft.theme.enable = true;
   ft.theme.wallpaper = ./wallpapers/default.png;
+  ft.plasmaManager.enable = true;
+  ft.karousel.enable = true;
   ft.repoPath = lib.strings.trim (builtins.readFile ../../var/local/repoPath);
 
   # --- ENVIRONMENT ---
