@@ -54,6 +54,15 @@ jobs:
             git commit -am "style: auto-format"
           fi
 
+      # Push the flake.lock update and/or auto-format commit (if either step
+      # produced one) back to the branch that triggered this run. Without
+      # this, the lock advance only ever lives in the ephemeral runner and
+      # the repo's committed flake.lock never catches up. A no-op `git push`
+      # exits 0, so this is safe to run even when nothing changed.
+      - name: Push CI auto-fixes
+        shell: bash
+        run: git push origin HEAD:"${{ github.head_ref || github.ref_name }}"
+
       # Runs checks.<system>.{format,lint} defined by the framework.
       - name: nix flake check
         shell: bash
