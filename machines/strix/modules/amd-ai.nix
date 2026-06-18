@@ -44,6 +44,10 @@ in
       enableImageGen = lib.mkDefault true;
       enableLemonade = lib.mkDefault true;
       lemonade.user = lib.mkDefault "amd-ai";
+      # 0.0.0.0 so the hermes/docker microVMs on microvm0 (10.0.100.0/24) can
+      # reach it — lemonade has no auth, but microvm0 is a private bridge not
+      # routed anywhere else.
+      lemonade.host = lib.mkDefault "0.0.0.0";
       gpuMemory = {
         ttmSizeGiB = lib.mkDefault 96;
         pagePoolSizeGiB = lib.mkDefault 16;

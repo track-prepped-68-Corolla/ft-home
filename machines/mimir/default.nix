@@ -73,6 +73,7 @@
   ft.diskBtrfs = {
     enable = true;
     device = "/dev/sda"; # TODO: verify with lsblk on target; just deploy will prompt
+    confirmDevice = "/dev/sda"; # must restate device — safety check, see disko-btrfs.nix
   };
 
   ft.limine.enable = true;
