@@ -18,7 +18,7 @@
 #      manual `tailscale up` needed once var/secrets/secrets.yaml carries a
 #      valid tailscale/authkey
 # =============================================================================
-{ lib, pkgs, ... }:
+{ lib, ... }:
 
 {
   imports = [
@@ -54,6 +54,10 @@
   # --- FEATURE TOGGLES ---
   ft.limine.enable = true;
   ft.plasma.enable = true;
+  ft.plasmaBigscreen = {
+    enable = true;
+    defaultSession = true;
+  };
   ft.gaming.enable = true;
   ft.gpu.enable = true;
   ft.tailscale.enable = true;
@@ -73,12 +77,8 @@
     ];
   };
 
-  # --- HDMI CEC (AMD iGPU via amdgpu DRM CEC connector) ---
-  boot.kernelModules = [ "cec" ];
-  environment.systemPackages = with pkgs; [
-    libcec
-    v4l-utils
-  ];
+  # HDMI-CEC (AMD iGPU via amdgpu DRM CEC connector) is provided by
+  # ft.plasmaBigscreen.cecSupport (default true) for TV remote input.
 
   ft.core.stateVersion = "25.05";
   nixpkgs.hostPlatform = "x86_64-linux";
