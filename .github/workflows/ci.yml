@@ -24,12 +24,6 @@ jobs:
           ref: ${{ github.head_ref || github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Inject repoPath for Nix evaluation
-        run: |
-          mkdir -p var/local
-          printf '%s' "$GITHUB_WORKSPACE" > var/local/repoPath
-          git add -f var/local/repoPath
-
       - uses: DeterminateSystems/nix-installer-action@v22
 
       - uses: DeterminateSystems/magic-nix-cache-action@v14
@@ -62,6 +56,16 @@ jobs:
       - name: Push CI auto-fixes
         shell: bash
         run: git push origin HEAD:"${{ github.head_ref || github.ref_name }}"
+
+      # var/local/repoPath is gitignored — runner-only state real machines
+      # write via bootstrap. Force-add it here, after the auto-format commit
+      # and push above, so the runner's workspace path is visible to the
+      # pure-eval steps below without ever being committed/pushed upstream.
+      - name: Inject repoPath for Nix evaluation
+        run: |
+          mkdir -p var/local
+          printf '%s' "$GITHUB_WORKSPACE" > var/local/repoPath
+          git add -f var/local/repoPath
 
       # Runs checks.<system>.{format,lint} defined by the framework.
       - name: nix flake check
