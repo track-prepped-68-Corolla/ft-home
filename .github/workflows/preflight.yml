@@ -1,0 +1,75 @@
+name: Pre-flight (machines)
+
+# Manual, non-blocking developer aid: runs the framework's `ft _preflight`
+# against every machines/* in one pass and reports all results. It evaluates
+# each machine's config and flags what would brick a deploy (non-evaluating
+# config, sops recipient placeholder) or degrade first boot (unwired facter,
+# no admin/ssh keys). It gates nothing — the job always succeeds; failures are
+# surfaced as ::error:: annotations and a summary so you can fix them before
+# provisioning.
+on:
+  workflow_dispatch:
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v7.0.0
+        with:
+          persist-credentials: false
+
+      - uses: DeterminateSystems/nix-installer-action@v22
+
+      - uses: DeterminateSystems/magic-nix-cache-action@v14
+
+      # Pick up the latest framework commit on the tracked branch.
+      - name: Update ft-home input
+        run: nix flake update ft-home
+
+      # var/local/repoPath is gitignored runner-only state; machines readFile it
+      # at eval time, so the pre-flight eval needs it present (never committed).
+      - name: Inject repoPath for evaluation
+        run: |
+          mkdir -p var/local
+          printf '%s' "$GITHUB_WORKSPACE" > var/local/repoPath
+
+      - name: Pre-flight every machine (aggregated, non-blocking)
+        run: |
+          # Resolve the framework's bundled scripts/ from the locked ft-home input.
+          SCRIPTS=$(nix eval --impure --raw \
+            --expr '(builtins.getFlake (toString ./.)).inputs.ft-home + "/scripts"')
+
+          declare -A status
+          fail=0
+          for d in machines/*/; do
+            name=$(basename "$d")
+            echo "::group::pre-flight: ${name}"
+            if FT_REPO="$PWD" nix shell nixpkgs#just nixpkgs#jq -c \
+                 just --justfile "${SCRIPTS}/ft.just" --working-directory "$PWD" _preflight "$name"; then
+              status[$name]="OK"
+            else
+              status[$name]="BLOCK"
+              fail=1
+              echo "::error title=pre-flight::${name} has BLOCK issues (see log above)"
+            fi
+            echo "::endgroup::"
+          done
+
+          {
+            echo "## Pre-flight summary"
+            echo ""
+            echo "| machine | result |"
+            echo "|---|---|"
+            for name in $(printf '%s\n' "${!status[@]}" | sort); do
+              echo "| ${name} | ${status[$name]} |"
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$fail" -ne 0 ]; then
+            echo "::warning title=pre-flight::one or more machines have BLOCK issues — see the job summary"
+          fi
+          # Non-blocking: this workflow never fails the pipeline.
+          exit 0
