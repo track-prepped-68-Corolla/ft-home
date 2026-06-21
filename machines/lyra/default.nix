@@ -82,4 +82,7 @@
 
   ft.core.stateVersion = "25.05";
   nixpkgs.hostPlatform = "x86_64-linux";
+
+  # --- GAMESCOPE SESSION ---
+  ft.jovian.enable = true;
 }

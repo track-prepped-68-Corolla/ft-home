@@ -38,6 +38,12 @@
     # nixpkgs — pinning it would bust the upstream binary cache for
     # llama.cpp, whisper.cpp, and stable-diffusion.cpp.
     nix-amd-ai.url = "github:noamsto/nix-amd-ai";
+
+    # SteamOS-style gamescope session (Big Picture) for lyra's media-PC setup.
+    nixos-jovian = {
+      url = "github:Jovian-Experiments/Jovian-NixOS";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs@{ ft-home, ... }: ft-home.lib.mkFlake inputs;
