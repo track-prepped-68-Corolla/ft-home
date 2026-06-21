@@ -26,7 +26,7 @@ in
     # priority with overlays set by other modules.
     nixpkgs.overlays = [
       (
-        final: prev:
+        _final: prev:
         let
           stablePkgs = inputs.nixpkgs-stable.legacyPackages.${prev.stdenv.hostPlatform.system};
           rawLines =
