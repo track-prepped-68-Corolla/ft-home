@@ -74,6 +74,7 @@
     enable = true;
     # TODO: verify with `lsblk` on target — update if not NVMe
     device = "/dev/nvme0n1";
+    confirmDevice = "/dev/nvme0n1";
   };
 
   # Hardware report. Wired ahead of time so `ft generate-facts lyra <ip>` is the
