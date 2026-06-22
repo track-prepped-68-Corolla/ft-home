@@ -61,13 +61,17 @@
   # --- KERNEL: stock latest mainline (not the CachyOS kernel strix runs) ---
   boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
 
-  # --- NEW STANDARD (v1: btrfs + LUKS only) ---
-  # LUKS is passphrase-only for now and prompts at boot; a TPM keyslot is
-  # enrolled later with systemd-cryptenroll (no re-wipe). device/confirmDevice
-  # are rewritten by select-disk.sh during deploy.
+  # --- NEW STANDARD: btrfs + LUKS with TPM2+PIN unlock ---
+  # Until the TPM keyslot is enrolled post-install, boot falls back to the
+  # passphrase keyslot. Enroll once after install:
+  #   sudo systemd-cryptenroll --tpm2-device=auto --tpm2-with-pin=yes <luks-partition>
+  # device/confirmDevice are rewritten by select-disk.sh during deploy.
   ft.diskBtrfs = {
     enable = true;
-    luks.enable = true;
+    luks = {
+      enable = true;
+      tpm.enable = true;
+    };
     device = "/dev/nvme0n1";
     confirmDevice = "";
   };
