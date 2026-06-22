@@ -69,16 +69,10 @@
     direnv
     nixfmt
 
-    # Creative & office (pinned to stable for ABI stability)
-    inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.krita
-    inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.openscad
-    inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.freecad
-    inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.blender
+    # Office (pinned to stable for ABI stability)
     inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.libreoffice
 
-    # Gaming
-    mangohud
-    heroic
+    # Chat
     discord
   ];
 }
