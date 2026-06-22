@@ -39,8 +39,10 @@
     normalUsers = [ "media" ];
   };
   users.users.admin.initialPassword = "nixos";
+  # media is a kiosk autologin user — no password (login is autologin-only) and
+  # no screen lock (see users/media: kscreenlocker disabled), so the TV session
+  # never demands credentials. admin remains the recoverable account.
   users.users.media = {
-    initialPassword = "nixos";
     extraGroups = [ "input" ];
   };
   users.mutableUsers = true;
@@ -78,7 +80,7 @@
     enable = true;
     user = "admin";
     authorizedKeys = [
-      # TODO: add your SSH public key(s)
+      "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIDgZCe1UZA1E7bCpTWz5NUMHlGUq16nOobSJ2LyyZCP2AAAABHNzaDo= track-prepped-68-Corolla@protonmail.com"
     ];
   };
 
