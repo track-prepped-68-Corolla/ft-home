@@ -18,7 +18,7 @@
 #      manual `tailscale up` needed once var/secrets/secrets.yaml carries a
 #      valid tailscale/authkey
 # =============================================================================
-{ lib, pkgs, ... }:
+{ lib, ... }:
 
 {
   imports = [
@@ -48,16 +48,17 @@
   users.mutableUsers = true;
 
   # --- DISPLAY MANAGER ---
-  services.displayManager.sddm.enable = true;
-  services.displayManager.autoLogin = {
-    enable = true;
-    user = "media";
-  };
+  # SDDM enable/autoLogin/defaultSession are owned by ft.jovian (autoStart)
+  # below — it targets the media user's gamescope Big Picture session.
 
   # --- FEATURE TOGGLES ---
   ft.limine.enable = true;
   ft.plasma.enable = true;
   ft.gaming.enable = true;
+  # ft.jovian provides its own gamescope wrapper for the Big Picture
+  # session; ft.gaming's standalone wrapper conflicts with it on
+  # security.wrappers.gamescope.source.
+  ft.gaming.gamescope.enable = false;
   ft.gpu.enable = true;
   ft.tailscale.enable = true;
   ft.sops.enable = true;
@@ -84,13 +85,9 @@
     ];
   };
 
-  # --- HDMI CEC (AMD iGPU via amdgpu DRM CEC connector) ---
-  boot.kernelModules = [ "cec" ];
-  environment.systemPackages = with pkgs; [
-    libcec
-    v4l-utils
-  ];
-
   ft.core.stateVersion = "25.05";
   nixpkgs.hostPlatform = "x86_64-linux";
+
+  # --- GAMESCOPE SESSION ---
+  ft.jovian.enable = true;
 }
