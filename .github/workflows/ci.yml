@@ -18,17 +18,11 @@ jobs:
       pull-requests: write
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7.0.0
         with:
           fetch-depth: 0
           ref: ${{ github.head_ref || github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Inject repoPath for Nix evaluation
-        run: |
-          mkdir -p var/local
-          printf '%s' "$GITHUB_WORKSPACE" > var/local/repoPath
-          git add -f var/local/repoPath
 
       - uses: DeterminateSystems/nix-installer-action@v22
 
@@ -53,6 +47,25 @@ jobs:
             git config user.name "github-actions[bot]"
             git commit -am "style: auto-format"
           fi
+
+      # Push the flake.lock update and/or auto-format commit (if either step
+      # produced one) back to the branch that triggered this run. Without
+      # this, the lock advance only ever lives in the ephemeral runner and
+      # the repo's committed flake.lock never catches up. A no-op `git push`
+      # exits 0, so this is safe to run even when nothing changed.
+      - name: Push CI auto-fixes
+        shell: bash
+        run: git push origin HEAD:"${{ github.head_ref || github.ref_name }}"
+
+      # var/local/repoPath is gitignored — runner-only state real machines
+      # write via bootstrap. Force-add it here, after the auto-format commit
+      # and push above, so the runner's workspace path is visible to the
+      # pure-eval steps below without ever being committed/pushed upstream.
+      - name: Inject repoPath for Nix evaluation
+        run: |
+          mkdir -p var/local
+          printf '%s' "$GITHUB_WORKSPACE" > var/local/repoPath
+          git add -f var/local/repoPath
 
       # Runs checks.<system>.{format,lint} defined by the framework.
       - name: nix flake check

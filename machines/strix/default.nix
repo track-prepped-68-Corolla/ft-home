@@ -37,7 +37,9 @@
 
   # --- FEATURE TOGGLES ---
   ft.limine.enable = true;
-  ft.cosmic.enable = true;
+  ft.cosmicGreeter.enable = true;
+  ft.plasma.enable = true;
+  services.displayManager.sddm.enable = false;
   ft.mullet = {
     enable = true;
     sourcePath = ../../users/joe/var/mullet;
@@ -73,11 +75,11 @@
 
   ft.tailscale.enable = true;
 
-  ft.sops = {
-    enable = true;
-    useTPM = true;
-    useYubikey = true;
-  };
+  #  ft.sops = {
+  #    enable = true;
+  #    useTPM = true;
+  #    useYubikey = true;
+  #  };
 
   ft.gaming.enable = true;
 

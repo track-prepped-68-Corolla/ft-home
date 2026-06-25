@@ -1,9 +1,9 @@
 ### ​🖥️ 1. Core System & Desktop
 
-​**The Foundation:** A modern, Wayland-native experience centered on the COSMIC ecosystem, now equipped with essential peripheral and clipboard infrastructure.
+​**The Foundation:** A modern, Wayland-native experience centered on KDE Plasma 6, now equipped with essential peripheral and clipboard infrastructure.
 
-- ​**Desktop Environment:** COSMIC (Epoch) including native Cosmic Files, Edit, Terminal, and Settings.
-- ​**Display Manager:** Cosmic Greeter.
+- ​**Desktop Environment:** KDE Plasma 6, declaratively configured via plasma-manager, with the Karousel scrollable-tiling KWin script.
+- ​**Display Manager:** SDDM.
 - ​**Security & Secrets:** KeePassXC (Primary secret service provider; GNOME Keyring is excluded).
 - ​**Audio & Networking:** PipeWire, NetworkManager.
 - ​**Wayland Utilities:** wl-clipboard (Mandatory for snippet management and dev work).
