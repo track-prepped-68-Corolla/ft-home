@@ -48,12 +48,19 @@
   users.mutableUsers = true;
 
   # --- DISPLAY MANAGER ---
-  # SDDM enable/autoLogin/defaultSession are owned by ft.jovian (autoStart)
-  # below — it targets the media user's gamescope Big Picture session.
+  services.displayManager.sddm.enable = true;
+  services.displayManager.autoLogin = {
+    enable = true;
+    user = "media";
+  };
 
   # --- FEATURE TOGGLES ---
   ft.limine.enable = true;
   ft.plasma.enable = true;
+  ft.plasmaBigscreen = {
+    enable = true;
+    defaultSession = true;
+  };
   ft.gaming.enable = true;
   # ft.jovian provides its own gamescope wrapper for the Big Picture
   # session; ft.gaming's standalone wrapper conflicts with it on
@@ -85,9 +92,15 @@
     ];
   };
 
+  # HDMI-CEC (AMD iGPU via amdgpu DRM CEC connector) is provided by
+  # ft.plasmaBigscreen.cecSupport (default true) for TV remote input.
+
   ft.core.stateVersion = "25.05";
   nixpkgs.hostPlatform = "x86_64-linux";
 
   # --- GAMESCOPE SESSION ---
+  # Selectable from SDDM alongside plasma-bigscreen-wayland (the default);
+  # autoStart is left at its default false so it doesn't fight Bigscreen for
+  # services.displayManager.defaultSession.
   ft.jovian.enable = true;
 }
