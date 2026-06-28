@@ -612,7 +612,7 @@
       "locked": {
         "lastModified": 1782632694,
         "narHash": "sha256-M13Z0ZF+aPMZvENmQJTfN/AT6TJrBBLeQSouPyX/TK8=",
-        "owner": "track-prepped-68-Corolla",
+        "owner": "track-prepped-68-corolla",
         "repo": "fast-track-nix",
         "rev": "aaee4452517afe764eb3ab32ee89c1408c651a8d",
         "type": "github"
