@@ -36,6 +36,8 @@
   ft.lazyvim.enable = true;
   ft.theme.enable = true;
   ft.theme.wallpaper = ./wallpapers/default.png;
+  ft.plasmaManager.enable = true;
+  ft.karousel.enable = true;
   ft.repoPath = lib.strings.trim (builtins.readFile ../../var/local/repoPath);
 
   # --- ENVIRONMENT ---
@@ -67,16 +69,10 @@
     direnv
     nixfmt
 
-    # Creative & office (pinned to stable for ABI stability)
-    inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.krita
-    inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.openscad
-    inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.freecad
-    inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.blender
+    # Office (pinned to stable for ABI stability)
     inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.libreoffice
 
-    # Gaming
-    mangohud
-    heroic
+    # Chat
     discord
   ];
 }

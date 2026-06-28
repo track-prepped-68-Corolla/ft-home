@@ -13,7 +13,7 @@ in
 
   options.ft.jovian = {
     enable = lib.mkEnableOption "Jovian-NixOS gamescope session" // {
-      description = "Enables the SteamOS-style gamescope Big Picture session on lyra's media-PC setup.";
+      description = "Enables the SteamOS-style gamescope Big Picture session as a selectable (non-default) SDDM session alongside plasma-bigscreen on lyra's media-PC setup.";
     };
   };
 

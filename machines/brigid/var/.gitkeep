@@ -1,0 +1,2 @@
+# Placeholder so machines/brigid/var/ exists before deploy.
+# `ft generate-facts brigid <ip>` writes facter.json here during provisioning.
