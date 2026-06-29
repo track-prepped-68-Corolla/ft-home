@@ -62,6 +62,27 @@
   ft.tailscale.enable = true;
   ft.sops.enable = true;
 
+  # --- GITOPS (pull-based deploys via comin) ---
+  # comin polls this repo and deploys lyra's own nixosConfiguration:
+  #   * main           -> `switch` (permanent), and
+  #   * testing-lyra    -> `test` (ephemeral; reverted on reboot) — the "try it on
+  #     lyra first, then promote" lane.
+  # ft-home is a public repo, so the remote is polled anonymously (no tokenSecret,
+  # hence no sops credential to provision). signingKeys is intentionally left empty
+  # for now — comin will deploy unsigned commits and warn; harden with a trusted
+  # GPG key once one is set up. NOTE: comin only converges lyra once this config
+  # (with ft.gitops) is present on `main`; until then it has nothing to deploy.
+  ft.gitops = {
+    enable = true;
+    deployBranch = "main";
+    remotes = [
+      {
+        name = "github";
+        url = "https://github.com/track-prepped-68-Corolla/ft-home.git";
+      }
+    ];
+  };
+
   ft.diskBtrfs = {
     enable = true;
     # TODO: verify with `lsblk` on target — update if not NVMe
