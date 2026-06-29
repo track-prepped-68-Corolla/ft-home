@@ -48,6 +48,7 @@
   ft.yubikey.enable = true;
   ft.cli.enable = true;
   ft.keepass.enable = true;
+  ft.vicinae.enable = true;
   ft.dockervm.enable = true;
   ft.vendorHw.enable = true;
   ft.dockervm.hostInterface = "wlp194s0";
