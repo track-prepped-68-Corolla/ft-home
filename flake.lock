@@ -494,6 +494,28 @@
       "inputs": {
         "nixpkgs-lib": [
           "ft-home",
+          "steam-config-nix",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1765835352,
+        "narHash": "sha256-XswHlK/Qtjasvhd1nOa1e8MgZ8GS//jBoTqWtrS1Giw=",
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "a34fae9c08a15ad73f295041fec82323541400a9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "type": "github"
+      }
+    },
+    "flake-parts_6": {
+      "inputs": {
+        "nixpkgs-lib": [
+          "ft-home",
           "stylix",
           "nixpkgs"
         ]
@@ -512,7 +534,7 @@
         "type": "github"
       }
     },
-    "flake-parts_6": {
+    "flake-parts_7": {
       "inputs": {
         "nixpkgs-lib": "nixpkgs-lib_3"
       },
@@ -610,16 +632,17 @@
         "pyproject-build-systems": "pyproject-build-systems_2",
         "pyproject-nix": "pyproject-nix_4",
         "sops-nix": "sops-nix",
+        "steam-config-nix": "steam-config-nix",
         "stylix": "stylix",
         "uv2nix": "uv2nix_3",
         "vicinae": "vicinae"
       },
       "locked": {
-        "lastModified": 1782756706,
-        "narHash": "sha256-e7nZrKWEL2l9NUEBiBF9bkx+RtrGB9bgUFqt7gZBPRM=",
+        "lastModified": 1782757850,
+        "narHash": "sha256-k5kZRyj0yvH+892jkZHGVmxzt/smYA0lE4idS6H7g+E=",
         "owner": "track-prepped-68-corolla",
         "repo": "fast-track-nix",
-        "rev": "75e616b640d99be755f70c7e0f1f045d4d62a78f",
+        "rev": "53486eed33be37d9df6610b8703f7628c4762a3b",
         "type": "github"
       },
       "original": {
@@ -830,7 +853,7 @@
     },
     "nix-amd-ai": {
       "inputs": {
-        "flake-parts": "flake-parts_6",
+        "flake-parts": "flake-parts_7",
         "nix-darwin": "nix-darwin",
         "nixpkgs": "nixpkgs_9"
       },
@@ -1705,6 +1728,29 @@
         "type": "github"
       }
     },
+    "steam-config-nix": {
+      "inputs": {
+        "flake-parts": "flake-parts_5",
+        "nixpkgs": [
+          "ft-home",
+          "nixpkgs"
+        ],
+        "systems": "systems_2"
+      },
+      "locked": {
+        "lastModified": 1781834224,
+        "narHash": "sha256-l9pVFs8+CmCvC+feR/PL5vstu3CVmKx/xCW8fGmux0c=",
+        "owner": "different-name",
+        "repo": "steam-config-nix",
+        "rev": "22c06e684b0785f9031872e0af7d9a96d27ad87c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "different-name",
+        "repo": "steam-config-nix",
+        "type": "github"
+      }
+    },
     "stylix": {
       "inputs": {
         "base16": "base16",
@@ -1712,14 +1758,14 @@
         "base16-helix": "base16-helix",
         "base16-vim": "base16-vim",
         "firefox-gnome-theme": "firefox-gnome-theme",
-        "flake-parts": "flake-parts_5",
+        "flake-parts": "flake-parts_6",
         "gnome-shell": "gnome-shell",
         "nixpkgs": [
           "ft-home",
           "nixpkgs"
         ],
         "nur": "nur_2",
-        "systems": "systems_2",
+        "systems": "systems_3",
         "tinted-kitty": "tinted-kitty",
         "tinted-schemes": "tinted-schemes",
         "tinted-tmux": "tinted-tmux",
@@ -1770,6 +1816,21 @@
       }
     },
     "systems_3": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "systems_4": {
       "locked": {
         "lastModified": 1681028828,
         "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
@@ -1993,7 +2054,7 @@
           "ft-home",
           "nixpkgs"
         ],
-        "systems": "systems_3"
+        "systems": "systems_4"
       },
       "locked": {
         "lastModified": 1782664370,
