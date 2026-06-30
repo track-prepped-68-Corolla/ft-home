@@ -68,7 +68,34 @@
   ft.gaming.gamescope.enable = false;
   ft.gpu.enable = true;
   ft.tailscale.enable = true;
-  ft.sops.enable = true;
+  # sops via the SSH host key (&lyra), plus a TPM-sealed age identity for
+  # decryption (age-plugin-tpm). Register lyra's TPM recipient in .sops.yaml
+  # (&lyra_tpm) and run `sops updatekeys` before relying on TPM decryption.
+  ft.sops = {
+    enable = true;
+    useTPM = true;
+  };
+
+  # --- GITOPS (pull-based deploys via comin) ---
+  # comin polls this repo and deploys lyra's own nixosConfiguration:
+  #   * main           -> `switch` (permanent), and
+  #   * testing-lyra    -> `test` (ephemeral; reverted on reboot) — the "try it on
+  #     lyra first, then promote" lane.
+  # ft-home is a public repo, so the remote is polled anonymously (no tokenSecret,
+  # hence no sops credential to provision). signingKeys is intentionally left empty
+  # for now — comin will deploy unsigned commits and warn; harden with a trusted
+  # GPG key once one is set up. NOTE: comin only converges lyra once this config
+  # (with ft.gitops) is present on `main`; until then it has nothing to deploy.
+  ft.gitops = {
+    enable = true;
+    deployBranch = "main";
+    remotes = [
+      {
+        name = "github";
+        url = "https://github.com/track-prepped-68-Corolla/ft-home.git";
+      }
+    ];
+  };
 
   # --- GITOPS (pull-based deploys via comin) ---
   # comin polls this repo and deploys lyra's own nixosConfiguration:
