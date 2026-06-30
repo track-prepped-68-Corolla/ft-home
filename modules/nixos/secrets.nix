@@ -33,6 +33,10 @@
 { lib, config, ... }:
 let
   cfg = config.ft.secrets;
+  # Derive SSH key placement from each user's configured home, not a fixed
+  # /home/<u> — respects custom home directories (e.g. /root, service users).
+  userHome = u: config.users.users.${u}.home;
+  userGroup = u: config.users.users.${u}.group;
 in
 {
   options.ft.secrets = {
@@ -85,8 +89,11 @@ in
 
     sops.secrets =
       # passwords/<user> — needed before user creation, so neededForUsers.
-      lib.listToAttrs (
-        map (u: lib.nameValuePair "passwords/${u}" { neededForUsers = true; }) cfg.passwords.users
+      # Gated by passwords.enable so the category honours its own opt-in.
+      lib.optionalAttrs cfg.passwords.enable (
+        lib.listToAttrs (
+          map (u: lib.nameValuePair "passwords/${u}" { neededForUsers = true; }) cfg.passwords.users
+        )
       )
       # ssh/<user> — placed at the user's ~/.ssh/id_ed25519.
       // lib.listToAttrs (
@@ -95,7 +102,7 @@ in
           lib.nameValuePair "ssh/${u}" {
             owner = u;
             mode = "0600";
-            path = "/home/${u}/.ssh/id_ed25519";
+            path = "${userHome u}/.ssh/id_ed25519";
           }
         ) cfg.sshKeys
       )
@@ -107,17 +114,22 @@ in
       // lib.listToAttrs (map (n: lib.nameValuePair "tokens/${n}" { mode = "0400"; }) cfg.apiTokens);
 
     # hashedPasswordFile wiring for each password user (mkDefault so a machine can
-    # still override a specific user's password source).
-    users.users = lib.listToAttrs (
-      map (
-        u:
-        lib.nameValuePair u {
-          hashedPasswordFile = lib.mkDefault config.sops.secrets."passwords/${u}".path;
-        }
-      ) cfg.passwords.users
+    # still override a specific user's password source). Gated by passwords.enable.
+    users.users = lib.optionalAttrs cfg.passwords.enable (
+      lib.listToAttrs (
+        map (
+          u:
+          lib.nameValuePair u {
+            hashedPasswordFile = lib.mkDefault config.sops.secrets."passwords/${u}".path;
+          }
+        ) cfg.passwords.users
+      )
     );
 
     # Ensure ~/.ssh exists (0700, owned by the user) before sops drops the key in.
-    systemd.tmpfiles.rules = map (u: "d /home/${u}/.ssh 0700 ${u} users - -") cfg.sshKeys;
+    # Path + group come from the user's own config, not a hardcoded /home/<u> or group.
+    systemd.tmpfiles.rules = map (
+      u: "d ${userHome u}/.ssh 0700 ${u} ${userGroup u} - -"
+    ) cfg.sshKeys;
   };
 }
