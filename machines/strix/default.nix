@@ -76,11 +76,15 @@
 
   ft.tailscale.enable = true;
 
-  #  ft.sops = {
-  #    enable = true;
-  #    useTPM = true;
-  #    useYubikey = true;
-  #  };
+  # sops secret management. Decrypts via the SSH host key by default; useTPM adds
+  # a TPM-sealed age identity (age-plugin-tpm) and useYubikey the PIV slot. strix
+  # must be a recipient in var/secrets/.sops.yaml (it is: &strix) and the file
+  # re-encrypted to it (sops updatekeys) before any declared secret can be read.
+  ft.sops = {
+    enable = true;
+    useTPM = true;
+    useYubikey = true;
+  };
 
   ft.gaming.enable = true;
 
