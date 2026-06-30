@@ -128,8 +128,6 @@ in
 
     # Ensure ~/.ssh exists (0700, owned by the user) before sops drops the key in.
     # Path + group come from the user's own config, not a hardcoded /home/<u> or group.
-    systemd.tmpfiles.rules = map (
-      u: "d ${userHome u}/.ssh 0700 ${u} ${userGroup u} - -"
-    ) cfg.sshKeys;
+    systemd.tmpfiles.rules = map (u: "d ${userHome u}/.ssh 0700 ${u} ${userGroup u} - -") cfg.sshKeys;
   };
 }
