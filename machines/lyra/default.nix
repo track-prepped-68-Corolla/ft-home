@@ -99,9 +99,8 @@
 
   ft.diskBtrfs = {
     enable = true;
-    # TODO: verify with `lsblk` on target — update if not NVMe
-    device = "/dev/nvme0n1";
-    confirmDevice = "/dev/nvme0n1";
+    device = "/dev/disk/by-id/nvme-TWSC_TSC3AN512-F1Q20S_TTSMA264FX01438";
+    confirmDevice = "/dev/disk/by-id/nvme-TWSC_TSC3AN512-F1Q20S_TTSMA264FX01438";
   };
 
   # Hardware report. Wired ahead of time so `ft generate-facts lyra <ip>` is the
