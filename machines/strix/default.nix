@@ -48,7 +48,6 @@
   ft.yubikey.enable = true;
   ft.cli.enable = true;
   ft.keepass.enable = true;
-  ft.vicinae.enable = true;
   ft.dockervm.enable = true;
   ft.vendorHw.enable = true;
   ft.dockervm.hostInterface = "wlp194s0";
@@ -56,15 +55,15 @@
     "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIDgZCe1UZA1E7bCpTWz5NUMHlGUq16nOobSJ2LyyZCP2AAAABHNzaDo= track-prepped-68-Corolla@protonmail.com"
   ];
 
-  ft.hermesVm = {
-    enable = true;
-    vmName = "hermes";
-    ollamaUrl = "http://10.0.100.1:13305";
-    hostInterface = "wlp194s0";
-    sshAuthorizedKeys = [
-      "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIDgZCe1UZA1E7bCpTWz5NUMHlGUq16nOobSJ2LyyZCP2AAAABHNzaDo= track-prepped-68-Corolla@protonmail.com"
-    ];
-  };
+  #  ft.hermesVm = {
+  #    enable = true;
+  #    vmName = "hermes";
+  #    ollamaUrl = "http://10.0.100.1:13305";
+  #    hostInterface = "wlp194s0";
+  #    sshAuthorizedKeys = [
+  #      "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIDgZCe1UZA1E7bCpTWz5NUMHlGUq16nOobSJ2LyyZCP2AAAABHNzaDo= track-prepped-68-Corolla@protonmail.com"
+  #    ];
+  #  };
 
   ft.ssh = {
     enable = true;
@@ -76,21 +75,22 @@
 
   ft.tailscale.enable = true;
 
-  # sops secret management. Decrypts via the SSH host key by default; useTPM adds
-  # a TPM-sealed age identity (age-plugin-tpm) and useYubikey the PIV slot. strix
-  # must be a recipient in var/secrets/.sops.yaml (it is: &strix) and the file
-  # re-encrypted to it (sops updatekeys) before any declared secret can be read.
-  ft.sops = {
-    enable = true;
-    useTPM = true;
-    useYubikey = true;
-  };
+  #  ft.sops = {
+  #    enable = true;
+  #    useTPM = true;
+  #    useYubikey = true;
+  #  };
 
   ft.gaming.enable = true;
 
   ft.cachyos = {
     enable = true;
     variant = "latest-lto-x86_64-v4";
+  };
+
+  ft.flatpak = {
+    enable = true;
+    frontend.enable = true;
   };
 
   ft.facter = {
