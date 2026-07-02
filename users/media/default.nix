@@ -35,4 +35,25 @@
     Terminal=false
     X-GNOME-Autostart-enabled=true
   '';
+
+  # --- WEBAPPS ---
+  # Jellyfin is deliberately omitted for now: it runs in a container on mimir
+  # (see ft-home/containers/media.yaml) with no committed reverse proxy or
+  # stable URL yet. Add it here once that's wired up.
+  ft.webapps = {
+    enable = true;
+    apps.youtube = {
+      name = "YouTube";
+      url = "https://www.youtube.com/tv";
+      categories = [
+        "AudioVideo"
+        "Video"
+      ];
+    };
+  };
+
+  # --- FLATPAK: RETRODECK ---
+  # Requires the host's ft.flatpak.enable (set on machines/lyra).
+  ft.flatpak.enable = true;
+  services.flatpak.packages = [ "net.retrodeck.retrodeck" ];
 }
