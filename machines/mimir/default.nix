@@ -24,6 +24,12 @@
 
   # --- IDENTITY ---
   networking.hostName = "mimir";
+  # var/local/repoPath is a single file shared by every machine's default.nix,
+  # but the fleet isn't homogeneous (it currently holds joe's strix checkout
+  # path, not the @src convention mimir follows) — see machines/lyra for the
+  # same fix. mimir was left unset entirely, silently defaulting to the
+  # framework's placeholder and breaking ft.sops.
+  ft.repoPath = "/src/ft-home";
 
   ft.users = {
     mainUser = "admin";

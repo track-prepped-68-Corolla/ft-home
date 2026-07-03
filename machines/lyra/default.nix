@@ -87,12 +87,17 @@ in
     enable = true;
     frontend.enable = true;
   };
-  # sops via the SSH host key (&lyra), plus a TPM-sealed age identity for
-  # decryption (age-plugin-tpm). Register lyra's TPM recipient in .sops.yaml
-  # (&lyra_tpm) and run `sops updatekeys` before relying on TPM decryption.
+  # sops via the SSH host key (&lyra) only for now. TPM enrollment was never
+  # completed (&lyra_tpm in .sops.yaml is still a placeholder), and useTPM
+  # requires /var/lib/sops-nix/key.txt to exist unconditionally once set —
+  # with no TPM identity enrolled, that file never materializes and
+  # sops-install-secrets fails outright even though the SSH host key alone is
+  # sufficient. Re-enable once TPM enrollment is actually done: generate the
+  # sealed key via age-plugin-tpm, put the real pubkey into .sops.yaml's
+  # &lyra_tpm, run sops updatekeys, then flip this back on.
   ft.sops = {
     enable = true;
-    useTPM = true;
+    useTPM = false;
   };
 
   # --- GITOPS (pull-based deploys via comin) ---
