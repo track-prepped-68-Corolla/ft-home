@@ -18,8 +18,16 @@
 #      manual `tailscale up` needed once var/secrets/secrets.yaml carries a
 #      valid tailscale/authkey
 # =============================================================================
-{ lib, ... }:
+{ ... }:
 
+let
+  # var/local/repoPath is a single file shared by every machine's default.nix,
+  # but the fleet isn't homogeneous: it currently holds joe's strix checkout
+  # path (/home/joe/git/ft-home), which strix's own ft.cli setup depends on.
+  # lyra has no joe user and follows the @src convention (see ft.diskBtrfs /
+  # disko-btrfs.nix), so it needs its own value rather than reading that file.
+  repoPath = "/src/ft-home";
+in
 {
   imports = [
     ./modules
@@ -28,7 +36,11 @@
 
   # --- IDENTITY ---
   networking.hostName = "lyra";
-  ft.repoPath = lib.strings.trim (builtins.readFile ../../var/local/repoPath);
+  ft.repoPath = repoPath;
+  # System-wide (not per-user Home Manager) so `nh os switch`/`nh home switch`
+  # work for any login shell, including admin's, without requiring a Home
+  # Manager profile to have been activated first.
+  environment.sessionVariables.NH_FLAKE = repoPath;
 
   # --- USERS ---
   # admin is always created by ft.admin as the wheel/SSH management account
