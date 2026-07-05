@@ -16,14 +16,17 @@
   home.username = "media";
   ft.core.stateVersion = "25.05";
 
-  # --- KIOSK: no screen lock ---
+  # --- KIOSK: no screen lock, no auto-suspend ---
   # media has no password and logs in automatically; the idle screen locker
   # would otherwise demand a password nobody has, effectively logging the TV out.
+  # Auto-suspend is disabled too — a media PC/TV session shouldn't nap mid-idle
+  # (e.g. during video playback with no input) the way a laptop would.
   ft.plasmaManager.enable = true;
   programs.plasma.kscreenlocker = {
     autoLock = false;
     lockOnResume = false;
   };
+  programs.plasma.powerdevil.AC.autoSuspend.action = "nothing";
 
   # --- STEAM BIG PICTURE AUTOSTART ---
   # Launches Steam in Big Picture / gamepad UI mode when the KDE session starts.
