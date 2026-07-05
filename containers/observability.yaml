@@ -108,7 +108,7 @@ services:
     volumes:
       - ./config/observability/alloy:/etc/alloy:ro
       - /var/log:/var/log:ro
-      - ${CONTAINER_SOCKET:-/var/run/podman/podman.sock}:/var/run/docker.sock:ro
+      - ${CONTAINER_SOCKET:-/var/run/docker.sock}:/var/run/docker.sock:ro
     command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy
     depends_on:
       loki:
@@ -148,7 +148,7 @@ services:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro   # provides unified cgroup v2 hierarchy under /sys/fs/cgroup
-      - /var/lib/podman:/var/lib/docker:ro
+      - /var/lib/docker:/var/lib/docker:ro
 
 networks:
   monitoring-net:
