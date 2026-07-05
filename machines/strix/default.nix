@@ -74,7 +74,10 @@
     ];
   };
 
-  ft.tailscale.enable = true;
+  ft.tailscale = {
+    enable = true;
+    useSSH = true;
+  };
 
   # sops secret management. Decrypts via the SSH host key by default; useTPM adds
   # a TPM-sealed age identity (age-plugin-tpm) and useYubikey the PIV slot. strix
