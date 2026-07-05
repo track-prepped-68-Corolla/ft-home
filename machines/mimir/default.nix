@@ -30,6 +30,9 @@
   # same fix. mimir was left unset entirely, silently defaulting to the
   # framework's placeholder and breaking ft.sops.
   ft.repoPath = "/src/ft-home";
+  # System-wide (not per-user Home Manager) so `nh os switch` works for any
+  # login shell, including admin's — see machines/lyra for the same fix.
+  environment.sessionVariables.NH_FLAKE = "/src/ft-home";
 
   ft.users = {
     mainUser = "admin";
@@ -71,6 +74,26 @@
   };
 
   ft.sops.enable = true;
+
+  # --- GITOPS (pull-based deploys via comin) ---
+  # comin polls this repo and deploys mimir's own nixosConfiguration:
+  #   * main          -> `switch` (permanent), and
+  #   * testing-mimir -> `test` (ephemeral; reverted on reboot) — the "try it
+  #     on mimir first, then promote" lane. See machines/lyra for the same setup.
+  # ft-home is a public repo, so the remote is polled anonymously (no
+  # tokenSecret, hence no sops credential to provision). signingKeys is
+  # intentionally left empty for now — comin will deploy unsigned commits and
+  # warn; harden with a trusted GPG key once one is set up.
+  ft.gitops = {
+    enable = true;
+    deployBranch = "main";
+    remotes = [
+      {
+        name = "github";
+        url = "https://github.com/track-prepped-68-Corolla/ft-home.git";
+      }
+    ];
+  };
 
   ft.facter = {
     enable = true;
