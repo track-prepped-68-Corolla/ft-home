@@ -59,4 +59,17 @@
   # Requires the host's ft.flatpak.enable (set on machines/lyra).
   ft.flatpak.enable = true;
   services.flatpak.packages = [ "net.retrodeck.retrodeck" ];
+
+  # --- GITOPS: keep this kiosk profile self-updating ---
+  # Tracks the same repo/branch lyra's NixOS side already deploys via comin
+  # (see ft.gitops on machines/lyra), so this account's home-manager profile
+  # stays in sync with git the same way the system does, without anyone
+  # needing to log in and run `home-manager switch` by hand.
+  ft.gitops = {
+    enable = true;
+    remote.url = "https://github.com/track-prepped-68-Corolla/ft-home.git";
+    remote.branch = "main";
+    repoPath = "/home/media/.local/share/ft-gitops/ft-home";
+    flakeAttr = "media@x86_64-linux";
+  };
 }
