@@ -80,6 +80,9 @@ in
   ft.gaming.gamescope.enable = false;
   ft.gpu.enable = true;
   ft.tailscale.enable = true;
+  # The ft CLI helper (just-recipe wrapper) — was never enabled here, unlike
+  # strix/brigid/template, so the `ft` command didn't exist on lyra at all.
+  ft.cli.enable = true;
   # System Flatpak service + Flathub remote. Discover is enabled as the GUI
   # frontend since ft.plasma is active; the media user's per-user Flatpak
   # list (RetroDECK) lives in users/media.

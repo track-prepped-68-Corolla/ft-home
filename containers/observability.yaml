@@ -61,7 +61,10 @@ services:
     networks:
       - monitoring-net
     ports:
-      - "127.0.0.1:3000:3000"
+      # Bound to all interfaces: reachable only over Tailscale, since the
+      # host's ft.tailscale.enable trusts tailscale0 in the firewall while
+      # port 3000 stays closed on every other interface.
+      - "3000:3000"
     volumes:
       - grafana-data:/var/lib/grafana
     environment:
