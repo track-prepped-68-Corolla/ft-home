@@ -56,7 +56,10 @@
       "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIDgZCe1UZA1E7bCpTWz5NUMHlGUq16nOobSJ2LyyZCP2AAAABHNzaDo= track-prepped-68-Corolla@protonmail.com"
     ];
   };
-  ft.tailscale.enable = true;
+  ft.tailscale = {
+    enable = true;
+    useSSH = true;
+  };
 
   # --- KERNEL: stock latest mainline (not the CachyOS kernel strix runs) ---
   boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;

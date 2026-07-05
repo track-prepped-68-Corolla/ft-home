@@ -79,7 +79,10 @@ in
   # security.wrappers.gamescope.source.
   ft.gaming.gamescope.enable = false;
   ft.gpu.enable = true;
-  ft.tailscale.enable = true;
+  ft.tailscale = {
+    enable = true;
+    useSSH = true;
+  };
   # The ft CLI helper (just-recipe wrapper) — was never enabled here, unlike
   # strix/brigid/template, so the `ft` command didn't exist on lyra at all.
   ft.cli.enable = true;
