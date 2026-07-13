@@ -100,6 +100,14 @@
     reportPath = ./var/facter.json;
   };
 
+  # Both autodetect from ft.facter.reportPath (default true) — no-ops against
+  # the current facter.json stub, self-configure once the real nixos-facter
+  # report is committed. ft.gpu backs Jellyfin's /dev/dri hardware transcoding
+  # in containers/media.yaml; ft.vendorHw covers any board-level RGB/vendor
+  # tooling mimir's hardware turns out to need.
+  ft.gpu.enable = true;
+  ft.vendorHw.enable = true;
+
   ft.diskBtrfs = {
     enable = true;
     device = "/dev/sda"; # TODO: verify with lsblk on target; just deploy will prompt
