@@ -59,7 +59,6 @@
     # Desktop apps
     brave
     kitty
-    vesktop
     signal-desktop
     slack
     localsend
