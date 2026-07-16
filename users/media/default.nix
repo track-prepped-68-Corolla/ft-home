@@ -16,14 +16,17 @@
   home.username = "media";
   ft.core.stateVersion = "25.05";
 
-  # --- KIOSK: no screen lock ---
+  # --- KIOSK: no screen lock, no auto-suspend ---
   # media has no password and logs in automatically; the idle screen locker
   # would otherwise demand a password nobody has, effectively logging the TV out.
+  # Auto-suspend is disabled too — a media PC/TV session shouldn't nap mid-idle
+  # (e.g. during video playback with no input) the way a laptop would.
   ft.plasmaManager.enable = true;
   programs.plasma.kscreenlocker = {
     autoLock = false;
     lockOnResume = false;
   };
+  programs.plasma.powerdevil.AC.autoSuspend.action = "nothing";
 
   # --- STEAM BIG PICTURE AUTOSTART ---
   # Launches Steam in Big Picture / gamepad UI mode when the KDE session starts.
@@ -56,4 +59,17 @@
   # Requires the host's ft.flatpak.enable (set on machines/lyra).
   ft.flatpak.enable = true;
   services.flatpak.packages = [ "net.retrodeck.retrodeck" ];
+
+  # --- GITOPS: keep this kiosk profile self-updating ---
+  # Tracks the same repo/branch lyra's NixOS side already deploys via comin
+  # (see ft.gitops on machines/lyra), so this account's home-manager profile
+  # stays in sync with git the same way the system does, without anyone
+  # needing to log in and run `home-manager switch` by hand.
+  ft.gitops = {
+    enable = true;
+    remote.url = "https://github.com/track-prepped-68-Corolla/ft-home.git";
+    remote.branch = "main";
+    repoPath = "/home/media/.local/share/ft-gitops/ft-home";
+    flakeAttr = "media@x86_64-linux";
+  };
 }

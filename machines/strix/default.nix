@@ -73,7 +73,10 @@
     ];
   };
 
-  ft.tailscale.enable = true;
+  ft.tailscale = {
+    enable = true;
+    useSSH = true;
+  };
 
   #  ft.sops = {
   #    enable = true;

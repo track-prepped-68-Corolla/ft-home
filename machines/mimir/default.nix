@@ -24,6 +24,15 @@
 
   # --- IDENTITY ---
   networking.hostName = "mimir";
+  # var/local/repoPath is a single file shared by every machine's default.nix,
+  # but the fleet isn't homogeneous (it currently holds joe's strix checkout
+  # path, not the @src convention mimir follows) — see machines/lyra for the
+  # same fix. mimir was left unset entirely, silently defaulting to the
+  # framework's placeholder and breaking ft.sops.
+  ft.repoPath = "/src/ft-home";
+  # System-wide (not per-user Home Manager) so `nh os switch` works for any
+  # login shell, including admin's — see machines/lyra for the same fix.
+  environment.sessionVariables.NH_FLAKE = "/src/ft-home";
 
   ft.users = {
     mainUser = "admin";
@@ -48,6 +57,7 @@
     enable = true;
     enableTrayApp = false;
     useRoutingFeatures = "server";
+    useSSH = true;
   };
 
   # MicroVM with rootful Docker Compose + Komodo container management.
@@ -65,10 +75,38 @@
 
   ft.sops.enable = true;
 
+  # --- GITOPS (pull-based deploys via comin) ---
+  # comin polls this repo and deploys mimir's own nixosConfiguration:
+  #   * main          -> `switch` (permanent), and
+  #   * testing-mimir -> `test` (ephemeral; reverted on reboot) — the "try it
+  #     on mimir first, then promote" lane. See machines/lyra for the same setup.
+  # ft-home is a public repo, so the remote is polled anonymously (no
+  # tokenSecret, hence no sops credential to provision). signingKeys is
+  # intentionally left empty for now — comin will deploy unsigned commits and
+  # warn; harden with a trusted GPG key once one is set up.
+  ft.gitops = {
+    enable = true;
+    deployBranch = "main";
+    remotes = [
+      {
+        name = "github";
+        url = "https://github.com/track-prepped-68-Corolla/ft-home.git";
+      }
+    ];
+  };
+
   ft.facter = {
     enable = true;
     reportPath = ./var/facter.json;
   };
+
+  # Both autodetect from ft.facter.reportPath (default true) — no-ops against
+  # the current facter.json stub, self-configure once the real nixos-facter
+  # report is committed. ft.gpu backs Jellyfin's /dev/dri hardware transcoding
+  # in containers/media.yaml; ft.vendorHw covers any board-level RGB/vendor
+  # tooling mimir's hardware turns out to need.
+  ft.gpu.enable = true;
+  ft.vendorHw.enable = true;
 
   ft.diskBtrfs = {
     enable = true;

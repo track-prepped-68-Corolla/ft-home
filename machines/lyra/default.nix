@@ -18,8 +18,16 @@
 #      manual `tailscale up` needed once var/secrets/secrets.yaml carries a
 #      valid tailscale/authkey
 # =============================================================================
-{ lib, ... }:
+{ ... }:
 
+let
+  # var/local/repoPath is a single file shared by every machine's default.nix,
+  # but the fleet isn't homogeneous: it currently holds joe's strix checkout
+  # path (/home/joe/git/ft-home), which strix's own ft.cli setup depends on.
+  # lyra has no joe user and follows the @src convention (see ft.diskBtrfs /
+  # disko-btrfs.nix), so it needs its own value rather than reading that file.
+  repoPath = "/src/ft-home";
+in
 {
   imports = [
     ./modules
@@ -28,7 +36,11 @@
 
   # --- IDENTITY ---
   networking.hostName = "lyra";
-  ft.repoPath = lib.strings.trim (builtins.readFile ../../var/local/repoPath);
+  ft.repoPath = repoPath;
+  # System-wide (not per-user Home Manager) so `nh os switch`/`nh home switch`
+  # work for any login shell, including admin's, without requiring a Home
+  # Manager profile to have been activated first.
+  environment.sessionVariables.NH_FLAKE = repoPath;
 
   # --- USERS ---
   # admin is always created by ft.admin as the wheel/SSH management account
@@ -67,7 +79,13 @@
   # security.wrappers.gamescope.source.
   ft.gaming.gamescope.enable = false;
   ft.gpu.enable = true;
-  ft.tailscale.enable = true;
+  ft.tailscale = {
+    enable = true;
+    useSSH = true;
+  };
+  # The ft CLI helper (just-recipe wrapper) — was never enabled here, unlike
+  # strix/brigid/template, so the `ft` command didn't exist on lyra at all.
+  ft.cli.enable = true;
   # System Flatpak service + Flathub remote. Discover is enabled as the GUI
   # frontend since ft.plasma is active; the media user's per-user Flatpak
   # list (RetroDECK) lives in users/media.
@@ -75,12 +93,17 @@
     enable = true;
     frontend.enable = true;
   };
-  # sops via the SSH host key (&lyra), plus a TPM-sealed age identity for
-  # decryption (age-plugin-tpm). Register lyra's TPM recipient in .sops.yaml
-  # (&lyra_tpm) and run `sops updatekeys` before relying on TPM decryption.
+  # sops via the SSH host key (&lyra) only for now. TPM enrollment was never
+  # completed (&lyra_tpm in .sops.yaml is still a placeholder), and useTPM
+  # requires /var/lib/sops-nix/key.txt to exist unconditionally once set —
+  # with no TPM identity enrolled, that file never materializes and
+  # sops-install-secrets fails outright even though the SSH host key alone is
+  # sufficient. Re-enable once TPM enrollment is actually done: generate the
+  # sealed key via age-plugin-tpm, put the real pubkey into .sops.yaml's
+  # &lyra_tpm, run sops updatekeys, then flip this back on.
   ft.sops = {
     enable = true;
-    useTPM = true;
+    useTPM = false;
   };
 
   # --- GITOPS (pull-based deploys via comin) ---

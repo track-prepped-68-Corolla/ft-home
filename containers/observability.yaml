@@ -61,7 +61,10 @@ services:
     networks:
       - monitoring-net
     ports:
-      - "127.0.0.1:3000:3000"
+      # Bound to all interfaces: reachable only over Tailscale, since the
+      # host's ft.tailscale.enable trusts tailscale0 in the firewall while
+      # port 3000 stays closed on every other interface.
+      - "3000:3000"
     volumes:
       - grafana-data:/var/lib/grafana
     environment:
@@ -105,7 +108,7 @@ services:
     volumes:
       - ./config/observability/alloy:/etc/alloy:ro
       - /var/log:/var/log:ro
-      - ${CONTAINER_SOCKET:-/var/run/podman/podman.sock}:/var/run/docker.sock:ro
+      - ${CONTAINER_SOCKET:-/var/run/docker.sock}:/var/run/docker.sock:ro
     command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy
     depends_on:
       loki:
@@ -145,7 +148,7 @@ services:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro   # provides unified cgroup v2 hierarchy under /sys/fs/cgroup
-      - /var/lib/podman:/var/lib/docker:ro
+      - /var/lib/docker:/var/lib/docker:ro
 
 networks:
   monitoring-net:
