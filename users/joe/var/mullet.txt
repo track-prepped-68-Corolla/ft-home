@@ -13,7 +13,6 @@ navi
 tmux
 tealdeer
 fd
-comma
 imagemagick
 inkscape
 poppler
