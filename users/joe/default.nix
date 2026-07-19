@@ -39,6 +39,7 @@
   ft.plasmaManager.enable = true;
   ft.karousel.enable = true;
   ft.vicinae.enable = true;
+  ft.mullet.enable = true;
   ft.repoPath = lib.strings.trim (builtins.readFile ../../var/local/repoPath);
 
   # --- ENVIRONMENT ---

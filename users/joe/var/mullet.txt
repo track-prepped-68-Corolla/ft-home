@@ -20,3 +20,4 @@ poppler
 pdftk
 pdfarranger
 flameshot
+nano
