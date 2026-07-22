@@ -78,11 +78,36 @@
     useSSH = true;
   };
 
-  #  ft.sops = {
-  #    enable = true;
-  #    useTPM = true;
-  #    useYubikey = true;
-  #  };
+  # sops-nix — prerequisite for the Komodo secrets/GitOps toggles below. Safe on
+  # its own: it declares no secrets until a feature that uses one is enabled, so
+  # the set of decrypted secrets is unchanged from today. strix's SSH host key is
+  # the age recipient (var/secrets/.sops.yaml). useTPM/useYubikey stay off — those
+  # recipients are still placeholders/parked.
+  ft.sops.enable = true;
+
+  # ── Komodo GitOps — STAGED; provision each secret BEFORE uncommenting ────────
+  # Each toggle declares a sops secret that must already exist, or the next
+  # `ft switch` fails during activation. Prerequisite for all of it: bump the
+  # framework input to a testing rev including fast-track-nix #199
+  # (`nix flake update ft-home`) — that also fixes the current dockervm eval.
+  #
+  # (1) Periphery [[KEY]] secret injection into the stacks Komodo deploys:
+  #     a. Deploy once with these off so the guest boots and generates its
+  #        persistent ed25519 host key (sshkeys volume at /var/lib/ssh).
+  #     b. Add the guest recipient to var/secrets/.sops.yaml as a creation_rule
+  #        for komodo.yaml:   ssh-keyscan <guest-ip> 2>/dev/null | ssh-to-age
+  #     c. Create var/secrets/komodo.yaml with the komodo/periphery_secrets key
+  #        (a [secrets] TOML), then uncomment:
+  #  ft.dockervm.komodo.peripherySecrets.enable = true;
+  #
+  # (2) Auto-reconcile Komodo with containers/ on every `ft switch`:
+  #     a. Komodo -> Settings -> API Keys -> create a key.
+  #     b. Add komodo/api_env to var/secrets/secrets.yaml:
+  #          KOMODO_API_KEY=K-...   KOMODO_API_SECRET=S-...
+  #     c. Generate + commit the sync manifest:  ft komodo-sync
+  #        (run on strix so the git remote resolves to the real GitHub URL).
+  #        Then uncomment:
+  #  ft.dockervm.komodo.autoApply.enable = true;
 
   ft.gaming.enable = true;
 
