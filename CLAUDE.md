@@ -91,12 +91,6 @@ New machines are provisioned with nixos-anywhere + disko + nixos-facter:
 
 ---
 
-## Known issues / pending fixes
-
-- **Broken wallpaper default path in `ft.theme` / `stylix.nix`:** The framework module (`fast-track-nix/modules/home/stylix.nix`) defaults the wallpaper to `../../homes/guest/wallpapers/default.png`. The actual directory is `users/`, not `homes/` — this path resolves to a nonexistent location. Tracked in `Todo.md`. Until fixed upstream, always set `ft.theme.wallpaper` explicitly in your user config.
-
----
-
 ## Secrets
 
 Managed by sops-nix. Key configuration lives in `var/secrets/.sops.yaml`. Age recipients are SSH host keys. `ft.sops.useTPM` and `ft.sops.useYubikey` provide hardware-token alternatives. Never commit unencrypted secrets.
