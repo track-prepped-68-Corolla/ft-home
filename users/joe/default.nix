@@ -40,6 +40,7 @@
   ft.karousel.enable = true;
   ft.vicinae.enable = true;
   ft.mullet.enable = true;
+  ft.atuin.enable = true;
   ft.repoPath = lib.strings.trim (builtins.readFile ../../var/local/repoPath);
 
   # --- ENVIRONMENT ---
