@@ -15,3 +15,8 @@ background-opacity = 0.85
 
 # Blur (Only works on some Compositors/DEs)
 background-blur-radius = 20
+
+# Clipboard (OSC 52) — lets remote/SSH sessions write to the local
+# clipboard without needing a clipboard tool installed on the remote box
+clipboard-read = allow
+clipboard-write = allow
