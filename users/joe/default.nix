@@ -59,7 +59,6 @@
 
     # Desktop apps
     brave
-    kitty
     signal-desktop
     slack
     localsend
