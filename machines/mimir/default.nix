@@ -61,12 +61,11 @@
   };
 
   # Rootful Docker + Komodo microVM, run by reference (guest: vms/mimir-dvm).
-  # Name kept short so the tap interface tap-mimir-dvm stays within Linux's
-  # 15-char limit. hostInterface: update to the actual NIC name once known.
+  # The tap interface name + MAC are derived from the instance name
+  # automatically. hostInterface: update to the actual NIC name once known.
   ft.microvms.instances.mimir-dvm = {
     enable = true;
     vmAddressSuffix = 2;
-    vmMac = "02:00:00:00:00:02";
     hostInterface = ""; # TODO: set after provisioning (e.g. "enp3s0")
   };
 

@@ -5,11 +5,8 @@
 # Standalone guest (nixosConfigurations.strix-dvm), run on strix by reference via
 # ft.microvms.instances.strix-dvm in machines/strix/default.nix. Komodo on
 # plaintext defaults; persistent state on the auto host share at /srv/host-share.
-# The tap MAC here matches the host instance's vmMac.
-#
-# Name kept short ("strix-dvm", not "strix-docker") because the tap interface
-# tap-<name> must be <= 15 chars (Linux IFNAMSIZ) — tap-strix-docker (16) is
-# rejected; tap-strix-dvm (13) is fine.
+# The tap interface (name + MAC) is derived from the VM name by the guest
+# baseline, so it always matches the host's ft.microvms lease.
 #
 # Komodo [secrets] / host auto-apply are not wired yet — pending the decoupled
 # guest-secrets design (a standalone guest can't read strix's repoPath-relative
@@ -17,13 +14,8 @@
 # =============================================================================
 { ... }:
 {
-  microvm.interfaces = [
-    {
-      type = "tap";
-      id = "tap-strix-dvm";
-      mac = "02:00:00:00:00:01";
-    }
-  ];
+  # The tap interface (name + MAC) is auto-derived from the VM name by the guest
+  # baseline, matching the host's ft.microvms lease — nothing to declare here.
 
   microvm.volumes = [
     {

@@ -51,12 +51,11 @@
   ft.vendorHw.enable = true;
 
   # Rootful Docker + Komodo microVM, run by reference (guest: vms/strix-dvm,
-  # which carries the docker/Komodo config + the docker-vm SSH key). Name kept
-  # short so the tap interface tap-strix-dvm stays within Linux's 15-char limit.
+  # which carries the docker/Komodo config + the docker-vm SSH key). The tap
+  # interface name + MAC are derived from the instance name automatically.
   ft.microvms.instances.strix-dvm = {
     enable = true;
     vmAddressSuffix = 2;
-    vmMac = "02:00:00:00:00:01";
     hostInterface = "wlp194s0";
   };
 

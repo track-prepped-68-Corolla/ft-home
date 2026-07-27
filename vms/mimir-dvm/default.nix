@@ -5,11 +5,8 @@
 # Standalone guest (nixosConfigurations.mimir-dvm), run on the mimir NAS by
 # reference via ft.microvms.instances.mimir-dvm in machines/mimir/default.nix.
 # Komodo on plaintext defaults; persistent state on the auto host share at
-# /srv/host-share. The tap MAC here matches the host instance's vmMac.
-#
-# Name kept short ("mimir-dvm", not "mimir-docker") because the tap interface
-# tap-<name> must be <= 15 chars (Linux IFNAMSIZ) — tap-mimir-docker (16) is
-# rejected; tap-mimir-dvm (13) is fine.
+# /srv/host-share. The tap interface (name + MAC) is derived from the VM name by
+# the guest baseline, so it always matches the host's ft.microvms lease.
 #
 # TODO: add admin SSH public key(s) for docker-vm access once known
 # (services.openssh + users.users.root.openssh.authorizedKeys, as in
@@ -18,13 +15,8 @@
 # =============================================================================
 { ... }:
 {
-  microvm.interfaces = [
-    {
-      type = "tap";
-      id = "tap-mimir-dvm";
-      mac = "02:00:00:00:00:02";
-    }
-  ];
+  # The tap interface (name + MAC) is auto-derived from the VM name by the guest
+  # baseline, matching the host's ft.microvms lease — nothing to declare here.
 
   microvm.volumes = [
     {
