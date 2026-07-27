@@ -8,8 +8,8 @@
 # PROVISIONING CHECKLIST
 #   1. Boot target into the ft-home live ISO; git clone the ft-home consumer repo
 #   2. Run nixos-facter; commit output to machines/mimir/var/facter.json
-#   3. Update ft.dockervm.hostInterface to the NAS NIC name (run `ip link`)
-#   4. Add SSH public key(s) to ft.dockervm.sshAuthorizedKeys for docker-vm access
+#   3. Update ft.microvms.instances.mimir-docker.hostInterface to the NAS NIC name (run `ip link`)
+#   4. Add SSH public key(s) to vms/mimir-docker (services.openssh + root authorizedKeys) for docker-vm access
 #   5. Verify ft.diskBtrfs.device below (just deploy will prompt with lsblk output)
 #   6. Run ft drives-format for each data/parity/cache drive; commit var/bulk-drives.nix
 #   7. Run: just bootstrap mimir <ip>   OR   just bootstrap-local mimir
@@ -60,12 +60,13 @@
     useSSH = true;
   };
 
-  # MicroVM with rootful Docker Compose + Komodo container management.
+  # Rootful Docker + Komodo microVM, run by reference (guest: vms/mimir-docker).
   # hostInterface: update to the actual NIC name once hardware is known.
-  ft.dockervm = {
+  ft.microvms.instances.mimir-docker = {
     enable = true;
+    vmAddressSuffix = 2;
+    vmMac = "02:00:00:00:00:02";
     hostInterface = ""; # TODO: set after provisioning (e.g. "enp3s0")
-    sshAuthorizedKeys = [ ]; # TODO: add admin SSH public key(s) for docker-vm access
   };
 
   ft.bulkPool = {

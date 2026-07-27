@@ -48,12 +48,16 @@
   ft.yubikey.enable = true;
   ft.cli.enable = true;
   ft.keepass.enable = true;
-  ft.dockervm.enable = true;
   ft.vendorHw.enable = true;
-  ft.dockervm.hostInterface = "wlp194s0";
-  ft.dockervm.sshAuthorizedKeys = [
-    "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIDgZCe1UZA1E7bCpTWz5NUMHlGUq16nOobSJ2LyyZCP2AAAABHNzaDo= track-prepped-68-Corolla@protonmail.com"
-  ];
+
+  # Rootful Docker + Komodo microVM, run by reference (guest: vms/strix-docker,
+  # which carries the docker/Komodo config + the docker-vm SSH key).
+  ft.microvms.instances.strix-docker = {
+    enable = true;
+    vmAddressSuffix = 2;
+    vmMac = "02:00:00:00:00:01";
+    hostInterface = "wlp194s0";
+  };
 
   #  ft.hermesVm = {
   #    enable = true;
@@ -85,29 +89,13 @@
   # recipients are still placeholders/parked.
   ft.sops.enable = true;
 
-  # ── Komodo GitOps — STAGED; provision each secret BEFORE uncommenting ────────
-  # Each toggle declares a sops secret that must already exist, or the next
-  # `ft switch` fails during activation. Prerequisite for all of it: bump the
-  # framework input to a testing rev including fast-track-nix #199
-  # (`nix flake update ft-home`) — that also fixes the current dockervm eval.
-  #
-  # (1) Periphery [[KEY]] secret injection into the stacks Komodo deploys:
-  #     a. Deploy once with these off so the guest boots and generates its
-  #        persistent ed25519 host key (sshkeys volume at /var/lib/ssh).
-  #     b. Add the guest recipient to var/secrets/.sops.yaml as a creation_rule
-  #        for komodo.yaml:   ssh-keyscan <guest-ip> 2>/dev/null | ssh-to-age
-  #     c. Create var/secrets/komodo.yaml with the komodo/periphery_secrets key
-  #        (a [secrets] TOML), then uncomment:
-  #  ft.dockervm.komodo.peripherySecrets.enable = true;
-  #
-  # (2) Auto-reconcile Komodo with containers/ on every `ft switch`:
-  #     a. Komodo -> Settings -> API Keys -> create a key.
-  #     b. Add komodo/api_env to var/secrets/secrets.yaml:
-  #          KOMODO_API_KEY=K-...   KOMODO_API_SECRET=S-...
-  #     c. Generate + commit the sync manifest:  ft komodo-sync
-  #        (run on strix so the git remote resolves to the real GitHub URL).
-  #        Then uncomment:
-  #  ft.dockervm.komodo.autoApply.enable = true;
+  # ── Komodo GitOps [secrets] + auto-apply — DEFERRED ──────────────────────────
+  # These were staged on the old inline ft.dockervm.komodo.{peripherySecrets,
+  # coreSecrets,autoApply} toggles, which the Phase 2 microVM decoupling retired
+  # along with ft.dockervm. The guest is now standalone (vms/strix-docker) and a
+  # standalone guest cannot read strix's repoPath-relative sops tree the way the
+  # inline guest did, so the secret-injection + host-side auto-apply path needs a
+  # decoupled design (framework side) before it can be re-enabled here.
 
   ft.gaming.enable = true;
 
