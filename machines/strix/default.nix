@@ -50,9 +50,10 @@
   ft.keepass.enable = true;
   ft.vendorHw.enable = true;
 
-  # Rootful Docker + Komodo microVM, run by reference (guest: vms/strix-docker,
-  # which carries the docker/Komodo config + the docker-vm SSH key).
-  ft.microvms.instances.strix-docker = {
+  # Rootful Docker + Komodo microVM, run by reference (guest: vms/strix-dvm,
+  # which carries the docker/Komodo config + the docker-vm SSH key). Name kept
+  # short so the tap interface tap-strix-dvm stays within Linux's 15-char limit.
+  ft.microvms.instances.strix-dvm = {
     enable = true;
     vmAddressSuffix = 2;
     vmMac = "02:00:00:00:00:01";
@@ -92,7 +93,7 @@
   # ── Komodo GitOps [secrets] + auto-apply — DEFERRED ──────────────────────────
   # These were staged on the old inline ft.dockervm.komodo.{peripherySecrets,
   # coreSecrets,autoApply} toggles, which the Phase 2 microVM decoupling retired
-  # along with ft.dockervm. The guest is now standalone (vms/strix-docker) and a
+  # along with ft.dockervm. The guest is now standalone (vms/strix-dvm) and a
   # standalone guest cannot read strix's repoPath-relative sops tree the way the
   # inline guest did, so the secret-injection + host-side auto-apply path needs a
   # decoupled design (framework side) before it can be re-enabled here.

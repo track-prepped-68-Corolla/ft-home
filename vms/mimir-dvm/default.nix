@@ -1,15 +1,19 @@
 # =============================================================================
-# mimir-docker — mimir's rootful Docker + Komodo microVM guest
+# mimir-dvm — mimir's rootful Docker + Komodo microVM guest
 # =============================================================================
 #
-# Standalone guest (nixosConfigurations.mimir-docker), run on the mimir NAS by
-# reference via ft.microvms.instances.mimir-docker in machines/mimir/default.nix.
+# Standalone guest (nixosConfigurations.mimir-dvm), run on the mimir NAS by
+# reference via ft.microvms.instances.mimir-dvm in machines/mimir/default.nix.
 # Komodo on plaintext defaults; persistent state on the auto host share at
 # /srv/host-share. The tap MAC here matches the host instance's vmMac.
 #
+# Name kept short ("mimir-dvm", not "mimir-docker") because the tap interface
+# tap-<name> must be <= 15 chars (Linux IFNAMSIZ) — tap-mimir-docker (16) is
+# rejected; tap-mimir-dvm (13) is fine.
+#
 # TODO: add admin SSH public key(s) for docker-vm access once known
 # (services.openssh + users.users.root.openssh.authorizedKeys, as in
-# vms/strix-docker). Komodo [secrets] / host auto-apply pending the decoupled
+# vms/strix-dvm). Komodo [secrets] / host auto-apply pending the decoupled
 # guest-secrets design.
 # =============================================================================
 { ... }:
@@ -17,14 +21,14 @@
   microvm.interfaces = [
     {
       type = "tap";
-      id = "tap-mimir-docker";
+      id = "tap-mimir-dvm";
       mac = "02:00:00:00:00:02";
     }
   ];
 
   microvm.volumes = [
     {
-      image = "/var/lib/microvm/mimir-docker/docker.img";
+      image = "/var/lib/microvm/mimir-dvm/docker.img";
       mountPoint = "/var/lib/docker";
       size = 20480;
     }
