@@ -26,8 +26,13 @@
   ];
 
   # Root login into the guest for docker-vm access (was ft.dockervm.sshAuthorizedKeys).
+  # Key-only: disable both password and keyboard-interactive (PAM) auth so root
+  # can only log in with the authorized key below.
   services.openssh.enable = true;
-  services.openssh.settings.PasswordAuthentication = false;
+  services.openssh.settings = {
+    PasswordAuthentication = false;
+    KbdInteractiveAuthentication = false;
+  };
   users.users.root.openssh.authorizedKeys.keys = [
     "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIDgZCe1UZA1E7bCpTWz5NUMHlGUq16nOobSJ2LyyZCP2AAAABHNzaDo= track-prepped-68-Corolla@protonmail.com"
   ];
