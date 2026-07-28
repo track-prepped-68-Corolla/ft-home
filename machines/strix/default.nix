@@ -89,13 +89,31 @@
   # recipients are still placeholders/parked.
   ft.sops.enable = true;
 
-  # ── Komodo GitOps [secrets] + auto-apply — DEFERRED ──────────────────────────
-  # These were staged on the old inline ft.dockervm.komodo.{peripherySecrets,
-  # coreSecrets,autoApply} toggles, which the Phase 2 microVM decoupling retired
-  # along with ft.dockervm. The guest is now standalone (vms/strix-dvm) and a
-  # standalone guest cannot read strix's repoPath-relative sops tree the way the
-  # inline guest did, so the secret-injection + host-side auto-apply path needs a
-  # decoupled design (framework side) before it can be re-enabled here.
+  # ── Komodo GitOps [secrets] + auto-apply — STAGED ────────────────────────────
+  # The framework now supports secrets on a standalone microVM guest (via
+  # ft.vmSecrets on the guest + ft.microvms.instances.<name>.shareSecrets and
+  # ft.komodoApply on the host). To enable it on strix's docker VM, provision
+  # each secret BEFORE uncommenting — the toggles are split between the guest
+  # (vms/strix-dvm) and this host.
+  #
+  # (1) Guest [secrets] injection into the Stacks Komodo deploys:
+  #     a. In vms/strix-dvm/default.nix set `ft.vmSecrets.enable = true;` and,
+  #        e.g., `ft.komodo.secrets.periphery.enable = true;`. Deploy once so the
+  #        guest boots and generates its persistent ed25519 host key — the sops
+  #        age recipient, on the sshkeys volume.
+  #     b. Add the guest recipient to var/secrets/.sops.yaml as a creation_rule
+  #        for komodo.yaml:   ssh-keyscan <guest-ip> 2>/dev/null | ssh-to-age
+  #     c. Create var/secrets/komodo.yaml with the komodo/periphery_secrets key
+  #        (a [secrets] TOML), then share the sops tree into the VM from here:
+  #  ft.microvms.instances.strix-dvm.shareSecrets = true;
+  #
+  # (2) Auto-reconcile Komodo with containers/ on every `ft switch`:
+  #     a. Komodo -> Settings -> API Keys -> create a key.
+  #     b. Add komodo/api_env to var/secrets/secrets.yaml:
+  #          KOMODO_API_KEY=K-...   KOMODO_API_SECRET=S-...
+  #     c. Generate + commit the sync manifest:  ft komodo-sync (run on strix so
+  #        the git remote resolves to the real GitHub URL). Then uncomment:
+  #  ft.komodoApply.strix-dvm.enable = true;
 
   ft.gaming.enable = true;
 
