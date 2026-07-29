@@ -137,4 +137,5 @@
 
   # --- AMD NPU/GPU AI STACK ---
   ft.amdAi.enable = true;
+  ft.claudeCode.enable = true;
 }
