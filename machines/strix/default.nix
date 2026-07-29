@@ -137,5 +137,8 @@
 
   # --- AMD NPU/GPU AI STACK ---
   ft.amdAi.enable = true;
-  ft.claudeCode.enable = true;
+  ft.claudeCode = {
+    enable = true;
+    model = "Qwen3-Coder-Next-GGUF";
+  };
 }
