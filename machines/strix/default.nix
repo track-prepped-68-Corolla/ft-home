@@ -139,6 +139,6 @@
   ft.amdAi.enable = true;
   ft.claudeCode = {
     enable = true;
-    model = "Qwen3-Coder-Next-GGUF";
+    model = "Qwen3.6-35B-A3B-GGUF";
   };
 }
