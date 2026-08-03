@@ -129,7 +129,7 @@
 
   ft.facter = {
     enable = true;
-    reportPath = ./facter.json;
+    reportPath = ./var/facter.json;
   };
 
   ft.core.stateVersion = "25.05";
