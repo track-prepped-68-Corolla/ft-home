@@ -40,6 +40,7 @@
   ft.karousel.enable = true;
   ft.vicinae.enable = true;
   ft.mullet.enable = true;
+  ft.cad3d.enable = true;
   # ft.atuin.enable = true; # re-enable once fast-track-nix#211 (ft.atuin) merges to testing
   ft.repoPath = lib.strings.trim (builtins.readFile ../../var/local/repoPath);
 
