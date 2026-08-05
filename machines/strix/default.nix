@@ -51,7 +51,6 @@
   ft.vendorHw.enable = true;
   ft.noctalia.enable = true;
 
-
   # Rootful Docker + Komodo microVM, run by reference (guest: vms/strix-dvm,
   # which carries the docker/Komodo config + the docker-vm SSH key). The tap
   # interface name + MAC are derived from the instance name automatically.
