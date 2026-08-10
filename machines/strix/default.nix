@@ -50,6 +50,8 @@
   ft.keepass.enable = true;
   ft.vendorHw.enable = true;
   ft.noctalia.enable = true;
+  ft.niri.enable = true;
+  services.displayManager.defaultSession = "plasma";
 
   # Rootful Docker + Komodo microVM, run by reference (guest: vms/strix-dvm,
   # which carries the docker/Komodo config + the docker-vm SSH key). The tap

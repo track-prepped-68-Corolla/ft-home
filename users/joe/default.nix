@@ -37,11 +37,13 @@
   ft.theme.enable = true;
   ft.theme.wallpaper = ./wallpapers/default.png;
   ft.plasmaManager.enable = true;
-  ft.karousel.enable = true;
+  ft.karousel.enable = false;
+  ft.dotfiles.enable = true;
+  ft.noctalia.enable = true;
   ft.vicinae.enable = true;
   ft.mullet.enable = true;
   ft.cad3d.enable = true;
-  # ft.atuin.enable = true; # re-enable once fast-track-nix#211 (ft.atuin) merges to testing
+  ft.atuin.enable = true;
   ft.repoPath = lib.strings.trim (builtins.readFile ../../var/local/repoPath);
 
   # --- ENVIRONMENT ---
