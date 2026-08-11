@@ -38,7 +38,7 @@
   ft.theme.wallpaper = ./wallpapers/default.png;
   ft.plasmaManager.enable = true;
   ft.karousel.enable = false;
- # ft.dotfiles.enable = true;
+  # ft.dotfiles.enable = true;
   ft.noctalia.enable = true;
   ft.vicinae.enable = true;
   ft.mullet.enable = true;
