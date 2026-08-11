@@ -658,11 +658,11 @@
         "vicinae": "vicinae"
       },
       "locked": {
-        "lastModified": 1786483097,
-        "narHash": "sha256-lUWcUw/KRgBLE2TEhUT4QDsNPdqm/7v5SM+6e8gPPH0=",
+        "lastModified": 1786484423,
+        "narHash": "sha256-AztapBiW/4e73itcCEKhGZZewFjISgbnPS0LCizrxik=",
         "owner": "track-prepped-68-corolla",
         "repo": "fast-track-nix",
-        "rev": "3543f007e4cdc107c2581854876d198e8f741cf2",
+        "rev": "117fa209d40678af55ccae60e1862ca0aa20ae94",
         "type": "github"
       },
       "original": {
@@ -813,11 +813,11 @@
         "treefmt-nix": "treefmt-nix_4"
       },
       "locked": {
-        "lastModified": 1786474833,
-        "narHash": "sha256-JShLM7tYn6qSOq4TI5lKbJJPxdmDCPcO2skZ0LnlLmk=",
+        "lastModified": 1786485384,
+        "narHash": "sha256-ONPKtVfoOXoVnYu0iQckxtiMAe//uSX1rNcIPFuSLTw=",
         "owner": "numtide",
         "repo": "llm-agents.nix",
-        "rev": "f0f0a5286ddb14318d4c55c2e6760eaad86905a2",
+        "rev": "07b6c680c7baeefae5ba39fe45a9ab3e84cefe38",
         "type": "github"
       },
       "original": {
