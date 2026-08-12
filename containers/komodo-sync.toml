@@ -23,7 +23,7 @@ branch = "testing"
 file_paths = ["containers/discoverability.yaml"]
 
 [[stack]]
-name = "homeAutomation"
+name = "homeautomation"
 deploy = true
 [stack.config]
 server = "Local"
@@ -31,17 +31,7 @@ git_provider = "github.com"
 git_account = "track-prepped-68-Corolla"
 repo = "track-prepped-68-Corolla/ft-home"
 branch = "testing"
-file_paths = ["containers/homeAutomation.yaml"]
-environment = """
-# Environment for the `homeAutomation` Komodo stack (containers/homeAutomation.yaml).
-# Embedded by `ft komodo-sync`. No secrets in this stack.
-
-TZ=UTC
-
-# Zigbee coordinator device on the host — adjust to your dongle
-# (e.g. /dev/serial/by-id/usb-... for a stable path).
-ZIGBEE_DEVICE=/dev/ttyUSB0
-"""
+file_paths = ["containers/homeautomation.yaml"]
 
 [[stack]]
 name = "media"
