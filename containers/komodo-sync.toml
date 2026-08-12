@@ -15,7 +15,7 @@ managed = false
 name = "discoverability"
 deploy = true
 [stack.config]
-server = "Local"
+server = "account="
 git_provider = "github.com"
 git_account = "track-prepped-68-Corolla"
 repo = "track-prepped-68-Corolla/ft-home"
@@ -26,7 +26,7 @@ file_paths = ["containers/discoverability.yaml"]
 name = "homeautomation"
 deploy = true
 [stack.config]
-server = "Local"
+server = "account="
 git_provider = "github.com"
 git_account = "track-prepped-68-Corolla"
 repo = "track-prepped-68-Corolla/ft-home"
@@ -37,7 +37,7 @@ file_paths = ["containers/homeautomation.yaml"]
 name = "media"
 deploy = true
 [stack.config]
-server = "Local"
+server = "account="
 git_provider = "github.com"
 git_account = "track-prepped-68-Corolla"
 repo = "track-prepped-68-Corolla/ft-home"
@@ -80,7 +80,7 @@ ARIA2_RPC_SECRET=[[ARIA2_RPC_SECRET]]
 name = "observability"
 deploy = true
 [stack.config]
-server = "Local"
+server = "account="
 git_provider = "github.com"
 git_account = "track-prepped-68-Corolla"
 repo = "track-prepped-68-Corolla/ft-home"
