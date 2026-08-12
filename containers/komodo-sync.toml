@@ -15,7 +15,7 @@ managed = false
 name = "discoverability"
 deploy = true
 [stack.config]
-server = "account=track-prepped-68-Corolla"
+server = "local"
 git_provider = "github.com"
 git_account = "track-prepped-68-Corolla"
 repo = "track-prepped-68-Corolla/ft-home"
@@ -26,7 +26,7 @@ file_paths = ["containers/discoverability.yaml"]
 name = "homeAutomation"
 deploy = true
 [stack.config]
-server = "account=track-prepped-68-Corolla"
+server = "local"
 git_provider = "github.com"
 git_account = "track-prepped-68-Corolla"
 repo = "track-prepped-68-Corolla/ft-home"
@@ -47,7 +47,7 @@ ZIGBEE_DEVICE=/dev/ttyUSB0
 name = "media"
 deploy = true
 [stack.config]
-server = "account=track-prepped-68-Corolla"
+server = "local"
 git_provider = "github.com"
 git_account = "track-prepped-68-Corolla"
 repo = "track-prepped-68-Corolla/ft-home"
@@ -90,7 +90,7 @@ ARIA2_RPC_SECRET=[[ARIA2_RPC_SECRET]]
 name = "observability"
 deploy = true
 [stack.config]
-server = "account=track-prepped-68-Corolla"
+server = "local"
 git_provider = "github.com"
 git_account = "track-prepped-68-Corolla"
 repo = "track-prepped-68-Corolla/ft-home"
