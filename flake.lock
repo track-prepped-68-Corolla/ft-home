@@ -658,11 +658,11 @@
         "vicinae": "vicinae"
       },
       "locked": {
-        "lastModified": 1786405993,
-        "narHash": "sha256-cSOf2Wt9OWKGXRn3406l4zR1zTnnCH4CJ8JMJ1+cJ/Y=",
+        "lastModified": 1786568483,
+        "narHash": "sha256-G6PxOI52rR0Tuq5OhSHrGYZy3ls3Tsp5DSNklMsRKzs=",
         "owner": "track-prepped-68-corolla",
         "repo": "fast-track-nix",
-        "rev": "b8efc43b719490acd4df08d5ce497e72e0c16fd7",
+        "rev": "060aa0c47127ca191ce5f5e08c5f138e015692b2",
         "type": "github"
       },
       "original": {
