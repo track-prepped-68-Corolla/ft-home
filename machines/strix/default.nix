@@ -116,7 +116,7 @@
   #          KOMODO_API_KEY=K-...   KOMODO_API_SECRET=S-...
   #     c. Generate + commit the sync manifest:  ft komodo-sync (run on strix so
   #        the git remote resolves to the real GitHub URL). Then uncomment:
-  #  ft.komodoApply.strix-dvm.enable = true;
+  ft.komodoApply.strix-dvm.enable = true;
 
   ft.gaming.enable = true;
 
