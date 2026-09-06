@@ -23,6 +23,6 @@ jobs:
       issues: write        # comment on issues
     steps:
       - name: Run Claude Code
-        uses: anthropics/claude-code-action@70fec183852c4f82f3f1969faed7dd60c5149ca7 # v1
+        uses: anthropics/claude-code-action@9c5ddab2e6d17b83ea679153b31f1d5f023cf636 # v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
