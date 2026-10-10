@@ -1,20 +1,29 @@
 # Komodo GitOps + secrets — strix finish-up runbook
 
 Everything in the framework and the strix config is already in place. What's
-left needs your private keys / a Komodo API key, so it can't be automated from a
-sandbox. Do these steps on **strix**, top to bottom.
+left needs your private keys, so it can't be automated from a sandbox. Do
+sections A and B on **strix**, top to bottom.
 
-## What's already done
+## Current state
 
-- `machines/strix/default.nix` has `ft.sops.enable = true`, plus the two Komodo
-  toggles **staged as commented one-liners** with a short inline note.
-- `containers/*.env` sidecars are scaffolded (this PR). `ft komodo-sync` embeds
+- **Done — auto-reconcile (section C):** `ft.komodoApply.strix-dvm.enable = true`
+  is on in `machines/strix/default.nix`, `containers/komodo-sync.toml` is
+  generated and committed, and every `ft switch` reconciles Komodo with
+  `containers/` over the API.
+- **Not done — Periphery secret injection (sections A + B):** none of the
+  secrets toggles are enabled yet (the staged notes are in
+  `machines/strix/default.nix`).
+- `containers/*.env` sidecars are scaffolded. `ft komodo-sync` embeds
   each one as its stack's `environment`, so the compose `${VAR}`s resolve.
   - Non-secret values are filled with defaults.
   - Two blanks in `media.env` you must fill: `VPN_SERVICE_PROVIDER`,
     `WIREGUARD_ADDRESSES` (your VPN account details — not secret).
   - Secret refs use `[[KEY]]`, resolved by Komodo from the Periphery `[secrets]`
-    block you create in step B.
+    block you create in section B.
+
+The microVM is a standalone guest (`vms/strix-dvm/`) that strix runs by
+reference through `ft.microvms.instances.strix-dvm`. Guest-side toggles go in
+the `vms/` file; host-side toggles go in the machine file.
 
 Secrets that must go into `komodo/periphery_secrets` (names must match the
 `[[KEY]]` refs in `media.env`):
@@ -26,30 +35,31 @@ Secrets that must go into `komodo/periphery_secrets` (names must match the
 
 ---
 
-## 0. Prerequisite — bump the framework input
+## A. Enable the guest's sops plumbing
 
-This pulls in fast-track-nix **#199** (the guest-sops eval fix) and all the
-Komodo work. **Without it strix won't even evaluate.**
+```nix
+# vms/strix-dvm/default.nix — guest sops plumbing
+ft.vmSecrets.enable = true;
 
-```sh
-nix flake update ft-home      # 'ft-home' is the framework input alias in flake.nix
+# machines/strix/default.nix — share var/secrets into the guest (read-only)
+ft.microvms.instances.strix-dvm.shareSecrets = true;
 ```
 
-## A. First deploy with the toggles still off
-
-Leaves both Komodo toggles commented (their default state). This boots the guest
-so it generates its **persistent** ed25519 host key — the age recipient the next
-step needs.
+Both halves go together: `ft.vmSecrets` mounts the share that `shareSecrets`
+provisions on the host. No secrets are declared yet, so nothing is decrypted.
+Deploy once. The guest boots and generates its **persistent** ed25519 host key
+(on its own `sshkeys` volume) — the age recipient the next step needs.
 
 ```sh
 ft switch
 ```
 
-## B. Periphery secret injection (`peripherySecrets`)
+## B. Periphery secret injection (`ft.komodo.secrets.periphery`)
 
 1. Read the guest's host key and convert it to an age recipient. Find the guest
-   IP from `ft.dockervm.komodo.host` (defaults to the VM's address on the
-   microvm0 subnet, e.g. `http://10.0.100.2:9120` → `10.0.100.2`):
+   IP from the instance's `vmAddressSuffix` on the microvm0 subnet (strix-dvm
+   has suffix `2`, so with the default `ft.microvms.hostAddress` it is
+   `10.0.100.2`):
 
    ```sh
    ssh-keyscan <guest-ip> 2>/dev/null | ssh-to-age
@@ -85,10 +95,11 @@ ft switch
 4. Fill the two non-secret blanks in `containers/media.env`
    (`VPN_SERVICE_PROVIDER`, `WIREGUARD_ADDRESSES`) and commit the `.env` files.
 
-5. In `machines/strix/default.nix`, uncomment:
+5. Turn the Periphery tier on in the guest:
 
    ```nix
-   ft.dockervm.komodo.peripherySecrets.enable = true;
+   # vms/strix-dvm/default.nix — inside the existing ft.komodo block
+   ft.komodo.secrets.periphery.enable = true;
    ```
 
 6. Deploy. The guest now decrypts `komodo.yaml` on its own host key; Komodo can
@@ -98,7 +109,9 @@ ft switch
    ft switch
    ```
 
-## C. Auto-reconcile Komodo with `containers/` (`autoApply`)
+## C. Auto-reconcile Komodo with `containers/` (`ft.komodoApply`) — done
+
+Kept for reference, or for setting up another host such as mimir.
 
 1. In Komodo → **Settings → API Keys**, create a key (note the key + secret).
 
@@ -123,13 +136,14 @@ ft switch
    git commit -m "komodo: generate stack sync manifest" && git push
    ```
 
-4. In `machines/strix/default.nix`, uncomment:
+4. In `machines/strix/default.nix`, enable:
 
    ```nix
-   ft.dockervm.komodo.autoApply.enable = true;
+   ft.komodoApply.strix-dvm.enable = true;
    ```
 
-5. Deploy. On this and every future `ft switch`, the host waits for Komodo Core,
+5. Deploy. On this and every future `ft switch`, `komodo-apply-strix-dvm.service`
+   on the host waits for Komodo Core,
    then creates the ResourceSync (if absent) and executes it over the API — no
    UI, no manual clicks.
 
@@ -139,7 +153,7 @@ ft switch
 
 ## Verify
 
-- Komodo UI (`ft.dockervm.komodo.host`, default `http://<guest-ip>:9120`) shows
+- Komodo UI (`http://<guest-ip>:9120`, e.g. `http://10.0.100.2:9120`) shows
   the four stacks (`media`, `homeAutomation`, `discoverability`, `observability`)
   as a synced ResourceSync.
 - If a stack updated on a push but didn't redeploy, force it (Komodo #1120):
