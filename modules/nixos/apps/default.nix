@@ -15,7 +15,7 @@ in
 {
   options.ft.apps.enable = lib.mkEnableOption "default system applications" // {
     default = true;
-    description = "Installs the consumer's default system-wide application suite (ripgrep, fd, fzf, zoxide, eza, bat, lazygit, obsidian, brave, trufflehog, etc.) and enables the Tailscale daemon. Disable to strip all consumer-specific packages from the system closure.";
+    description = "Installs the consumer's default system-wide application suite (ripgrep, fd, fzf, zoxide, eza, bat, lazygit, obsidian, chromium, trufflehog, etc.) and enables the Tailscale daemon. Disable to strip all consumer-specific packages from the system closure.";
   };
 
   config = lib.mkIf cfg.enable {
@@ -49,7 +49,6 @@ in
 
       micro
 
-      brave
       chromium
     ];
 
