@@ -51,6 +51,18 @@
   };
   networking.firewall.allowedTCPPorts = [ 22 ];
 
+  # Headless access: password SSH is off above, so without a key the first
+  # boot is unreachable without a monitor. Same key as machines/lyra and
+  # machines/brigid. Works over the LAN even if sops/tailscale auto-join
+  # isn't wired up yet.
+  ft.ssh = {
+    enable = true;
+    user = "admin";
+    authorizedKeys = [
+      "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIDgZCe1UZA1E7bCpTWz5NUMHlGUq16nOobSJ2LyyZCP2AAAABHNzaDo= track-prepped-68-Corolla@protonmail.com"
+    ];
+  };
+
   # --- FEATURE TOGGLES ---
 
   ft.tailscale = {
