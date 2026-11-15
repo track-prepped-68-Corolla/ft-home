@@ -78,6 +78,12 @@ in
   # session; ft.gaming's standalone wrapper conflicts with it on
   # security.wrappers.gamescope.source.
   ft.gaming.gamescope.enable = false;
+  # Steam Frame standalone shell — PC host (WiVRn server). lyra has no joe
+  # user; headset input goes to media, the autologin TV-session user.
+  ft.frameShell = {
+    enable = true;
+    inputUsers = [ "media" ];
+  };
   ft.gpu.enable = true;
   ft.tailscale = {
     enable = true;
