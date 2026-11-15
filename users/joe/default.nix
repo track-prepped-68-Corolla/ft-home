@@ -90,12 +90,10 @@
     name = "Frame Control";
     comment = "Companion app for the Frame headset";
     exec = "env ELECTRON_DISABLE_SANDBOX=1 appimage-run ${config.home.homeDirectory}/Applications/Frame-Control-linux-x86_64.AppImage --no-sandbox %U";
-    icon = "${
-      pkgs.fetchurl {
-        url = "https://raw.githubusercontent.com/saphid/frame-control/27d628708acc3cd9d041f5e83d189071ec00baae/app/build/icon.png";
-        hash = "sha256-4Z4qp3mT3DMgRXi4hkFMNfBTBJoOLFkr0kJdS9g4kUs=";
-      }
-    }";
+    icon = "${pkgs.fetchurl {
+      url = "https://raw.githubusercontent.com/saphid/frame-control/27d628708acc3cd9d041f5e83d189071ec00baae/app/build/icon.png";
+      hash = "sha256-4Z4qp3mT3DMgRXi4hkFMNfBTBJoOLFkr0kJdS9g4kUs=";
+    }}";
     categories = [ "Utility" ];
     terminal = false;
   };
