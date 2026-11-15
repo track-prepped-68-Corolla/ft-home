@@ -120,6 +120,12 @@
 
   ft.gaming.enable = true;
 
+  # Steam Frame standalone shell — PC host (WiVRn server), headset input for joe.
+  ft.frameShell = {
+    enable = true;
+    inputUsers = [ "joe" ];
+  };
+
   ft.cachyos = {
     enable = true;
     variant = "latest-lto-x86_64-v4";
