@@ -11,8 +11,14 @@
 
   programs.git = {
     enable = true;
-    userName = "guest";
-    userEmail = "guest@fasttrack.os";
-    delta.enable = true;
+    settings.user = {
+      name = "guest";
+      email = "guest@fasttrack.os";
+    };
+  };
+
+  programs.delta = {
+    enable = true;
+    enableGitIntegration = true;
   };
 }

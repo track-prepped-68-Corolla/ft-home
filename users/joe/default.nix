@@ -44,6 +44,13 @@
   ft.mullet.enable = true;
   ft.cad3d.enable = true;
   ft.atuin.enable = true;
+
+  # Brave was removed from nixpkgs (no maintainer to land security fixes);
+  # Flathub's com.brave.Browser is published by Brave itself. Requires the
+  # host's ft.flatpak.enable (set on machines/strix).
+  ft.flatpak.enable = true;
+  services.flatpak.packages = [ "com.brave.Browser" ];
+
   ft.repoPath = lib.strings.trim (builtins.readFile ../../var/local/repoPath);
 
   # --- ENVIRONMENT ---
@@ -62,7 +69,6 @@
     yazi
 
     # Desktop apps
-    brave
     signal-desktop
     slack
     localsend
