@@ -83,13 +83,13 @@
 
   # --- FRAME CONTROL ---
   # Distributed only as an AppImage (not in nixpkgs, no flake), which updates
-  # itself in place, so the file lives in ~/Applications rather than the
+  # itself in place, so the file lives in ~/Downloads rather than the
   # store. appimage-run supplies the FUSE/runtime libraries NixOS lacks;
   # Electron's sandbox helper can't start inside it, hence --no-sandbox.
   xdg.desktopEntries.frame-control = {
     name = "Frame Control";
     comment = "Companion app for the Frame headset";
-    exec = "env ELECTRON_DISABLE_SANDBOX=1 appimage-run ${config.home.homeDirectory}/Applications/Frame-Control-linux-x86_64.AppImage --no-sandbox %U";
+    exec = "env ELECTRON_DISABLE_SANDBOX=1 appimage-run ${config.home.homeDirectory}/Downloads/Frame-Control-linux-x86_64.appimage --no-sandbox %U";
     icon = "${pkgs.fetchurl {
       url = "https://raw.githubusercontent.com/saphid/frame-control/27d628708acc3cd9d041f5e83d189071ec00baae/app/build/icon.png";
       hash = "sha256-4Z4qp3mT3DMgRXi4hkFMNfBTBJoOLFkr0kJdS9g4kUs=";
