@@ -1,4 +1,3 @@
-intiface-central
 atkinson-hyperlegible
 obsidian-export
 rclone
