@@ -36,6 +36,10 @@ in
 
   # --- IDENTITY ---
   networking.hostName = "lyra";
+  # Fixed time zone. Left unset, Steam's Gaming Mode reads "Etc/Unknown" and
+  # fails to render ("Invalid time zone specified"). Setting it makes
+  # /etc/localtime read-only, so Steam's own time zone picker won't apply.
+  time.timeZone = "America/New_York";
   ft.repoPath = repoPath;
   # System-wide (not per-user Home Manager) so `nh os switch`/`nh home switch`
   # work for any login shell, including admin's, without requiring a Home
