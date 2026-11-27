@@ -51,6 +51,10 @@
     apps.youtube = {
       name = "YouTube";
       url = "https://www.youtube.com/tv";
+      # Brave Origin: its built-in Shields (uBlock Origin-style rules) are the
+      # ad blocking for the TV UI; sponsors are skipped by ft.isponsorblocktv
+      # on lyra.
+      browser = "brave-origin";
       categories = [
         "AudioVideo"
         "Video"
