@@ -5,7 +5,7 @@
 # Discovered by lib/generator.nix at users/media/default.nix.
 # Intended for the lyra media PC autologin session.
 # =============================================================================
-{ ... }:
+{ config, ... }:
 
 {
   imports = [
@@ -55,7 +55,28 @@
         "AudioVideo"
         "Video"
       ];
+      # youtube.com/tv only serves the TV ("leanback") UI to TV-like user
+      # agents; a desktop Chromium UA gets bounced back to the normal site.
+      # YouTube changes which UAs it accepts — swap this string if it stops
+      # working.
+      extraArgs = [
+        "--start-fullscreen"
+        "--user-agent=Mozilla/5.0 (PS4; Leanback Shell) Gecko/20100101 Firefox/65.0 LeanbackShell/01.00.01.75 Sony PS4/ (PS4, , no, CH)"
+      ];
     };
+  };
+
+  # --- STEAM LIBRARY: NON-STEAM SHORTCUTS ---
+  # Declarative non-Steam shortcuts (steam-config-nix), so they show up in
+  # Gaming Mode's library. Shortcut IDs derive from the name: renaming one makes
+  # Steam treat it as a new game (set `seed` to the old name to keep it).
+  # Steam Input template: steam-config-nix can't set it, so pick "Web Browser"
+  # once in Steam (Controller settings for the shortcut); it persists across
+  # rebuilds because the shortcut ID is stable.
+  ft.steamConfig.enable = true;
+  programs.steam.config.nonSteamApps."YouTube" = {
+    # ft-webapp-youtube is installed by ft.webapps above.
+    target = "${config.home.profileDirectory}/bin/ft-webapp-youtube";
   };
 
   # --- FLATPAK: RETRODECK ---
