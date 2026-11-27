@@ -8,8 +8,8 @@
 # PROVISIONING CHECKLIST
 #   1. Boot target into the ft-home live ISO; git clone the ft-home consumer repo
 #   2. Run nixos-facter; commit output to machines/mimir/var/facter.json
-#   3. Update ft.dockervm.hostInterface to the NAS NIC name (run `ip link`)
-#   4. Add SSH public key(s) to ft.dockervm.sshAuthorizedKeys for docker-vm access
+#   3. Update ft.microvms.instances.mimir-dvm.hostInterface to the NAS NIC name (run `ip link`)
+#   4. Add SSH public key(s) to vms/mimir-dvm (services.openssh + root authorizedKeys) for docker-vm access
 #   5. Verify ft.diskBtrfs.device below (just deploy will prompt with lsblk output)
 #   6. Run ft drives-format for each data/parity/cache drive; commit var/bulk-drives.nix
 #   7. Run: just bootstrap mimir <ip>   OR   just bootstrap-local mimir
@@ -30,6 +30,9 @@
   # same fix. mimir was left unset entirely, silently defaulting to the
   # framework's placeholder and breaking ft.sops.
   ft.repoPath = "/src/ft-home";
+  # System-wide (not per-user Home Manager) so `nh os switch` works for any
+  # login shell, including admin's — see machines/lyra for the same fix.
+  environment.sessionVariables.NH_FLAKE = "/src/ft-home";
 
   ft.users = {
     mainUser = "admin";
@@ -48,6 +51,18 @@
   };
   networking.firewall.allowedTCPPorts = [ 22 ];
 
+  # Headless access: password SSH is off above, so without a key the first
+  # boot is unreachable without a monitor. Same key as machines/lyra and
+  # machines/brigid. Works over the LAN even if sops/tailscale auto-join
+  # isn't wired up yet.
+  ft.ssh = {
+    enable = true;
+    user = "admin";
+    authorizedKeys = [
+      "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIDgZCe1UZA1E7bCpTWz5NUMHlGUq16nOobSJ2LyyZCP2AAAABHNzaDo= track-prepped-68-Corolla@protonmail.com"
+    ];
+  };
+
   # --- FEATURE TOGGLES ---
 
   ft.tailscale = {
@@ -57,12 +72,13 @@
     useSSH = true;
   };
 
-  # MicroVM with rootful Docker Compose + Komodo container management.
-  # hostInterface: update to the actual NIC name once hardware is known.
-  ft.dockervm = {
+  # Rootful Docker + Komodo microVM, run by reference (guest: vms/mimir-dvm).
+  # The tap interface name + MAC are derived from the instance name
+  # automatically. hostInterface: update to the actual NIC name once known.
+  ft.microvms.instances.mimir-dvm = {
     enable = true;
+    vmAddressSuffix = 2;
     hostInterface = ""; # TODO: set after provisioning (e.g. "enp3s0")
-    sshAuthorizedKeys = [ ]; # TODO: add admin SSH public key(s) for docker-vm access
   };
 
   ft.bulkPool = {
@@ -72,10 +88,38 @@
 
   ft.sops.enable = true;
 
+  # --- GITOPS (pull-based deploys via comin) ---
+  # comin polls this repo and deploys mimir's own nixosConfiguration:
+  #   * main          -> `switch` (permanent), and
+  #   * testing-mimir -> `test` (ephemeral; reverted on reboot) — the "try it
+  #     on mimir first, then promote" lane. See machines/lyra for the same setup.
+  # ft-home is a public repo, so the remote is polled anonymously (no
+  # tokenSecret, hence no sops credential to provision). signingKeys is
+  # intentionally left empty for now — comin will deploy unsigned commits and
+  # warn; harden with a trusted GPG key once one is set up.
+  ft.gitops = {
+    enable = true;
+    deployBranch = "main";
+    remotes = [
+      {
+        name = "github";
+        url = "https://github.com/track-prepped-68-Corolla/ft-home.git";
+      }
+    ];
+  };
+
   ft.facter = {
     enable = true;
     reportPath = ./var/facter.json;
   };
+
+  # Both autodetect from ft.facter.reportPath (default true) — no-ops against
+  # the current facter.json stub, self-configure once the real nixos-facter
+  # report is committed. ft.gpu backs Jellyfin's /dev/dri hardware transcoding
+  # in containers/media.yaml; ft.vendorHw covers any board-level RGB/vendor
+  # tooling mimir's hardware turns out to need.
+  ft.gpu.enable = true;
+  ft.vendorHw.enable = true;
 
   ft.diskBtrfs = {
     enable = true;

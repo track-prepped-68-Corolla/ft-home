@@ -27,8 +27,8 @@ services:
     restart: unless-stopped
     network_mode: "service:gluetun"
     volumes:
-      - /opt/containers/media/config/qbittorrent:/config
-      - /opt/containers/media/downloads:/downloads
+      - ${MEDIA_ROOT:-/opt/containers/media}/config/qbittorrent:/config
+      - ${MEDIA_ROOT:-/opt/containers/media}/downloads:/downloads
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
@@ -44,8 +44,8 @@ services:
     restart: unless-stopped
     network_mode: "service:gluetun"
     volumes:
-      - /opt/containers/media/config/aria2:/config
-      - /opt/containers/media/downloads:/downloads
+      - ${MEDIA_ROOT:-/opt/containers/media}/config/aria2:/config
+      - ${MEDIA_ROOT:-/opt/containers/media}/downloads:/downloads
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
@@ -74,9 +74,9 @@ services:
     ports:
       - "127.0.0.1:8096:8096"
     volumes:
-      - /opt/containers/media/config/jellyfin:/config
-      - /opt/containers/media/tv:/data/tv
-      - /opt/containers/media/movies:/data/movies
+      - ${MEDIA_ROOT:-/opt/containers/media}/config/jellyfin:/config
+      - ${MEDIA_ROOT:-/opt/containers/media}/tv:/data/tv
+      - ${MEDIA_ROOT:-/opt/containers/media}/movies:/data/movies
     devices:
       - /dev/dri:/dev/dri
     environment:
@@ -91,9 +91,9 @@ services:
     ports:
       - "127.0.0.1:8989:8989"
     volumes:
-      - /opt/containers/media/config/sonarr:/config
-      - /opt/containers/media/tv:/tv
-      - /opt/containers/media/downloads:/downloads
+      - ${MEDIA_ROOT:-/opt/containers/media}/config/sonarr:/config
+      - ${MEDIA_ROOT:-/opt/containers/media}/tv:/tv
+      - ${MEDIA_ROOT:-/opt/containers/media}/downloads:/downloads
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
@@ -108,9 +108,9 @@ services:
     ports:
       - "127.0.0.1:7878:7878"
     volumes:
-      - /opt/containers/media/config/radarr:/config
-      - /opt/containers/media/movies:/movies
-      - /opt/containers/media/downloads:/downloads
+      - ${MEDIA_ROOT:-/opt/containers/media}/config/radarr:/config
+      - ${MEDIA_ROOT:-/opt/containers/media}/movies:/movies
+      - ${MEDIA_ROOT:-/opt/containers/media}/downloads:/downloads
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
@@ -125,7 +125,7 @@ services:
     ports:
       - "127.0.0.1:9696:9696"
     volumes:
-      - /opt/containers/media/config/prowlarr:/config
+      - ${MEDIA_ROOT:-/opt/containers/media}/config/prowlarr:/config
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
@@ -140,9 +140,9 @@ services:
     ports:
       - "127.0.0.1:6767:6767"
     volumes:
-      - /opt/containers/media/config/bazarr:/config
-      - /opt/containers/media/tv:/tv
-      - /opt/containers/media/movies:/movies
+      - ${MEDIA_ROOT:-/opt/containers/media}/config/bazarr:/config
+      - ${MEDIA_ROOT:-/opt/containers/media}/tv:/tv
+      - ${MEDIA_ROOT:-/opt/containers/media}/movies:/movies
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}

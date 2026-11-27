@@ -1,4 +1,3 @@
-intiface-central
 atkinson-hyperlegible
 obsidian-export
 rclone
@@ -13,10 +12,10 @@ navi
 tmux
 tealdeer
 fd
-comma
 imagemagick
 inkscape
 poppler
 pdftk
 pdfarranger
 flameshot
+nano

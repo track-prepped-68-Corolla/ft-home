@@ -100,7 +100,7 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    # Ensure Podman is available even if ft.containers is not enabled.
+    # Ensure Podman is available for the anythingllm container below.
     virtualisation.podman.enable = lib.mkDefault true;
     virtualisation.oci-containers.backend = lib.mkDefault "podman";
 

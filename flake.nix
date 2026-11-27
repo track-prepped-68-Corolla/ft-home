@@ -39,6 +39,12 @@
     # llama.cpp, whisper.cpp, and stable-diffusion.cpp.
     nix-amd-ai.url = "github:noamsto/nix-amd-ai";
 
+    # AI coding agent packages (Claude Code, among ~150 others). Intentionally
+    # does not follow nixpkgs — llm-agents.nix is only built/tested against
+    # its own pinned nixpkgs-unstable, and following would bust the Numtide
+    # binary cache.
+    llm-agents.url = "github:numtide/llm-agents.nix";
+
     # SteamOS-style gamescope session (Big Picture) for lyra's media-PC setup.
     nixos-jovian = {
       url = "github:Jovian-Experiments/Jovian-NixOS";

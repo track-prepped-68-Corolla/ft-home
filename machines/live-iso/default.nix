@@ -13,4 +13,24 @@
   # installer image has no consumer repo checked out anywhere, so ft.repoPath
   # is meaningless here.
   ft.cli.enable = false;
+
+  # Trim the default-on framework modules that make no sense in a throwaway
+  # provisioning ISO. The image gets the whole modules/nixos tree, so anything
+  # whose enable defaults to true is baked in unless turned off here.
+  #
+  # ft.admin bakes an "admin" wheel account with initialPassword = "changeme"
+  # into the distributable image — an unwanted known credential. Root autologs
+  # in on the console and SSH password auth is off, so the ISO needs no extra
+  # admin account.
+  ft.admin.enable = false;
+
+  # nix-index ships a prebuilt database in the closure — pure bloat on an
+  # installer that is discarded after provisioning.
+  ft.nixIndex.enable = false;
+
+  # Bluetooth and CUPS/Avahi printing come from ft.core but have no place on a
+  # bootstrap ISO. NetworkManager (also from ft.core) is kept — it is useful
+  # for bringing up the link before running nixos-anywhere.
+  hardware.bluetooth.enable = false;
+  services.printing.enable = false;
 }

@@ -48,23 +48,29 @@
   ft.yubikey.enable = true;
   ft.cli.enable = true;
   ft.keepass.enable = true;
-  ft.vicinae.enable = true;
-  ft.dockervm.enable = true;
   ft.vendorHw.enable = true;
-  ft.dockervm.hostInterface = "wlp194s0";
-  ft.dockervm.sshAuthorizedKeys = [
-    "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIDgZCe1UZA1E7bCpTWz5NUMHlGUq16nOobSJ2LyyZCP2AAAABHNzaDo= track-prepped-68-Corolla@protonmail.com"
-  ];
+  ft.noctalia.enable = true;
+  ft.niri.enable = true;
+  services.displayManager.defaultSession = "plasma";
 
-  ft.hermesVm = {
+  # Rootful Docker + Komodo microVM, run by reference (guest: vms/strix-dvm,
+  # which carries the docker/Komodo config + the docker-vm SSH key). The tap
+  # interface name + MAC are derived from the instance name automatically.
+  ft.microvms.instances.strix-dvm = {
     enable = true;
-    vmName = "hermes";
-    ollamaUrl = "http://10.0.100.1:13305";
+    vmAddressSuffix = 2;
     hostInterface = "wlp194s0";
-    sshAuthorizedKeys = [
-      "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIDgZCe1UZA1E7bCpTWz5NUMHlGUq16nOobSJ2LyyZCP2AAAABHNzaDo= track-prepped-68-Corolla@protonmail.com"
-    ];
   };
+
+  #  ft.hermesVm = {
+  #    enable = true;
+  #    vmName = "hermes";
+  #    ollamaUrl = "http://10.0.100.1:13305";
+  #    hostInterface = "wlp194s0";
+  #    sshAuthorizedKeys = [
+  #      "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIDgZCe1UZA1E7bCpTWz5NUMHlGUq16nOobSJ2LyyZCP2AAAABHNzaDo= track-prepped-68-Corolla@protonmail.com"
+  #    ];
+  #  };
 
   ft.ssh = {
     enable = true;
@@ -79,26 +85,60 @@
     useSSH = true;
   };
 
-  # sops secret management. Decrypts via the SSH host key by default; useTPM adds
-  # a TPM-sealed age identity (age-plugin-tpm) and useYubikey the PIV slot. strix
-  # must be a recipient in var/secrets/.sops.yaml (it is: &strix) and the file
-  # re-encrypted to it (sops updatekeys) before any declared secret can be read.
-  ft.sops = {
-    enable = true;
-    useTPM = true;
-    useYubikey = true;
-  };
+  # sops-nix — prerequisite for the Komodo secrets/GitOps toggles below. Safe on
+  # its own: it declares no secrets until a feature that uses one is enabled, so
+  # the set of decrypted secrets is unchanged from today. strix's SSH host key is
+  # the age recipient (var/secrets/.sops.yaml). useTPM/useYubikey stay off — those
+  # recipients are still placeholders/parked.
+  ft.sops.enable = true;
+
+  # ── Komodo GitOps [secrets] + auto-apply — STAGED ────────────────────────────
+  # The framework now supports secrets on a standalone microVM guest (via
+  # ft.vmSecrets on the guest + ft.microvms.instances.<name>.shareSecrets and
+  # ft.komodoApply on the host). To enable it on strix's docker VM, provision
+  # each secret BEFORE uncommenting — the toggles are split between the guest
+  # (vms/strix-dvm) and this host.
+  #
+  # (1) Guest [secrets] injection into the Stacks Komodo deploys:
+  #     a. In vms/strix-dvm/default.nix set `ft.vmSecrets.enable = true;` and,
+  #        e.g., `ft.komodo.secrets.periphery.enable = true;`. Deploy once so the
+  #        guest boots and generates its persistent ed25519 host key — the sops
+  #        age recipient, on the sshkeys volume.
+  #     b. Add the guest recipient to var/secrets/.sops.yaml as a creation_rule
+  #        for komodo.yaml:   ssh-keyscan <guest-ip> 2>/dev/null | ssh-to-age
+  #     c. Create var/secrets/komodo.yaml with the komodo/periphery_secrets key
+  #        (a [secrets] TOML), then share the sops tree into the VM from here:
+  #  ft.microvms.instances.strix-dvm.shareSecrets = true;
+  #
+  # (2) Auto-reconcile Komodo with containers/ on every `ft switch`:
+  #     a. Komodo -> Settings -> API Keys -> create a key.
+  #     b. Add komodo/api_env to var/secrets/secrets.yaml:
+  #          KOMODO_API_KEY=K-...   KOMODO_API_SECRET=S-...
+  #     c. Generate + commit the sync manifest:  ft komodo-sync (run on strix so
+  #        the git remote resolves to the real GitHub URL). Then uncomment:
+  ft.komodoApply.strix-dvm.enable = true;
 
   ft.gaming.enable = true;
+
+  # Steam Frame standalone shell — PC host (WiVRn server), headset input for joe.
+  ft.frameShell = {
+    enable = true;
+    inputUsers = [ "joe" ];
+  };
 
   ft.cachyos = {
     enable = true;
     variant = "latest-lto-x86_64-v4";
   };
 
+  ft.flatpak = {
+    enable = true;
+    frontend.enable = true;
+  };
+
   ft.facter = {
     enable = true;
-    reportPath = ./facter.json;
+    reportPath = ./var/facter.json;
   };
 
   ft.core.stateVersion = "25.05";
@@ -106,4 +146,8 @@
 
   # --- AMD NPU/GPU AI STACK ---
   ft.amdAi.enable = true;
+  ft.claudeCode = {
+    enable = true;
+    model = "Qwen3.6-35B-A3B-GGUF";
+  };
 }
