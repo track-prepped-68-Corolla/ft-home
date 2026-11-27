@@ -18,7 +18,7 @@
 #      manual `tailscale up` needed once var/secrets/secrets.yaml carries a
 #      valid tailscale/authkey
 # =============================================================================
-{ ... }:
+{ config, ... }:
 
 let
   # var/local/repoPath is a single file shared by every machine's default.nix,
@@ -44,7 +44,14 @@ in
   # System-wide (not per-user Home Manager) so `nh os switch`/`nh home switch`
   # work for any login shell, including admin's, without requiring a Home
   # Manager profile to have been activated first.
-  environment.sessionVariables.NH_FLAKE = repoPath;
+  environment.sessionVariables = {
+    NH_FLAKE = repoPath;
+    # nixpkgs' Steam sandbox rebuilds /etc/localtime from the host's and on
+    # lyra ends up pointing at the bare /usr/share/zoneinfo directory, so
+    # Steam's UI resolves "Etc/Unknown" ("Invalid time zone specified").
+    # Chromium/ICU checks TZ before /etc/localtime, so name the zone directly.
+    TZ = config.time.timeZone;
+  };
 
   # --- USERS ---
   # admin is always created by ft.admin as the wheel/SSH management account
