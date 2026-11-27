@@ -60,19 +60,15 @@ in
   users.mutableUsers = true;
 
   # --- DISPLAY MANAGER ---
-  services.displayManager.sddm.enable = true;
-  services.displayManager.autoLogin = {
-    enable = true;
-    user = "media";
-  };
+  # SDDM + media autologin are owned by ft.jovian.autoStart (see GAMESCOPE
+  # SESSION below), which boots straight into Gaming Mode.
 
   # --- FEATURE TOGGLES ---
   ft.limine.enable = true;
   ft.plasma.enable = true;
-  ft.plasmaBigscreen = {
-    enable = true;
-    defaultSession = true;
-  };
+  # Still installed as a selectable SDDM session; not
+  # the default session — ft.jovian.autoStart makes that gamescope-wayland.
+  ft.plasmaBigscreen.enable = true;
   ft.gaming.enable = true;
   # ft.jovian provides its own gamescope wrapper for the Big Picture
   # session; ft.gaming's standalone wrapper conflicts with it on
@@ -162,8 +158,14 @@ in
   nixpkgs.hostPlatform = "x86_64-linux";
 
   # --- GAMESCOPE SESSION ---
-  # Selectable from SDDM alongside plasma-bigscreen-wayland (the default);
-  # autoStart is left at its default false so it doesn't fight Bigscreen for
-  # services.displayManager.defaultSession.
-  ft.jovian.enable = true;
+  # Boot straight into Gaming Mode (SteamOS-style) as media. Jovian takes over
+  # SDDM autologin (with relogin, so exiting Steam restarts it) and sets
+  # defaultSession = gamescope-wayland. Steam's "Switch to Desktop" drops into
+  # full Plasma; returning to Gaming Mode goes back via autologin.
+  ft.jovian = {
+    enable = true;
+    autoStart = true;
+    user = "media";
+    desktopSession = "plasma";
+  };
 }
