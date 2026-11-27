@@ -174,6 +174,11 @@ in
   # SDDM autologin (with relogin, so exiting Steam restarts it) and sets
   # defaultSession = gamescope-wayland. Steam's "Switch to Desktop" drops into
   # full Plasma; returning to Gaming Mode goes back via autologin.
+  # SponsorBlock (and ad skip/mute) for the YouTube TV app. Pair once after
+  # deploy: YouTube -> Settings -> Link with TV code, then over SSH run
+  # `sudo ft-isponsorblocktv-pair` and enter the code.
+  ft.isponsorblocktv.enable = true;
+
   ft.jovian = {
     enable = true;
     autoStart = true;
