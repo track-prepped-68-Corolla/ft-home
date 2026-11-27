@@ -66,7 +66,7 @@ in
   # --- FEATURE TOGGLES ---
   ft.limine.enable = true;
   ft.plasma.enable = true;
-  # Still installed as the "Switch to Desktop" target from Gaming Mode; not
+  # Still installed as a selectable SDDM session; not
   # the default session — ft.jovian.autoStart makes that gamescope-wayland.
   ft.plasmaBigscreen.enable = true;
   ft.gaming.enable = true;
@@ -161,11 +161,11 @@ in
   # Boot straight into Gaming Mode (SteamOS-style) as media. Jovian takes over
   # SDDM autologin (with relogin, so exiting Steam restarts it) and sets
   # defaultSession = gamescope-wayland. Steam's "Switch to Desktop" drops into
-  # Plasma Bigscreen; returning to Gaming Mode goes back via autologin.
+  # full Plasma; returning to Gaming Mode goes back via autologin.
   ft.jovian = {
     enable = true;
     autoStart = true;
     user = "media";
-    desktopSession = "plasma-bigscreen-wayland";
+    desktopSession = "plasma";
   };
 }
