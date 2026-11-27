@@ -5,7 +5,7 @@
 # Discovered by lib/generator.nix at users/media/default.nix.
 # Intended for the lyra media PC autologin session.
 # =============================================================================
-{ config, ... }:
+{ config, pkgs, ... }:
 
 {
   imports = [
@@ -81,6 +81,12 @@
   programs.steam.config.nonSteamApps."YouTube" = {
     # ft-webapp-youtube is installed by ft.webapps above.
     target = "${config.home.profileDirectory}/bin/ft-webapp-youtube";
+  };
+  # Xbox Cloud Gaming (Game Pass streaming) and Xbox home-console streaming
+  # via Greenlight, an open-source controller-friendly client. Unofficial: a
+  # change on Microsoft's side can break it until upstream and nixpkgs update.
+  programs.steam.config.nonSteamApps."Xbox Cloud Gaming" = {
+    target = pkgs.greenlight-stream;
   };
 
   # --- FLATPAK: RETRODECK ---
