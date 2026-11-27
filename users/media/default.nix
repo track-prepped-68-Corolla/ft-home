@@ -28,13 +28,16 @@
   };
   programs.plasma.powerdevil.AC.autoSuspend.action = "nothing";
 
-  # --- STEAM BIG PICTURE AUTOSTART ---
-  # Launches Steam in Big Picture / gamepad UI mode when the KDE session starts.
+  # --- STEAM BACKGROUND AUTOSTART (desktop mode) ---
+  # lyra boots into Jovian Gaming Mode; Plasma is only reached via Steam's
+  # "Switch to Desktop". Like a Steam Deck's desktop mode, start Steam minimized
+  # to the tray so Steam Input's Desktop Layout drives the controller as a
+  # mouse/keyboard, instead of relaunching Big Picture on top of the desktop.
   xdg.configFile."autostart/steam-bigpicture.desktop".text = ''
     [Desktop Entry]
     Type=Application
-    Name=Steam Big Picture
-    Exec=steam -gamepadui
+    Name=Steam
+    Exec=steam -silent
     Terminal=false
     X-GNOME-Autostart-enabled=true
   '';
