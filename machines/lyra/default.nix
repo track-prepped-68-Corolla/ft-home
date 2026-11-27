@@ -126,6 +126,9 @@ in
   ft.gitops = {
     enable = true;
     deployBranch = "main";
+    # First-time activation of media's standalone Home Manager config (whose
+    # own ft.gitops then keeps it in sync); a no-op once media has a profile.
+    homeUsers = [ "media" ];
     remotes = [
       {
         name = "github";
