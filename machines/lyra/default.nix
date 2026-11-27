@@ -74,6 +74,11 @@ in
   # session; ft.gaming's standalone wrapper conflicts with it on
   # security.wrappers.gamescope.source.
   ft.gaming.gamescope.enable = false;
+  # Let the Steam Controller receiver (an OpenPuck dongle presenting Valve's
+  # puck ID 28de:1304) wake lyra from suspend: a Steam button press powers the
+  # controller back on and the dongle sends a USB remote-wakeup. Also needs USB
+  # wake from S3 allowed in the BIOS.
+  ft.gaming.controllerWake.enable = true;
   # Steam Frame standalone shell — PC host (WiVRn server). lyra has no joe
   # user; headset input goes to media, the autologin TV-session user.
   ft.frameShell = {
