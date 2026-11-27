@@ -36,6 +36,10 @@ in
 
   # --- IDENTITY ---
   networking.hostName = "lyra";
+  # Fixed time zone. Left unset, Steam's Gaming Mode reads "Etc/Unknown" and
+  # fails to render ("Invalid time zone specified"). Setting it makes
+  # /etc/localtime read-only, so Steam's own time zone picker won't apply.
+  time.timeZone = "America/New_York";
   ft.repoPath = repoPath;
   # System-wide (not per-user Home Manager) so `nh os switch`/`nh home switch`
   # work for any login shell, including admin's, without requiring a Home
@@ -126,6 +130,9 @@ in
   ft.gitops = {
     enable = true;
     deployBranch = "main";
+    # First-time activation of media's standalone Home Manager config (whose
+    # own ft.gitops then keeps it in sync); a no-op once media has a profile.
+    homeUsers = [ "media" ];
     remotes = [
       {
         name = "github";
@@ -167,6 +174,11 @@ in
   # SDDM autologin (with relogin, so exiting Steam restarts it) and sets
   # defaultSession = gamescope-wayland. Steam's "Switch to Desktop" drops into
   # full Plasma; returning to Gaming Mode goes back via autologin.
+  # SponsorBlock (and ad skip/mute) for the YouTube TV app. Pair once after
+  # deploy: YouTube -> Settings -> Link with TV code, then over SSH run
+  # `sudo ft-isponsorblocktv-pair` and enter the code.
+  ft.isponsorblocktv.enable = true;
+
   ft.jovian = {
     enable = true;
     autoStart = true;
