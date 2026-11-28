@@ -121,7 +121,6 @@
   #        the git remote resolves to the real GitHub URL). Then uncomment:
   ft.komodoApply.strix-dvm.enable = true;
 
-
   ft.gaming.enable = true;
 
   # Steam Frame standalone shell — PC host (WiVRn server), headset input for joe.
