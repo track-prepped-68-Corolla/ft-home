@@ -75,6 +75,11 @@ in
     compose.enable = true;
   };
 
+  # Guest sops plumbing: mounts the host-shared /var/secrets and decrypts
+  # komodo.yaml on the guest's persistent host key. Declares no secrets by
+  # itself — they come from ft.komodo.secrets.* (runbook section B).
+  ft.vmSecrets.enable = true;
+
   ft.komodo = {
     enable = true;
     backupsPath = "/srv/host-share/backups";
