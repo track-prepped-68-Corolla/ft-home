@@ -44,6 +44,8 @@
     compose.enable = true;
   };
 
+  ft.vmSecrets.enable = true;
+
   ft.komodo = {
     enable = true;
     backupsPath = "/srv/host-share/backups";
