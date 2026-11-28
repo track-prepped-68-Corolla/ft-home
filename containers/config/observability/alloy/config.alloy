@@ -1,5 +1,5 @@
 // Alloy configuration — ships container and host logs to Loki.
-// Copy to /opt/containers/observability/alloy/config.alloy before first run,
+// Copy to /srv/host-share/containers/observability/alloy/config.alloy before first run,
 // OR set REPO_ROOT in the Komodo stack environment and use the volume mount
 // ${REPO_ROOT}/containers/config/observability/alloy:/etc/alloy:ro
 

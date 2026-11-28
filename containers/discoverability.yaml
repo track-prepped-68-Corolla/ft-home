@@ -1,35 +1,38 @@
-version: '3.8'
-
-networks:
-  homelab-network:
-    name: homelab-network
-    driver: bridge
-
+# Front door for strix-dvm. strix-dvm joins the tailnet (vms/strix-dvm), and
+# Caddy serves every web UI as a path on that one host:
+#   http://strix-dvm/            → Homarr dashboard
+#   http://strix-dvm/<app>/      → see containers/config/caddy/Caddyfile
+#
+# Caddy runs on the VM's host network so it can reach every stack's
+# 127.0.0.1-published port without joining each stack's Docker network.
 services:
   caddy:
     image: caddy:latest
     container_name: caddy
     restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
+    network_mode: host
     volumes:
-      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
-      - ./caddy/data:/data
-      - ./caddy/config:/config
-    networks:
-      - homelab-network
+      # Config comes straight from the repo; state lives on the persistent
+      # host share (the microVM's root filesystem is wiped on restart).
+      - ./config/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${DISCOVERABILITY_ROOT:-/srv/host-share/containers/discoverability}/caddy/data:/data
+      - ${DISCOVERABILITY_ROOT:-/srv/host-share/containers/discoverability}/caddy/config:/config
 
   homarr:
     image: ghcr.io/homarr-labs/homarr:latest
     container_name: homarr
     restart: unless-stopped
-    # Ports are commented out because Caddy handles the public access via port 80/443
-    # ports:
-    #   - "7575:7575" 
-    volumes:
-      - ./homarr/configs:/app/data/configs
-      - ./homarr/icons:/app/public/icons
-      - ./homarr/data:/data
     networks:
       - homelab-network
+    ports:
+      - "127.0.0.1:7575:7575"   # proxied by Caddy at /
+    volumes:
+      - ${DISCOVERABILITY_ROOT:-/srv/host-share/containers/discoverability}/homarr:/appdata
+    environment:
+      # Homarr 1.x refuses to start without a 64-hex-char encryption key.
+      - SECRET_ENCRYPTION_KEY=${HOMARR_SECRET_ENCRYPTION_KEY}
+
+networks:
+  homelab-network:
+    name: homelab-network
+    driver: bridge

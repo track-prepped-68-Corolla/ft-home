@@ -1,0 +1,68 @@
+# Local AI companion stack, deployed by Komodo onto strix-dvm.
+#
+# Lemonade itself is NOT in this file: it runs natively on strix (ft.amdAi,
+# machines/strix/modules/amd-ai.nix) so it can reach the NPU/iGPU directly, and
+# listens on 0.0.0.0 so this VM can reach it across the private microvm0 bridge
+# at the host's bridge address (LEMONADE_BASE_URL in ai.env).
+#
+#   anythingllm — chat/RAG UI; LLM = Lemonade (OpenAI-compatible), web search
+#                 agent = the searxng service below.
+#   searxng     — metasearch engine; JSON output enabled for AnythingLLM.
+services:
+  searxng:
+    image: searxng/searxng:latest
+    container_name: searxng
+    restart: unless-stopped
+    networks:
+      - ai-net
+    ports:
+      - "127.0.0.1:8888:8080"
+    volumes:
+      - ./config/searxng/settings.yml:/etc/searxng/settings.yml:ro
+      - searxng-cache:/var/cache/searxng
+    environment:
+      - SEARXNG_BASE_URL=${SEARXNG_BASE_URL:-http://strix-dvm/searxng/}
+      - SEARXNG_SECRET=${SEARXNG_SECRET}
+
+  anythingllm:
+    image: mintplexlabs/anythingllm:latest
+    container_name: anythingllm
+    restart: unless-stopped
+    # Needed by AnythingLLM's bundled Chromium (website scraping / collector).
+    cap_add:
+      - SYS_ADMIN
+    networks:
+      - ai-net
+    ports:
+      # All interfaces of the VM (= strix + the tailnet only): AnythingLLM has
+      # no sub-path support, so it isn't behind Caddy. http://strix-dvm:3001
+      - "3001:3001"
+    volumes:
+      - anythingllm-storage:/app/server/storage
+    environment:
+      - STORAGE_DIR=/app/server/storage
+      - JWT_SECRET=${ANYTHINGLLM_JWT_SECRET}
+      # LLM: Lemonade's OpenAI-compatible API on the strix host.
+      - LLM_PROVIDER=generic-openai
+      - GENERIC_OPEN_AI_BASE_PATH=${LEMONADE_BASE_URL}
+      - GENERIC_OPEN_AI_MODEL_PREF=${LEMONADE_MODEL}
+      - GENERIC_OPEN_AI_MODEL_TOKEN_LIMIT=${LEMONADE_CONTEXT_WINDOW:-32768}
+      # Lemonade has no auth; AnythingLLM still wants a non-empty key.
+      - GENERIC_OPEN_AI_API_KEY=lemonade-local
+      # Embeddings + vectors stay local and in-container.
+      - EMBEDDING_ENGINE=native
+      - VECTOR_DB=lancedb
+      # Web-search agent skill → SearXNG (pick "SearXNG" as the search
+      # provider under Agent Skills → Web Search in the UI).
+      - AGENT_SEARXNG_API_URL=http://searxng:8080
+      - DISABLE_TELEMETRY=true
+    depends_on:
+      - searxng
+
+volumes:
+  searxng-cache:
+  anythingllm-storage:
+
+networks:
+  ai-net:
+    name: ai-net
