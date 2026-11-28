@@ -10,14 +10,15 @@ sections A and B on **strix**, top to bottom.
   is on in `machines/strix/default.nix`, `containers/komodo-sync.toml` is
   generated and committed, and every `ft switch` reconciles Komodo with
   `containers/` over the API.
-- **Not done — Periphery secret injection (sections A + B):** none of the
-  secrets toggles are enabled yet (the staged notes are in
-  `machines/strix/default.nix`).
+- **Done — Periphery secret injection (sections A + B):** `ft.vmSecrets` +
+  `shareSecrets` are on, the guest recipient is in `.sops.yaml`,
+  `var/secrets/komodo.yaml` exists, and `ft.komodo.secrets.periphery` is on.
+  After the deploy that turns it on, run `sudo microvm -Ru strix-dvm` (a
+  plain `ft switch` doesn't rebuild the guest).
 - `containers/*.env` sidecars are scaffolded. `ft komodo-sync` embeds
   each one as its stack's `environment`, so the compose `${VAR}`s resolve.
   - Non-secret values are filled with defaults.
-  - Two blanks in `media.env` you must fill: `VPN_SERVICE_PROVIDER`,
-    `WIREGUARD_ADDRESSES` (your VPN account details — not secret).
+  - `media.env` is filled for ProtonVPN (WireGuard, NAT-PMP port forwarding).
   - Secret refs use `[[KEY]]`, resolved by Komodo from the Periphery `[secrets]`
     block you create in section B.
 
@@ -163,7 +164,8 @@ that one host — `containers/config/caddy/Caddyfile` is the full map:
 | `/sonarr` `/radarr` `/prowlarr` | *arr | — (URL base set by env) |
 | `/bazarr` | Bazarr | Settings → General → URL Base = `/bazarr` |
 | `/jellyfin` | Jellyfin | Dashboard → Networking → Base URL = `/jellyfin` |
-| `/qbittorrent/` `/ariang/` | downloads | AriaNg RPC: host `strix-dvm`, port 80, path `/jsonrpc` |
+| `/qbittorrent/` | qBittorrent | Options → Web UI → tick "Bypass authentication for clients on localhost" (gluetun sets the forwarded listen port through it) |
+| `/ariang/` | AriaNg | RPC: host `strix-dvm`, port 80, path `/jsonrpc` |
 | `/grafana` | Grafana | — |
 | `/searxng/` | SearXNG | — |
 | `http://strix-dvm:8123` | Home Assistant | no sub-path support → direct |

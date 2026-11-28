@@ -82,6 +82,10 @@ in
 
   ft.komodo = {
     enable = true;
+    # Decrypt komodo/periphery_secrets from komodo.yaml (runbook section B) and
+    # load it into Periphery, so Stacks can use [[KEY]] secrets. Also turns on
+    # tailnet auto-join (autoJoinTailnet above).
+    secrets.periphery.enable = true;
     backupsPath = "/srv/host-share/backups";
     peripheryRootDirectory = "/srv/host-share/periphery";
     repoCachePath = "/srv/host-share/repo-cache";
