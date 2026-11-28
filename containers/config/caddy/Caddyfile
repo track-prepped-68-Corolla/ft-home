@@ -1,7 +1,79 @@
 # Caddyfile for the `discoverability` stack (containers/discoverability.yaml).
 #
-# Plain-HTTP catch-all: any hostname on :80 lands on the Homarr dashboard.
-# Add a site block per hostname (with automatic HTTPS) once names are decided.
+# One host, one path per app: http://strix-dvm/<app>/ over the tailnet.
+# Caddy runs with network_mode: host, so every upstream is a port the other
+# stacks publish on the VM's 127.0.0.1.
+#
+# Two kinds of app:
+#   handle       — app is configured to live under the prefix itself (its
+#                  "URL base" is set to /<app>), so the path is passed through.
+#   handle_path  — app doesn't know about the prefix; Caddy strips it.
+#
+# Not proxied (no sub-path support): reach them directly on the tailnet.
+#   Home Assistant  http://strix-dvm:8123   (host network)
+#   Komodo          http://strix-dvm:9120
+#   AnythingLLM     http://strix-dvm:3001
+{
+	# Plain HTTP on the tailnet; no public certificates to obtain.
+	auto_https off
+}
+
 :80 {
-	reverse_proxy homarr:7575
+	# --- media ---------------------------------------------------------------
+	# URL base set via env in media.yaml (*arr v4+ config overrides).
+	handle /sonarr* {
+		reverse_proxy 127.0.0.1:8989
+	}
+	handle /radarr* {
+		reverse_proxy 127.0.0.1:7878
+	}
+	handle /prowlarr* {
+		reverse_proxy 127.0.0.1:9696
+	}
+	# Bazarr: set Settings → General → URL Base = /bazarr once in its UI.
+	handle /bazarr* {
+		reverse_proxy 127.0.0.1:6767
+	}
+	# Jellyfin: set Dashboard → Networking → Base URL = /jellyfin once in its UI.
+	handle /jellyfin* {
+		reverse_proxy 127.0.0.1:8096
+	}
+	# qBittorrent has no URL-base setting; strip the prefix and present the
+	# Host it expects so its CSRF/host-header checks pass.
+	redir /qbittorrent /qbittorrent/
+	handle_path /qbittorrent/* {
+		reverse_proxy 127.0.0.1:8080 {
+			header_up Host 127.0.0.1:8080
+			header_up -Origin
+			header_up -Referer
+		}
+	}
+	# AriaNg is a static UI; it talks to aria2's RPC at /jsonrpc on this host.
+	redir /ariang /ariang/
+	handle_path /ariang/* {
+		reverse_proxy 127.0.0.1:6880
+	}
+	handle /jsonrpc* {
+		reverse_proxy 127.0.0.1:6800
+	}
+
+	# --- observability -------------------------------------------------------
+	# Grafana serves from /grafana itself (GF_SERVER_SERVE_FROM_SUB_PATH).
+	handle /grafana* {
+		reverse_proxy 127.0.0.1:3000
+	}
+
+	# --- ai --------------------------------------------------------------------
+	# SearXNG knows its prefix from SEARXNG_BASE_URL (ai.env).
+	redir /searxng /searxng/
+	handle_path /searxng/* {
+		reverse_proxy 127.0.0.1:8888 {
+			header_up X-Script-Name /searxng
+		}
+	}
+
+	# --- dashboard (catch-all) ---------------------------------------------
+	handle {
+		reverse_proxy 127.0.0.1:7575
+	}
 }

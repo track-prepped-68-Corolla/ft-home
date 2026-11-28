@@ -98,6 +98,7 @@ services:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
       - TZ=${TZ:-UTC}
+      - SONARR__SERVER__URLBASE=/sonarr   # served by Caddy at /sonarr
 
   radarr:
     image: lscr.io/linuxserver/radarr:latest
@@ -115,6 +116,7 @@ services:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
       - TZ=${TZ:-UTC}
+      - RADARR__SERVER__URLBASE=/radarr   # served by Caddy at /radarr
 
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
@@ -130,6 +132,7 @@ services:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
       - TZ=${TZ:-UTC}
+      - PROWLARR__SERVER__URLBASE=/prowlarr   # served by Caddy at /prowlarr
 
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest

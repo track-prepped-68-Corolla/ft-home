@@ -104,6 +104,10 @@ ft switch
            GRAFANA_ADMIN_PASSWORD       = "your-grafana-admin-password"
            SEARXNG_SECRET               = "any-strong-random-string"
            ANYTHINGLLM_JWT_SECRET       = "any-strong-random-string"
+   tailscale:
+       # Reusable auth key (Tailscale admin console → Settings → Keys) so the
+       # strix-dvm node auto-joins the tailnet — see vms/strix-dvm.
+       authkey: tskey-auth-...
    ```
 
 4. Fill the two non-secret blanks in `containers/media.env`
@@ -122,6 +126,52 @@ ft switch
    ```sh
    ft switch
    ```
+
+## Grow the Docker volume to 60 GiB (one-time)
+
+`vms/strix-dvm` now asks for a 60 GiB `/var/lib/docker`, but microvm only
+creates the image when it is missing — an existing 20 GiB `docker.img` stays
+20 GiB. Grow it once on **strix** with the VM stopped:
+
+```sh
+sudo systemctl stop microvm@strix-dvm
+sudo truncate -s 60G /var/lib/microvm/strix-dvm/docker.img
+sudo e2fsck -f /var/lib/microvm/strix-dvm/docker.img
+sudo resize2fs /var/lib/microvm/strix-dvm/docker.img
+sudo systemctl start microvm@strix-dvm
+```
+
+(Or delete `docker.img` and let it be recreated at 60 GiB — this throws away
+every image and named volume, which then re-pull / start empty.)
+
+## Reaching the UIs
+
+strix-dvm joins the tailnet as `strix-dvm`. Until Periphery secrets (section B)
+are on, it can't read its auth key, so join it once by hand:
+
+```sh
+ssh root@10.0.100.2 tailscale up
+```
+
+Its state lives on its own `tailscale.img` volume, so it stays the same node
+across restarts. Caddy (`discoverability` stack) serves everything as a path on
+that one host — `containers/config/caddy/Caddyfile` is the full map:
+
+| URL | app | one-time setting in the app |
+|---|---|---|
+| `http://strix-dvm/` | Homarr | — |
+| `/sonarr` `/radarr` `/prowlarr` | *arr | — (URL base set by env) |
+| `/bazarr` | Bazarr | Settings → General → URL Base = `/bazarr` |
+| `/jellyfin` | Jellyfin | Dashboard → Networking → Base URL = `/jellyfin` |
+| `/qbittorrent/` `/ariang/` | downloads | AriaNg RPC: host `strix-dvm`, port 80, path `/jsonrpc` |
+| `/grafana` | Grafana | — |
+| `/searxng/` | SearXNG | — |
+| `http://strix-dvm:8123` | Home Assistant | no sub-path support → direct |
+| `http://strix-dvm:9120` | Komodo | direct |
+| `http://strix-dvm:3001` | AnythingLLM | no sub-path support → direct |
+
+zigbee2mqtt is disabled (commented out in `homeautomation.yaml`) until a Zigbee
+dongle is passed through into the VM.
 
 ## C. Auto-reconcile Komodo with `containers/` (`ft.komodoApply`) — done
 
