@@ -5,7 +5,6 @@
 name = "ft-home-stacks"
 [resource_sync.config]
 git_provider = "github.com"
-git_account = "track-prepped-68-Corolla"
 repo = "track-prepped-68-Corolla/ft-home"
 branch = "testing"
 resource_path = ["containers/komodo-sync.toml"]
@@ -17,7 +16,6 @@ deploy = true
 [stack.config]
 server = "Local"
 git_provider = "github.com"
-git_account = "track-prepped-68-Corolla"
 repo = "track-prepped-68-Corolla/ft-home"
 branch = "testing"
 file_paths = ["containers/ai.yaml"]
@@ -52,7 +50,6 @@ deploy = true
 [stack.config]
 server = "Local"
 git_provider = "github.com"
-git_account = "track-prepped-68-Corolla"
 repo = "track-prepped-68-Corolla/ft-home"
 branch = "testing"
 file_paths = ["containers/discoverability.yaml"]
@@ -74,7 +71,6 @@ deploy = true
 [stack.config]
 server = "Local"
 git_provider = "github.com"
-git_account = "track-prepped-68-Corolla"
 repo = "track-prepped-68-Corolla/ft-home"
 branch = "testing"
 file_paths = ["containers/homeautomation.yaml"]
@@ -95,7 +91,6 @@ deploy = true
 [stack.config]
 server = "Local"
 git_provider = "github.com"
-git_account = "track-prepped-68-Corolla"
 repo = "track-prepped-68-Corolla/ft-home"
 branch = "testing"
 file_paths = ["containers/media.yaml"]
@@ -143,7 +138,6 @@ deploy = true
 [stack.config]
 server = "Local"
 git_provider = "github.com"
-git_account = "track-prepped-68-Corolla"
 repo = "track-prepped-68-Corolla/ft-home"
 branch = "testing"
 file_paths = ["containers/observability.yaml"]

@@ -197,12 +197,16 @@ Kept for reference, or for setting up another host such as mimir.
    GitHub URL), then commit + push it:
 
    ```sh
-   ft komodo-sync                 # writes containers/komodo-sync.toml
+   ft komodo-sync Local ""       # writes containers/komodo-sync.toml
                                   # Args are positional (just): `server account`.
                                   # server must match ft.komodo.serverName
                                   # ("Local"). `ft komodo-sync account=` sets
-                                  # the SERVER to "account=" — use
-                                  # `ft komodo-sync Local ""` for no git account.
+                                  # the SERVER to "account=". This repo is
+                                  # public, so ALWAYS run it as:
+                                  #   ft komodo-sync Local ""
+                                  # (no git account → anonymous clone). With
+                                  # an account, every stack deploy fails with
+                                  # "Did not find token ... for git account".
    git add containers/komodo-sync.toml containers/*.env
    git commit -m "komodo: generate stack sync manifest" && git push
    ```
