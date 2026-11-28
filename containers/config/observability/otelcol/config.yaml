@@ -1,4 +1,4 @@
-# Copy to /opt/containers/observability/otelcol/config.yaml before first run,
+# Copy to /srv/host-share/containers/observability/otelcol/config.yaml before first run,
 # OR set REPO_ROOT in the Komodo stack environment and use the volume mount
 # ${REPO_ROOT}/containers/config/observability/otelcol:/etc/otelcol:ro
 #

@@ -26,12 +26,14 @@ reference through `ft.microvms.instances.strix-dvm`. Guest-side toggles go in
 the `vms/` file; host-side toggles go in the machine file.
 
 Secrets that must go into `komodo/periphery_secrets` (names must match the
-`[[KEY]]` refs in `media.env` and `ai.env`):
+`[[KEY]]` refs in `media.env`, `discoverability.env`, `observability.env` and `ai.env`):
 
 | `[[KEY]]` | what it is |
 |---|---|
 | `WIREGUARD_PRIVATE_KEY` | your WireGuard private key |
 | `ARIA2_RPC_SECRET` | any strong random string for aria2's RPC |
+| `HOMARR_SECRET_ENCRYPTION_KEY` | 64 hex chars: `openssl rand -hex 32` (Homarr won't start without it) |
+| `GRAFANA_ADMIN_PASSWORD` | Grafana `admin` password (the stack refuses to start without it) |
 | `SEARXNG_SECRET` | any strong random string (SearXNG `server.secret_key`) |
 | `ANYTHINGLLM_JWT_SECRET` | any strong random string (AnythingLLM session signing) |
 
@@ -68,17 +70,23 @@ ft switch
    ```
 
 2. Add that recipient to `var/secrets/.sops.yaml` as a **separate creation_rule
-   for `komodo.yaml`** (so only the guest can read it — not your host secrets):
+   for `komodo.yaml`** (so only the guest can read it — not your host secrets).
+   sops uses the **first** rule whose `path_regex` matches, so this rule must
+   go **above** the existing catch-all `.*\.yaml$` rule — below it, the
+   catch-all would win and `komodo.yaml` would be encrypted to the host keys
+   instead of the guest:
 
    ```yaml
    # var/secrets/.sops.yaml
    keys:
      - &komodo_guest age1...    # the recipient from step 1
    creation_rules:
-     - path_regex: komodo\.yaml$
+     - path_regex: komodo\.yaml$        # FIRST — must precede the catch-all
        key_groups:
          - age: [*komodo_guest]
-     # (your existing rule for the other *.yaml files stays as-is)
+     - path_regex: .*\.yaml$            # existing catch-all, unchanged
+       key_groups:
+         - age: [*strix, *lyra, *yubikey]
    ```
 
 3. Create `var/secrets/komodo.yaml` with the periphery `[secrets]`:
@@ -90,8 +98,12 @@ ft switch
    komodo:
        periphery_secrets: |
            [secrets]
-           WIREGUARD_PRIVATE_KEY = "your-real-wg-private-key"
-           ARIA2_RPC_SECRET      = "any-strong-random-string"
+           WIREGUARD_PRIVATE_KEY        = "your-real-wg-private-key"
+           ARIA2_RPC_SECRET             = "any-strong-random-string"
+           HOMARR_SECRET_ENCRYPTION_KEY = "output-of-openssl-rand-hex-32"
+           GRAFANA_ADMIN_PASSWORD       = "your-grafana-admin-password"
+           SEARXNG_SECRET               = "any-strong-random-string"
+           ANYTHINGLLM_JWT_SECRET       = "any-strong-random-string"
    ```
 
 4. Fill the two non-secret blanks in `containers/media.env`
@@ -105,7 +117,7 @@ ft switch
    ```
 
 6. Deploy. The guest now decrypts `komodo.yaml` on its own host key; Komodo can
-   resolve `[[WIREGUARD_PRIVATE_KEY]]` / `[[ARIA2_RPC_SECRET]]` at deploy time.
+   resolve every `[[KEY]]` above at deploy time.
 
    ```sh
    ft switch
@@ -134,6 +146,11 @@ Kept for reference, or for setting up another host such as mimir.
 
    ```sh
    ft komodo-sync                 # writes containers/komodo-sync.toml
+                                  # Args are positional (just): `server account`.
+                                  # server must match ft.komodo.serverName
+                                  # ("Local"). `ft komodo-sync account=` sets
+                                  # the SERVER to "account=" — use
+                                  # `ft komodo-sync Local ""` for no git account.
    git add containers/komodo-sync.toml containers/*.env
    git commit -m "komodo: generate stack sync manifest" && git push
    ```
@@ -156,7 +173,7 @@ Kept for reference, or for setting up another host such as mimir.
 ## Verify
 
 - Komodo UI (`http://<guest-ip>:9120`, e.g. `http://10.0.100.2:9120`) shows
-  the four stacks (`media`, `homeAutomation`, `discoverability`, `observability`)
+  the stacks (`ai`, `discoverability`, `homeautomation`, `media`, `observability`)
   as a synced ResourceSync.
 - If a stack updated on a push but didn't redeploy, force it (Komodo #1120):
 

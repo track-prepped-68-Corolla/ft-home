@@ -1,5 +1,3 @@
-version: '3.8'
-
 networks:
   homelab-network:
     name: homelab-network
@@ -14,9 +12,11 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
-      - ./caddy/data:/data
-      - ./caddy/config:/config
+      # Config comes straight from the repo; state lives on the persistent
+      # host share (the microVM's root filesystem is wiped on restart).
+      - ./config/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${DISCOVERABILITY_ROOT:-/srv/host-share/containers/discoverability}/caddy/data:/data
+      - ${DISCOVERABILITY_ROOT:-/srv/host-share/containers/discoverability}/caddy/config:/config
     networks:
       - homelab-network
 
@@ -24,12 +24,11 @@ services:
     image: ghcr.io/homarr-labs/homarr:latest
     container_name: homarr
     restart: unless-stopped
-    # Ports are commented out because Caddy handles the public access via port 80/443
-    # ports:
-    #   - "7575:7575" 
+    # Not published: Caddy proxies to it over homelab-network.
     volumes:
-      - ./homarr/configs:/app/data/configs
-      - ./homarr/icons:/app/public/icons
-      - ./homarr/data:/data
+      - ${DISCOVERABILITY_ROOT:-/srv/host-share/containers/discoverability}/homarr:/appdata
+    environment:
+      # Homarr 1.x refuses to start without a 64-hex-char encryption key.
+      - SECRET_ENCRYPTION_KEY=${HOMARR_SECRET_ENCRYPTION_KEY}
     networks:
       - homelab-network

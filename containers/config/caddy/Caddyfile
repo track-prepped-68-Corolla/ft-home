@@ -1,0 +1,7 @@
+# Caddyfile for the `discoverability` stack (containers/discoverability.yaml).
+#
+# Plain-HTTP catch-all: any hostname on :80 lands on the Homarr dashboard.
+# Add a site block per hostname (with automatic HTTPS) once names are decided.
+:80 {
+	reverse_proxy homarr:7575
+}

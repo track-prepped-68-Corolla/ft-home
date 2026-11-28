@@ -6,7 +6,7 @@ services:
     network_mode: host
     privileged: true
     volumes:
-      - /opt/containers/home-automation/config:/config
+      - /srv/host-share/containers/home-automation/config:/config
     environment:
       - TZ=${TZ:-UTC}
 
@@ -20,9 +20,9 @@ services:
       - "127.0.0.1:1883:1883"
       - "127.0.0.1:9001:9001"
     volumes:
-      - /opt/containers/home-automation/mosquitto/config:/mosquitto/config
-      - /opt/containers/home-automation/mosquitto/data:/mosquitto/data
-      - /opt/containers/home-automation/mosquitto/log:/mosquitto/log
+      - ./config/mosquitto:/mosquitto/config:ro
+      - /srv/host-share/containers/home-automation/mosquitto/data:/mosquitto/data
+      - /srv/host-share/containers/home-automation/mosquitto/log:/mosquitto/log
     environment:
       - TZ=${TZ:-UTC}
     healthcheck:
@@ -39,9 +39,9 @@ services:
     networks:
       - ha-net
     ports:
-      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:8081:8080"   # zigbee2mqtt UI (8080 is taken by gluetun/qbittorrent in media)
     volumes:
-      - /opt/containers/home-automation/zigbee2mqtt:/app/data
+      - /srv/host-share/containers/home-automation/zigbee2mqtt:/app/data
     devices:
       - ${ZIGBEE_DEVICE:-/dev/ttyUSB0}:${ZIGBEE_DEVICE:-/dev/ttyUSB0}
     environment:

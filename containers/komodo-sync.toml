@@ -15,7 +15,7 @@ managed = false
 name = "ai"
 deploy = true
 [stack.config]
-server = "account="
+server = "Local"
 git_provider = "github.com"
 git_account = "track-prepped-68-Corolla"
 repo = "track-prepped-68-Corolla/ft-home"
@@ -49,29 +49,50 @@ ANYTHINGLLM_JWT_SECRET=[[ANYTHINGLLM_JWT_SECRET]]
 name = "discoverability"
 deploy = true
 [stack.config]
-server = "account="
+server = "Local"
 git_provider = "github.com"
 git_account = "track-prepped-68-Corolla"
 repo = "track-prepped-68-Corolla/ft-home"
 branch = "testing"
 file_paths = ["containers/discoverability.yaml"]
+environment = """
+# Environment for the `discoverability` Komodo stack (containers/discoverability.yaml).
+# Embedded by `ft komodo-sync`.
+
+# Persistent state root (Caddy certs/config, Homarr appdata) on the host share.
+DISCOVERABILITY_ROOT=/srv/host-share/containers/discoverability
+
+# --- Secrets: real values go in komodo/periphery_secrets, never here ---
+# Generate with: openssl rand -hex 32
+HOMARR_SECRET_ENCRYPTION_KEY=[[HOMARR_SECRET_ENCRYPTION_KEY]]
+"""
 
 [[stack]]
 name = "homeautomation"
 deploy = true
 [stack.config]
-server = "account="
+server = "Local"
 git_provider = "github.com"
 git_account = "track-prepped-68-Corolla"
 repo = "track-prepped-68-Corolla/ft-home"
 branch = "testing"
 file_paths = ["containers/homeautomation.yaml"]
+environment = """
+# Environment for the `homeautomation` Komodo stack (containers/homeautomation.yaml).
+# Embedded by `ft komodo-sync`. No secrets in this stack.
+
+TZ=UTC
+
+# Zigbee coordinator device on the host — adjust to your dongle
+# (e.g. /dev/serial/by-id/usb-... for a stable path).
+ZIGBEE_DEVICE=/dev/ttyUSB0
+"""
 
 [[stack]]
 name = "media"
 deploy = true
 [stack.config]
-server = "account="
+server = "Local"
 git_provider = "github.com"
 git_account = "track-prepped-68-Corolla"
 repo = "track-prepped-68-Corolla/ft-home"
@@ -95,8 +116,8 @@ TZ=UTC
 # Single root all *arr/media services nest under (config/<service>, tv,
 # movies, downloads). Docker creates missing subdirectories on first run.
 # Point this at a bind mount or pool path; falls back to
-# /opt/containers/media if unset.
-MEDIA_ROOT=/opt/containers/media
+# /srv/host-share/containers/media if unset.
+MEDIA_ROOT=/srv/host-share/containers/media
 
 # --- Gluetun VPN (NOT secret, but you MUST fill these for your account) ---
 # Provider slug, e.g. mullvad, protonvpn, airvpn — see gluetun's wiki.
@@ -114,7 +135,7 @@ ARIA2_RPC_SECRET=[[ARIA2_RPC_SECRET]]
 name = "observability"
 deploy = true
 [stack.config]
-server = "account="
+server = "Local"
 git_provider = "github.com"
 git_account = "track-prepped-68-Corolla"
 repo = "track-prepped-68-Corolla/ft-home"
@@ -122,8 +143,12 @@ branch = "testing"
 file_paths = ["containers/observability.yaml"]
 environment = """
 # Environment for the `observability` Komodo stack (containers/observability.yaml).
-# Embedded by `ft komodo-sync`. No secrets in this stack.
+# Embedded by `ft komodo-sync`.
 
 # Docker socket the observability agents read for container metrics/logs.
 CONTAINER_SOCKET=/var/run/docker.sock
+
+# --- Secrets: real values go in komodo/periphery_secrets, never here ---
+# Grafana's compose entry fails fast (`:?`) if this is empty.
+GF_SECURITY_ADMIN_PASSWORD=[[GRAFANA_ADMIN_PASSWORD]]
 """
