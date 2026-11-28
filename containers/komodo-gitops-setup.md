@@ -26,12 +26,14 @@ reference through `ft.microvms.instances.strix-dvm`. Guest-side toggles go in
 the `vms/` file; host-side toggles go in the machine file.
 
 Secrets that must go into `komodo/periphery_secrets` (names must match the
-`[[KEY]]` refs in `media.env`):
+`[[KEY]]` refs in `media.env` and `ai.env`):
 
 | `[[KEY]]` | what it is |
 |---|---|
 | `WIREGUARD_PRIVATE_KEY` | your WireGuard private key |
 | `ARIA2_RPC_SECRET` | any strong random string for aria2's RPC |
+| `SEARXNG_SECRET` | any strong random string (SearXNG `server.secret_key`) |
+| `ANYTHINGLLM_JWT_SECRET` | any strong random string (AnythingLLM session signing) |
 
 ---
 

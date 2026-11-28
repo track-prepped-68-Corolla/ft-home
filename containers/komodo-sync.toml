@@ -12,6 +12,40 @@ resource_path = ["containers/komodo-sync.toml"]
 managed = false
 
 [[stack]]
+name = "ai"
+deploy = true
+[stack.config]
+server = "account="
+git_provider = "github.com"
+git_account = "track-prepped-68-Corolla"
+repo = "track-prepped-68-Corolla/ft-home"
+branch = "testing"
+file_paths = ["containers/ai.yaml"]
+environment = """
+# Environment for the `ai` Komodo stack (containers/ai.yaml).
+#
+# `ft komodo-sync` embeds this file as the stack's `environment`. Values here
+# are NOT secret; real secret values live in the Periphery [secrets] block
+# (var/secrets/komodo.yaml, key komodo/periphery_secrets) and are referenced by
+# name via [[KEY]]. See containers/komodo-gitops-setup.md.
+
+# --- Lemonade (runs natively on strix, ft.amdAi) ---
+# strix's microvm0 bridge address (ft.microvms.hostAddress) + Lemonade's port.
+LEMONADE_BASE_URL=http://10.0.100.1:13305/api/v1
+# Model name exactly as registered in Lemonade (`lemonade-server list`).
+# Can also be picked later in AnythingLLM's UI.
+LEMONADE_MODEL=
+LEMONADE_CONTEXT_WINDOW=32768
+
+# --- SearXNG ---
+SEARXNG_BASE_URL=http://localhost:8888/
+
+# --- Secrets: real values go in komodo/periphery_secrets, never here ---
+SEARXNG_SECRET=[[SEARXNG_SECRET]]
+ANYTHINGLLM_JWT_SECRET=[[ANYTHINGLLM_JWT_SECRET]]
+"""
+
+[[stack]]
 name = "discoverability"
 deploy = true
 [stack.config]
