@@ -65,7 +65,8 @@ in
   };
   sops.secrets."tailscale/authkey" = lib.mkIf autoJoinTailnet { };
   services.tailscale.authKeyFile =
-    lib.mkIf autoJoinTailnet config.sops.secrets."tailscale/authkey".path;
+    lib.mkIf autoJoinTailnet
+      config.sops.secrets."tailscale/authkey".path;
 
   ft.containers = {
     enable = true;
