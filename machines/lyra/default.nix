@@ -18,7 +18,7 @@
 #      manual `tailscale up` needed once var/secrets/secrets.yaml carries a
 #      valid tailscale/authkey
 # =============================================================================
-{ ... }:
+{ config, ... }:
 
 let
   # var/local/repoPath is a single file shared by every machine's default.nix,
@@ -36,11 +36,22 @@ in
 
   # --- IDENTITY ---
   networking.hostName = "lyra";
+  # Fixed time zone. Left unset, Steam's Gaming Mode reads "Etc/Unknown" and
+  # fails to render ("Invalid time zone specified"). Setting it makes
+  # /etc/localtime read-only, so Steam's own time zone picker won't apply.
+  time.timeZone = "America/New_York";
   ft.repoPath = repoPath;
   # System-wide (not per-user Home Manager) so `nh os switch`/`nh home switch`
   # work for any login shell, including admin's, without requiring a Home
   # Manager profile to have been activated first.
-  environment.sessionVariables.NH_FLAKE = repoPath;
+  environment.sessionVariables = {
+    NH_FLAKE = repoPath;
+    # nixpkgs' Steam sandbox rebuilds /etc/localtime from the host's and on
+    # lyra ends up pointing at the bare /usr/share/zoneinfo directory, so
+    # Steam's UI resolves "Etc/Unknown" ("Invalid time zone specified").
+    # Chromium/ICU checks TZ before /etc/localtime, so name the zone directly.
+    TZ = config.time.timeZone;
+  };
 
   # --- USERS ---
   # admin is always created by ft.admin as the wheel/SSH management account
@@ -60,24 +71,25 @@ in
   users.mutableUsers = true;
 
   # --- DISPLAY MANAGER ---
-  services.displayManager.sddm.enable = true;
-  services.displayManager.autoLogin = {
-    enable = true;
-    user = "media";
-  };
+  # SDDM + media autologin are owned by ft.jovian.autoStart (see GAMESCOPE
+  # SESSION below), which boots straight into Gaming Mode.
 
   # --- FEATURE TOGGLES ---
   ft.limine.enable = true;
   ft.plasma.enable = true;
-  ft.plasmaBigscreen = {
-    enable = true;
-    defaultSession = true;
-  };
+  # Still installed as a selectable SDDM session; not
+  # the default session — ft.jovian.autoStart makes that gamescope-wayland.
+  ft.plasmaBigscreen.enable = true;
   ft.gaming.enable = true;
   # ft.jovian provides its own gamescope wrapper for the Big Picture
   # session; ft.gaming's standalone wrapper conflicts with it on
   # security.wrappers.gamescope.source.
   ft.gaming.gamescope.enable = false;
+  # Let the Steam Controller receiver (an OpenPuck dongle presenting Valve's
+  # puck ID 28de:1304) wake lyra from suspend: a Steam button press powers the
+  # controller back on and the dongle sends a USB remote-wakeup. Also needs USB
+  # wake from S3 allowed in the BIOS.
+  ft.gaming.controllerWake.enable = true;
   # Steam Frame standalone shell — PC host (WiVRn server). lyra has no joe
   # user; headset input goes to media, the autologin TV-session user.
   ft.frameShell = {
@@ -125,6 +137,9 @@ in
   ft.gitops = {
     enable = true;
     deployBranch = "main";
+    # First-time activation of media's standalone Home Manager config (whose
+    # own ft.gitops then keeps it in sync); a no-op once media has a profile.
+    homeUsers = [ "media" ];
     remotes = [
       {
         name = "github";
@@ -162,8 +177,19 @@ in
   nixpkgs.hostPlatform = "x86_64-linux";
 
   # --- GAMESCOPE SESSION ---
-  # Selectable from SDDM alongside plasma-bigscreen-wayland (the default);
-  # autoStart is left at its default false so it doesn't fight Bigscreen for
-  # services.displayManager.defaultSession.
-  ft.jovian.enable = true;
+  # Boot straight into Gaming Mode (SteamOS-style) as media. Jovian takes over
+  # SDDM autologin (with relogin, so exiting Steam restarts it) and sets
+  # defaultSession = gamescope-wayland. Steam's "Switch to Desktop" drops into
+  # full Plasma; returning to Gaming Mode goes back via autologin.
+  # SponsorBlock (and ad skip/mute) for the YouTube TV app. Pair once after
+  # deploy: YouTube -> Settings -> Link with TV code, then over SSH run
+  # `sudo ft-isponsorblocktv-pair` and enter the code.
+  ft.isponsorblocktv.enable = true;
+
+  ft.jovian = {
+    enable = true;
+    autoStart = true;
+    user = "media";
+    desktopSession = "plasma";
+  };
 }

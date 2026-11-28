@@ -60,6 +60,9 @@
     enable = true;
     vmAddressSuffix = 2;
     hostInterface = "wlp194s0";
+    # Share var/secrets read-only into the guest (paired with ft.vmSecrets in
+    # vms/strix-dvm). Komodo GitOps runbook, section A.
+    shareSecrets = true;
   };
 
   #  ft.hermesVm = {
@@ -107,8 +110,8 @@
   #     b. Add the guest recipient to var/secrets/.sops.yaml as a creation_rule
   #        for komodo.yaml:   ssh-keyscan <guest-ip> 2>/dev/null | ssh-to-age
   #     c. Create var/secrets/komodo.yaml with the komodo/periphery_secrets key
-  #        (a [secrets] TOML), then share the sops tree into the VM from here:
-  #  ft.microvms.instances.strix-dvm.shareSecrets = true;
+  #        (a [secrets] TOML). The sops tree is already shared into the VM
+  #        (shareSecrets on the strix-dvm instance above).
   #
   # (2) Auto-reconcile Komodo with containers/ on every `ft switch`:
   #     a. Komodo -> Settings -> API Keys -> create a key.
@@ -118,7 +121,6 @@
   #        the git remote resolves to the real GitHub URL). Then uncomment:
   ft.komodoApply.strix-dvm.enable = true;
 
-  ft.microvms.instances.strix-dvm.shareSecrets = true;
 
   ft.gaming.enable = true;
 

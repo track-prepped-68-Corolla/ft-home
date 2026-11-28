@@ -1,0 +1,17 @@
+# SearXNG settings for the `ai` stack (containers/ai.yaml).
+# Layered on SearXNG's upstream defaults; only overrides live here.
+# secret_key is supplied at runtime via SEARXNG_SECRET — never set it here.
+use_default_settings: true
+
+server:
+  # Single-tenant, loopback/bridge-only instance: no bot limiter (it would
+  # also need a valkey/redis service).
+  limiter: false
+  image_proxy: true
+
+search:
+  safe_search: 0
+  # json is required for AnythingLLM's SearXNG web-search agent.
+  formats:
+    - html
+    - json
